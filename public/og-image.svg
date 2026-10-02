@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <linearGradient id="bg-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#09090B"/>
+      <stop offset="50%" stop-color="#12131A"/>
+      <stop offset="100%" stop-color="#09090B"/>
+    </linearGradient>
+    <linearGradient id="accent-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#3B82F6"/>
+      <stop offset="50%" stop-color="#8B5CF6"/>
+      <stop offset="100%" stop-color="#38BDF8"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="80%" cy="20%" r="60%">
+      <stop offset="0%" stop-color="#3B82F6" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#3B82F6" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glow-purple" cx="20%" cy="80%" r="50%">
+      <stop offset="0%" stop-color="#8B5CF6" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#8B5CF6" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bg-grad)"/>
+  <rect width="1200" height="630" fill="url(#glow)"/>
+  <rect width="1200" height="630" fill="url(#glow-purple)"/>
+
+  <!-- Subtle grid pattern -->
+  <g stroke="rgba(255, 255, 255, 0.04)" stroke-width="1">
+    <line x1="100" y1="0" x2="100" y2="630" />
+    <line x1="250" y1="0" x2="250" y2="630" />
+    <line x1="400" y1="0" x2="400" y2="630" />
+    <line x1="550" y1="0" x2="550" y2="630" />
+    <line x1="700" y1="0" x2="700" y2="630" />
+    <line x1="850" y1="0" x2="850" y2="630" />
+    <line x1="1000" y1="0" x2="1000" y2="630" />
+    <line x1="0" y1="100" x2="1200" y2="100" />
+    <line x1="0" y1="250" x2="1200" y2="250" />
+    <line x1="0" y1="400" x2="1200" y2="400" />
+    <line x1="0" y1="550" x2="1200" y2="550" />
+  </g>
+
+  <!-- Glass Card container -->
+  <rect x="80" y="80" width="1040" height="470" rx="24" fill="#18181B" fill-opacity="0.75" stroke="rgba(255, 255, 255, 0.12)" stroke-width="1.5" filter="drop-shadow(0 20px 40px rgba(0,0,0,0.6))"/>
+
+  <!-- Status Pill -->
+  <g transform="translate(130, 135)">
+    <rect width="210" height="36" rx="18" fill="rgba(16, 185, 129, 0.12)" stroke="rgba(16, 185, 129, 0.3)" stroke-width="1"/>
+    <circle cx="20" cy="18" r="5" fill="#10B981" />
+    <text x="36" y="23" fill="#10B981" font-family="-apple-system, BlinkMacSystemFont, 'Inter', sans-serif" font-size="14" font-weight="600" letter-spacing="0.5">AVAILABLE FOR HIRE</text>
+  </g>
+
+  <!-- Domain Tag -->
+  <text x="960" y="158" text-anchor="end" fill="#94A3B8" font-family="'JetBrains Mono', monospace" font-size="16" font-weight="500">bishalmistri.com</text>
+
+  <!-- Title & Name -->
+  <text x="130" y="260" fill="#FFFFFF" font-family="-apple-system, BlinkMacSystemFont, 'Inter', 'Geist', sans-serif" font-size="58" font-weight="800" letter-spacing="-1.5">
+    Bishal Mistri
+  </text>
+  
+  <text x="130" y="320" fill="url(#accent-grad)" font-family="-apple-system, BlinkMacSystemFont, 'Inter', 'Geist', sans-serif" font-size="28" font-weight="700">
+    Full Stack Software Engineer &amp; Cloud Architect
+  </text>
+
+  <!-- Description -->
+  <text x="130" y="380" fill="#94A3B8" font-family="-apple-system, BlinkMacSystemFont, 'Inter', sans-serif" font-size="20" font-weight="400">
+    Building high-performance web apps, scalable distributed systems &amp; modern developer tools.
+  </text>
+
+  <!-- Tech tags -->
+  <g transform="translate(130, 440)">
+    <!-- Tag 1 -->
+    <rect x="0" y="0" width="100" height="34" rx="8" fill="#27272A" stroke="rgba(255,255,255,0.08)"/>
+    <text x="50" y="22" text-anchor="middle" fill="#E4E4E7" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="500">React.js</text>
+
+    <!-- Tag 2 -->
+    <rect x="112" y="0" width="110" height="34" rx="8" fill="#27272A" stroke="rgba(255,255,255,0.08)"/>
+    <text x="167" y="22" text-anchor="middle" fill="#E4E4E7" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="500">TypeScript</text>
+
+    <!-- Tag 3 -->
+    <rect x="234" y="0" width="100" height="34" rx="8" fill="#27272A" stroke="rgba(255,255,255,0.08)"/>
+    <text x="284" y="22" text-anchor="middle" fill="#E4E4E7" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="500">Node.js</text>
+
+    <!-- Tag 4 -->
+    <rect x="346" y="0" width="120" height="34" rx="8" fill="#27272A" stroke="rgba(255,255,255,0.08)"/>
+    <text x="406" y="22" text-anchor="middle" fill="#E4E4E7" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="500">Cloud / GCP</text>
+
+    <!-- Tag 5 -->
+    <rect x="478" y="0" width="100" height="34" rx="8" fill="#27272A" stroke="rgba(255,255,255,0.08)"/>
+    <text x="528" y="22" text-anchor="middle" fill="#E4E4E7" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="500">Next.js</text>
+
+    <!-- Tag 6 -->
+    <rect x="590" y="0" width="120" height="34" rx="8" fill="#27272A" stroke="rgba(255,255,255,0.08)"/>
+    <text x="650" y="22" text-anchor="middle" fill="#E4E4E7" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="500">PostgreSQL</text>
+  </g>
+</svg>
