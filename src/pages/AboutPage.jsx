@@ -170,27 +170,6 @@ export default function AboutPage({ onNavigate }) {
             </div>
           </div>
 
-          {/* BOOKS ROW */}
-          <div className="pm-row pm-row--sticky">
-            <div className="pm-label">Books</div>
-            <div className="pm-content pm-books-grid">
-              <div className="pm-book-item">
-                <a 
-                  className="pm-book-item-link pm-img-loaded" 
-                  href="/book/ux.mastery.30.days"
-                  onClick={(e) => { e.preventDefault(); onNavigate('/book/ux.mastery.30.days'); }}
-                >
-                  <img 
-                    alt="UX Design Mastery 30 Days Book" 
-                    src="https://res.cloudinary.com/ovj5ffsn/image/upload/v1787323690/Frame_2147207591.png" 
-                    decoding="async" 
-                    loading="lazy" 
-                  />
-                </a>
-              </div>
-            </div>
-          </div>
-
         </div>
       </div>
 
