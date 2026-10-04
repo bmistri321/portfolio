@@ -84,27 +84,29 @@ export default function BookPage({ onNavigate }) {
     }
   ];
 
+  const isBooksSubdomain = typeof window !== 'undefined' && window.location.hostname.toLowerCase().startsWith('books.');
+
   return (
     <div className="pm-animate-in">
-      
-      {/* Top Banner */}
-      <div className="pm-top-banner" style={{ position: 'relative' }}>
-        UX Design Mastery 30 Days eBook — Free Download
-      </div>
-
-      <div className="pm-page" id="pm-book" style={{ paddingTop: '40px !important' }}>
+      <div className="pm-page" id="pm-book">
         <div className="pm-inner">
           
           {/* Back Button */}
           <a 
             className="pm-back-btn" 
-            href="/about" 
-            onClick={(e) => { e.preventDefault(); onNavigate('/about'); }}
+            href={isBooksSubdomain ? 'https://portfolio.bishalmistri.com' : '/'} 
+            onClick={(e) => {
+              if (isBooksSubdomain) {
+                return;
+              }
+              e.preventDefault();
+              onNavigate('/');
+            }}
           >
             <svg fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <path d="M19 12H5M5 12L11 6M5 12L11 18" stroke="#000" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
             </svg>
-            <span>Back</span>
+            <span>{isBooksSubdomain ? 'Portfolio' : 'Home'}</span>
           </a>
 
           {/* Hero Section */}

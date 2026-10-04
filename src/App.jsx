@@ -8,20 +8,36 @@ import WexaCaseStudyPage from './pages/WexaCaseStudyPage';
 import BookPage from './pages/BookPage';
 import FloatingNav from './components/FloatingNav';
 
+const isBooksSubdomain = () => {
+  if (typeof window === 'undefined') return false;
+  const host = window.location.hostname.toLowerCase();
+  return host === 'books.bishalmistri.com' || host.startsWith('books.');
+};
+
 export default function App() {
   const getCleanPath = (path) => {
+    if (isBooksSubdomain()) {
+      let p = (path || '/').toLowerCase().replace('.html', '').replace(/^\/p\//, '/');
+      if (p.includes('friender')) return '/casestudy/friender-case-study';
+      if (p.includes('wexa')) return '/casestudy/wexa';
+      if (p.includes('casestudy')) return '/casestudy';
+      if (p.includes('playground')) return '/playground';
+      if (p.includes('about')) return '/about';
+      return '/book/ux.mastery.30.days';
+    }
+
     let p = (path || '/').toLowerCase().replace('.html', '').replace(/^\/p\//, '/');
     if (!p.startsWith('/')) p = '/' + p;
     if (p.includes('friender')) return '/casestudy/friender-case-study';
     if (p.includes('wexa')) return '/casestudy/wexa';
-    if (p.includes('ux.mastery.30.days')) return '/book/ux.mastery.30.days';
+    if (p.includes('ux.mastery.30.days') || p.startsWith('/book')) return '/book/ux.mastery.30.days';
     return p;
   };
 
   const [currentPath, setCurrentPath] = useState(() => getCleanPath(window.location.pathname));
 
   const titleMap = {
-    '/': 'Bishal Mistri — Product Designer',
+    '/': isBooksSubdomain() ? 'UX Design Mastery 30 Days — Bishal Mistri' : 'Bishal Mistri — Product Designer',
     '/casestudy': 'Case Study — Bishal Mistri',
     '/about': 'About — Bishal Mistri',
     '/playground': 'Playground — Bishal Mistri',
@@ -66,25 +82,12 @@ export default function App() {
         return <BookPage onNavigate={navigate} />;
       case '/':
       default:
-        return <HomePage onNavigate={navigate} />;
+        return isBooksSubdomain() ? <BookPage onNavigate={navigate} /> : <HomePage onNavigate={navigate} />;
     }
   };
 
   return (
     <div className="pm-app-container">
-      
-      {/* Top Banner Announcement */}
-      {currentPath !== '/book/ux.mastery.30.days' && (
-        <a 
-          href="/book/ux.mastery.30.days" 
-          onClick={(e) => { e.preventDefault(); navigate('/book/ux.mastery.30.days'); }}
-          className="pm-top-banner"
-          aria-label="UX Design Mastery 30 Days Free Book"
-        >
-          UX Design Mastery 30 Days — Free Download eBook
-        </a>
-      )}
-
       {/* Main Routed Page Content */}
       <main id="pm-content-wrap">
         {renderPage()}
@@ -92,7 +95,6 @@ export default function App() {
 
       {/* Floating Bottom Navigation */}
       <FloatingNav currentPath={currentPath} onNavigate={navigate} />
-
     </div>
   );
 }

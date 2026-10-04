@@ -62,6 +62,14 @@ export default function FloatingNav({ currentPath, onNavigate }) {
     }
   ];
 
+  const handleNavClick = (path) => {
+    if (typeof window !== 'undefined' && window.location.hostname.toLowerCase().startsWith('books.')) {
+      window.location.href = `https://portfolio.bishalmistri.com${path === '/' ? '' : path}`;
+      return;
+    }
+    onNavigate(path);
+  };
+
   return (
     <nav className="pm-nav" aria-label="Floating Navigation">
       <div className="pm-nav-track">
@@ -78,7 +86,7 @@ export default function FloatingNav({ currentPath, onNavigate }) {
           <div
             key={item.index}
             className={`pm-nav-item ${currentIdx === item.index ? 'active' : ''}`}
-            onClick={() => onNavigate(item.path)}
+            onClick={() => handleNavClick(item.path)}
             role="button"
             tabIndex={0}
             aria-label={item.label}
