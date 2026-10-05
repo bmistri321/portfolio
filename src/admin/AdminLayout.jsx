@@ -8,8 +8,6 @@ import {
   Archive,
   Image as ImageIcon,
   Settings,
-  ChevronLeft,
-  ChevronRight,
   Menu,
   X,
   Compass,
@@ -25,9 +23,7 @@ export default function AdminLayout({
   children,
   metrics = {}
 }) {
-  const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
-
 
   const navItems = [
     {
@@ -98,29 +94,15 @@ export default function AdminLayout({
     <div className="admin-root" data-admin-theme="dark">
       <div className="admin-shell">
         {/* Sidebar */}
-        <aside className={`admin-sidebar ${isCollapsed ? 'collapsed' : ''} ${isMobileOpen ? 'open-mobile' : ''}`}>
+        <aside className={`admin-sidebar ${isMobileOpen ? 'open-mobile' : ''}`}>
           <div className="admin-sidebar-header">
             <div className="admin-brand" onClick={() => onNavigate('/admin')} style={{ cursor: 'pointer' }}>
               <div className="admin-brand-icon">
                 <Compass size={16} />
               </div>
-              {!isCollapsed && (
-                <>
-                  <span>Bishal Mistri</span>
-                  <span className="admin-brand-badge">Studio</span>
-                </>
-              )}
+              <span>Bishal Mistri</span>
+              <span className="admin-brand-badge">Studio</span>
             </div>
-
-            <button
-              type="button"
-              className="admin-btn-ghost admin-btn-icon"
-              onClick={() => setIsCollapsed(!isCollapsed)}
-              style={{ display: isMobileOpen ? 'none' : 'flex' }}
-              title={isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
-            >
-              {isCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
-            </button>
 
             {isMobileOpen && (
               <button
@@ -136,7 +118,7 @@ export default function AdminLayout({
           <div className="admin-sidebar-nav">
             {navItems.map((group) => (
               <div key={group.group} className="admin-nav-group">
-                {!isCollapsed && <div className="admin-nav-group-title">{group.group}</div>}
+                <div className="admin-nav-group-title">{group.group}</div>
                 {group.items.map((item) => {
                   const Icon = item.icon;
                   const isActive = currentPath === item.id || (item.id === '/admin' && currentPath === '/admin/dashboard');
@@ -149,16 +131,11 @@ export default function AdminLayout({
                         onNavigate(item.id);
                         setIsMobileOpen(false);
                       }}
-                      title={isCollapsed ? item.label : undefined}
                     >
                       <Icon size={18} />
-                      {!isCollapsed && (
-                        <>
-                          <span style={{ flex: 1 }}>{item.label}</span>
-                          {typeof item.count === 'number' && (
-                            <span className="admin-nav-badge">{item.count}</span>
-                          )}
-                        </>
+                      <span style={{ flex: 1 }}>{item.label}</span>
+                      {typeof item.count === 'number' && (
+                        <span className="admin-nav-badge">{item.count}</span>
                       )}
                     </button>
                   );
@@ -168,40 +145,26 @@ export default function AdminLayout({
           </div>
 
           <div className="admin-sidebar-footer">
-            {!isCollapsed ? (
-              <>
-                <div className="admin-user-info">
-                  <div className="admin-avatar">BM</div>
-                  <div style={{ display: 'flex', flexDirection: 'column' }}>
-                    <span style={{ fontSize: '13px', fontWeight: 500, color: 'var(--admin-text-primary)' }}>Bishal Mistri</span>
-                    <span style={{ fontSize: '11px', color: 'var(--admin-text-muted)' }}>Admin Studio</span>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  className="admin-btn-ghost admin-btn-icon"
-                  onClick={onLogout}
-                  title="Sign Out"
-                >
-                  <LogOut size={16} />
-                </button>
-              </>
-            ) : (
-              <button
-                type="button"
-                className="admin-btn-ghost admin-btn-icon"
-                onClick={onLogout}
-                title="Sign Out"
-                style={{ margin: '0 auto' }}
-              >
-                <LogOut size={16} />
-              </button>
-            )}
+            <div className="admin-user-info">
+              <div className="admin-avatar">BM</div>
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                <span style={{ fontSize: '13px', fontWeight: 500, color: 'var(--admin-text-primary)' }}>Bishal Mistri</span>
+                <span style={{ fontSize: '11px', color: 'var(--admin-text-muted)' }}>Admin Studio</span>
+              </div>
+            </div>
+            <button
+              type="button"
+              className="admin-btn-ghost admin-btn-icon"
+              onClick={onLogout}
+              title="Sign Out"
+            >
+              <LogOut size={16} />
+            </button>
           </div>
         </aside>
 
         {/* Main Content */}
-        <div className={`admin-main ${isCollapsed ? 'sidebar-collapsed' : ''}`}>
+        <div className="admin-main">
           {/* Top Bar */}
           <header className="admin-topbar">
             <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
