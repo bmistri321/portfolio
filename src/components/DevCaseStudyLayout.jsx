@@ -296,45 +296,46 @@ export default function DevCaseStudyLayout({
             ))}
 
             {/* Pagination Footer */}
-            <footer className="cs-pagination dev-reveal" style={{ marginTop: '64px' }}>
+            <footer className="dev-pagination-footer dev-reveal">
               {prevProject ? (
                 <button
-                  className="cs-nav-link"
+                  className="dev-pagination-btn prev"
                   onClick={() => {
                     playUiSound('open');
                     onNavigate(prevProject.link);
                   }}
                 >
-                  <span className="cs-nav-dir">&larr; Previous</span>
-                  <span className="cs-nav-name">{prevProject.name}</span>
+                  <span className="dev-pagination-dir">&larr; Previous</span>
+                  <span className="dev-pagination-title">{prevProject.name}</span>
                 </button>
               ) : (
-                <button className="cs-nav-link" onClick={handleClose}>
-                  <span className="cs-nav-dir">&larr; Home</span>
-                  <span className="cs-nav-name">Overview</span>
+                <button 
+                  className="dev-pagination-btn prev" 
+                  onClick={handleClose}
+                >
+                  <span className="dev-pagination-dir">&larr; Overview</span>
+                  <span className="dev-pagination-title">Back to Home</span>
                 </button>
               )}
 
               {nextProject ? (
                 <button
-                  className="cs-nav-link"
-                  style={{ alignItems: 'flex-end' }}
+                  className="dev-pagination-btn next"
                   onClick={() => {
                     playUiSound('open');
                     onNavigate(nextProject.link);
                   }}
                 >
-                  <span className="cs-nav-dir">Next Project &rarr;</span>
-                  <span className="cs-nav-name">{nextProject.name}</span>
+                  <span className="dev-pagination-dir">Next Project &rarr;</span>
+                  <span className="dev-pagination-title">{nextProject.name}</span>
                 </button>
               ) : (
                 <button
-                  className="cs-nav-link"
-                  style={{ alignItems: 'flex-end' }}
+                  className="dev-pagination-btn next"
                   onClick={handleClose}
                 >
-                  <span className="cs-nav-dir">Close</span>
-                  <span className="cs-nav-name">Back to Home &rarr;</span>
+                  <span className="dev-pagination-dir">Overview &rarr;</span>
+                  <span className="dev-pagination-title">Back to Home</span>
                 </button>
               )}
             </footer>
