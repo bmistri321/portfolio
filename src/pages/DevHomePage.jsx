@@ -197,7 +197,7 @@ export default function DevHomePage({ onNavigate }) {
           </div>
           <div className="dev-profile-meta">
             <h1 className="dev-name-title">Bishal Mistri</h1>
-            <p className="dev-role-sub">Senior Product Designer</p>
+            <p className="dev-role-sub">Product Designer</p>
           </div>
         </div>
 
