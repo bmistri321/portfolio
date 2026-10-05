@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
+import { playUiSound } from '../utils/sound';
 
 export default function DevCaseStudyLayout({
   title,
@@ -89,6 +90,7 @@ export default function DevCaseStudyLayout({
   }, [sections]);
 
   const handleClose = () => {
+    playUiSound('close');
     setIsClosing(true);
     setTimeout(() => {
       onNavigate('/');
@@ -96,6 +98,7 @@ export default function DevCaseStudyLayout({
   };
 
   const scrollToSection = (id) => {
+    playUiSound('tab');
     setActiveSection(id);
     const el = document.getElementById(id);
     if (el) {
@@ -193,7 +196,10 @@ export default function DevCaseStudyLayout({
               {prevProject ? (
                 <button
                   className="cs-nav-link"
-                  onClick={() => onNavigate(prevProject.link)}
+                  onClick={() => {
+                    playUiSound('open');
+                    onNavigate(prevProject.link);
+                  }}
                 >
                   <span className="cs-nav-dir">&larr; Previous</span>
                   <span className="cs-nav-name">{prevProject.name}</span>
@@ -209,7 +215,10 @@ export default function DevCaseStudyLayout({
                 <button
                   className="cs-nav-link"
                   style={{ alignItems: 'flex-end' }}
-                  onClick={() => onNavigate(nextProject.link)}
+                  onClick={() => {
+                    playUiSound('open');
+                    onNavigate(nextProject.link);
+                  }}
                 >
                   <span className="cs-nav-dir">Next Project &rarr;</span>
                   <span className="cs-nav-name">{nextProject.name}</span>

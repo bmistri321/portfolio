@@ -14,10 +14,11 @@ import {
 } from 'lucide-react';
 import { Github, Linkedin, Twitter } from '../components/Icons';
 import InteractiveGlobe from '../components/InteractiveGlobe';
+import { playUiSound, isSoundEnabled, setSoundEnabled } from '../utils/sound';
 
 export default function DevHomePage({ onNavigate }) {
   const [activeTab, setActiveTab] = useState('work');
-  const [isPlayingAudio, setIsPlayingAudio] = useState(false);
+  const [soundOn, setSoundOn] = useState(() => isSoundEnabled());
   const [theme, setTheme] = useState(() => {
     if (typeof window !== 'undefined') {
       return localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
@@ -26,24 +27,25 @@ export default function DevHomePage({ onNavigate }) {
   });
 
   const toggleTheme = () => {
+    playUiSound('toggle');
     const next = theme === 'dark' ? 'light' : 'dark';
     setTheme(next);
     document.documentElement.setAttribute('data-theme', next);
     localStorage.setItem('theme', next);
   };
 
-  const playPronunciation = () => {
-    if (typeof window === 'undefined') return;
-    setIsPlayingAudio(true);
-    try {
-      const utterance = new SpeechSynthesisUtterance('Bishal Mistri');
-      utterance.rate = 0.9;
-      utterance.onend = () => setIsPlayingAudio(false);
-      utterance.onerror = () => setIsPlayingAudio(false);
-      window.speechSynthesis.speak(utterance);
-    } catch {
-      setIsPlayingAudio(false);
+  const toggleSound = () => {
+    const next = !soundOn;
+    setSoundOn(next);
+    setSoundEnabled(next);
+    if (next) {
+      playUiSound('toggle');
     }
+  };
+
+  const handleTabChange = (tab) => {
+    playUiSound('tab');
+    setActiveTab(tab);
   };
 
   const workProjects = [
@@ -180,7 +182,7 @@ export default function DevHomePage({ onNavigate }) {
 
   return (
     <div className="dev-page-animate">
-      {/* 1. TOP HEADER: Avatar + Name + Pronunciation Audio + Theme Toggle */}
+      {/* 1. TOP HEADER: Avatar + Name + Audio Mute Toggle + Theme Toggle */}
       <header className="dev-top-bar">
         <div className="dev-profile-left">
           <div className="dev-avatar-circle">
@@ -194,12 +196,12 @@ export default function DevHomePage({ onNavigate }) {
 
         <div className="dev-top-actions">
           <button 
-            onClick={playPronunciation} 
+            onClick={toggleSound} 
             className="dev-icon-btn" 
-            aria-label="Pronounce name"
-            title="Pronounce name"
+            aria-label={soundOn ? "Mute sound" : "Unmute sound"}
+            title={soundOn ? "Mute sound" : "Unmute sound"}
           >
-            {isPlayingAudio ? <VolumeX size={17} color="#E11D48" /> : <Volume2 size={17} />}
+            {soundOn ? <Volume2 size={17} /> : <VolumeX size={17} color="#9CA3AF" />}
           </button>
           <button 
             onClick={toggleTheme} 
@@ -220,7 +222,7 @@ export default function DevHomePage({ onNavigate }) {
       {/* 3. NARRATIVE BIO WITH VIBRANT PINK LINKS */}
       <div className="dev-bio-section">
         <p className="dev-bio-paragraph">
-          I design end-to-end from 0-to-1, transforming messy, ambiguous, and technically challenging problems into shipped B2B solutions. Focused on craft and rapid prototyping. Currently looking for job, previously at <a href="https://tier5.us/" target="_blank" rel="noopener noreferrer" className="dev-pink-link">Tier5</a>. Google certified in Experience Design and Bachelor's in Arts.
+          I design end-to-end from 0-to-1, transforming messy, ambiguous, and technically challenging problems into shipped B2B solutions. Focused on craft and rapid prototyping. Currently looking for job, previously at <a href="https://tier5.us/" target="_blank" rel="noopener noreferrer" className="dev-pink-link" onClick={() => playUiSound('click')}>Tier5</a>. Google certified in Experience Design and Bachelor's in Arts.
         </p>
 
         <p className="dev-bio-paragraph">
@@ -230,6 +232,7 @@ export default function DevHomePage({ onNavigate }) {
             className="dev-pink-link"
             onClick={(e) => {
               e.preventDefault();
+              playUiSound('open');
               onNavigate('/travel');
             }}
           >
@@ -241,7 +244,7 @@ export default function DevHomePage({ onNavigate }) {
             className="dev-pink-link"
             onClick={(e) => {
               e.preventDefault();
-              setActiveTab('writing');
+              handleTabChange('writing');
             }}
           >
             write
@@ -252,6 +255,7 @@ export default function DevHomePage({ onNavigate }) {
             className="dev-pink-link"
             onClick={(e) => {
               e.preventDefault();
+              playUiSound('open');
               onNavigate('/dock');
             }}
           >
@@ -263,7 +267,7 @@ export default function DevHomePage({ onNavigate }) {
             className="dev-pink-link"
             onClick={(e) => {
               e.preventDefault();
-              setActiveTab('tinkering');
+              handleTabChange('tinkering');
             }}
           >
             tinkering
@@ -278,19 +282,19 @@ export default function DevHomePage({ onNavigate }) {
 
       {/* 4. SOCIAL ICONS ROW */}
       <div className="dev-social-row">
-        <a href="https://twitter.com/bishalmistri" target="_blank" rel="noopener noreferrer" className="dev-social-icon" aria-label="Twitter">
+        <a href="https://twitter.com/bishalmistri" target="_blank" rel="noopener noreferrer" className="dev-social-icon" aria-label="Twitter" onClick={() => playUiSound('click')}>
           <Twitter size={16} />
         </a>
-        <a href="mailto:contact@bishalmistri.com" className="dev-social-icon" aria-label="Email">
+        <a href="mailto:contact@bishalmistri.com" className="dev-social-icon" aria-label="Email" onClick={() => playUiSound('click')}>
           <Mail size={16} />
         </a>
-        <a href="https://linkedin.com/in/bishalmistri" target="_blank" rel="noopener noreferrer" className="dev-social-icon" aria-label="LinkedIn">
+        <a href="https://linkedin.com/in/bishalmistri" target="_blank" rel="noopener noreferrer" className="dev-social-icon" aria-label="LinkedIn" onClick={() => playUiSound('click')}>
           <Linkedin size={16} />
         </a>
-        <a href="https://github.com/bishalmistri" target="_blank" rel="noopener noreferrer" className="dev-social-icon" aria-label="GitHub">
+        <a href="https://github.com/bishalmistri" target="_blank" rel="noopener noreferrer" className="dev-social-icon" aria-label="GitHub" onClick={() => playUiSound('click')}>
           <Github size={16} />
         </a>
-        <a href="https://bishalmistri.com" target="_blank" rel="noopener noreferrer" className="dev-social-icon" aria-label="Website">
+        <a href="https://bishalmistri.com" target="_blank" rel="noopener noreferrer" className="dev-social-icon" aria-label="Website" onClick={() => playUiSound('click')}>
           <Globe size={16} />
         </a>
       </div>
@@ -299,7 +303,7 @@ export default function DevHomePage({ onNavigate }) {
       <div className="dev-tabs-container">
         <button
           className={`dev-tab-pill ${activeTab === 'work' ? 'active' : ''}`}
-          onClick={() => setActiveTab('work')}
+          onClick={() => handleTabChange('work')}
         >
           <Briefcase size={13} />
           <span>Work</span>
@@ -307,7 +311,7 @@ export default function DevHomePage({ onNavigate }) {
 
         <button
           className={`dev-tab-pill ${activeTab === 'tinkering' ? 'active' : ''}`}
-          onClick={() => setActiveTab('tinkering')}
+          onClick={() => handleTabChange('tinkering')}
         >
           <Sparkles size={13} />
           <span>Tinkering</span>
@@ -315,7 +319,7 @@ export default function DevHomePage({ onNavigate }) {
 
         <button
           className={`dev-tab-pill ${activeTab === 'writing' ? 'active' : ''}`}
-          onClick={() => setActiveTab('writing')}
+          onClick={() => handleTabChange('writing')}
         >
           <FileText size={13} />
           <span>Writing</span>
@@ -323,7 +327,7 @@ export default function DevHomePage({ onNavigate }) {
 
         <button
           className={`dev-tab-pill ${activeTab === 'archives' ? 'active' : ''}`}
-          onClick={() => setActiveTab('archives')}
+          onClick={() => handleTabChange('archives')}
         >
           <Archive size={13} />
           <span>Archives</span>
@@ -340,6 +344,7 @@ export default function DevHomePage({ onNavigate }) {
               target="_blank"
               rel="noopener noreferrer"
               className="dev-writing-row"
+              onClick={() => playUiSound('click')}
             >
               <div>
                 <h3 className="dev-card-title">{item.title}</h3>
@@ -356,6 +361,7 @@ export default function DevHomePage({ onNavigate }) {
               key={project.id}
               href={project.link}
               onClick={(e) => {
+                playUiSound('open');
                 if (project.link.startsWith('/')) {
                   e.preventDefault();
                   onNavigate(project.link);
