@@ -229,7 +229,7 @@ export default function DevHomePage({ onNavigate }) {
       {/* 3. NARRATIVE BIO WITH VIBRANT PINK LINKS */}
       <div className="dev-bio-section">
         <p className="dev-bio-paragraph">
-          I design end-to-end from 0-to-1, transforming messy, ambiguous, and technically challenging problems into shipped B2B solutions. Focused on craft and rapid prototyping. Currently at <a href="https://wexa.ai" target="_blank" rel="noopener noreferrer" className="dev-pink-link">Wexa AI</a>, previously at <a href="https://tier5.us" target="_blank" rel="noopener noreferrer" className="dev-pink-link">Tier5</a>. Google certified in Experience Design and Bachelor's in Arts.
+          I design end-to-end from 0-to-1, transforming messy, ambiguous, and technically challenging problems into shipped B2B solutions. Focused on craft and rapid prototyping. Currently looking for job, previously at <a href="https://tier5.us/" target="_blank" rel="noopener noreferrer" className="dev-pink-link">Tier5</a>. Google certified in Experience Design and Bachelor's in Arts.
         </p>
 
         <p className="dev-bio-paragraph">
