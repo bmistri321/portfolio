@@ -22,10 +22,10 @@ export const isDevSubdomain = () => {
   if (typeof window === 'undefined') return false;
   const host = window.location.hostname.toLowerCase();
   return (
-    host.includes('dev.') ||
     host === 'dev.bishalmistri.com' ||
     host === 'www.dev.bishalmistri.com' ||
-    host.startsWith('dev.')
+    host.startsWith('dev.') ||
+    host.includes('.dev.')
   );
 };
 
