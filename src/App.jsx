@@ -109,9 +109,11 @@ export default function App() {
       }
     };
 
+    const isDetailPage = currentPath.startsWith('/casestudy/');
+
     return (
       <div className="dev-app-wrapper">
-        <main className="dev-main-container">
+        <main className={isDetailPage ? "dev-detail-container" : "dev-main-container"}>
           {renderDevPage()}
         </main>
       </div>
