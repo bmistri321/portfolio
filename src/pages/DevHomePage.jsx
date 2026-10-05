@@ -300,7 +300,7 @@ export default function DevHomePage({ onNavigate }) {
       </div>
 
       {/* 5. SEGMENTED FILTER PILL TABS */}
-      <div className="dev-tabs-container">
+      <div id="home-tabs-anchor" className="dev-tabs-container">
         <button
           className={`dev-tab-pill ${activeTab === 'work' ? 'active' : ''}`}
           onClick={() => handleTabChange('work')}

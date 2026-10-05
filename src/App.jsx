@@ -21,11 +21,15 @@ import TravelPage from './pages/TravelPage';
 export const isDevSubdomain = () => {
   if (typeof window === 'undefined') return false;
   const host = window.location.hostname.toLowerCase();
+  const search = window.location.search;
   return (
     host === 'dev.bishalmistri.com' ||
     host === 'www.dev.bishalmistri.com' ||
     host.startsWith('dev.') ||
-    host.includes('.dev.')
+    host.includes('.dev.') ||
+    host === 'localhost' ||
+    host === '127.0.0.1' ||
+    search.includes('mode=dev')
   );
 };
 
