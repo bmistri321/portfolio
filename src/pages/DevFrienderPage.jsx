@@ -1,7 +1,7 @@
 import React from 'react';
 import { ArrowLeft } from 'lucide-react';
 
-export default function SanmidFrienderPage({ onNavigate }) {
+export default function DevFrienderPage({ onNavigate }) {
   const solutionImages = [
     'https://cdn.jsdelivr.net/gh/bmistri321/casestudy-2@main/Fri-casestudy-4.avif',
     'https://cdn.jsdelivr.net/gh/bmistri321/casestudy-2@main/Fri-casestudy-5.avif',
@@ -10,7 +10,7 @@ export default function SanmidFrienderPage({ onNavigate }) {
   ];
 
   return (
-    <article className="animate-fade-in">
+    <article className="dev-page-animate">
       <header className="cs-header">
         <button
           className="cs-back-btn"

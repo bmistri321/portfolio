@@ -10,11 +10,11 @@ import WexaCaseStudyPage from './pages/WexaCaseStudyPage';
 import BookPage from './pages/BookPage';
 import FloatingNav from './components/FloatingNav';
 
-// Sanmid Replica Pages & Components (for dev.bishalmistri.com)
-import SanmidHomePage from './pages/SanmidHomePage';
-import SanmidCaseStudyPage from './pages/SanmidCaseStudyPage';
-import SanmidWexaPage from './pages/SanmidWexaPage';
-import SanmidFrienderPage from './pages/SanmidFrienderPage';
+// Dev Site Pages & Components (for dev.bishalmistri.com)
+import DevHomePage from './pages/DevHomePage';
+import DevCaseStudyPage from './pages/DevCaseStudyPage';
+import DevWexaPage from './pages/DevWexaPage';
+import DevFrienderPage from './pages/DevFrienderPage';
 import DockPage from './pages/DockPage';
 import TravelPage from './pages/TravelPage';
 
@@ -87,7 +87,7 @@ export default function App() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
-  // 1. DEV SUBDOMAIN (dev.bishalmistri.com -> Sanmid Replica)
+  // 1. DEV SUBDOMAIN (dev.bishalmistri.com -> Dev Site)
   if (isDev) {
     const renderDevPage = () => {
       switch (currentPath) {
@@ -96,22 +96,22 @@ export default function App() {
         case '/travel':
           return <TravelPage onNavigate={navigate} />;
         case '/casestudy':
-          return <SanmidCaseStudyPage onNavigate={navigate} />;
+          return <DevCaseStudyPage onNavigate={navigate} />;
         case '/casestudy/wexa':
-          return <SanmidWexaPage onNavigate={navigate} />;
+          return <DevWexaPage onNavigate={navigate} />;
         case '/casestudy/friender-case-study':
-          return <SanmidFrienderPage onNavigate={navigate} />;
+          return <DevFrienderPage onNavigate={navigate} />;
         case '/playground':
           return <PlaygroundPage onNavigate={navigate} />;
         case '/':
         default:
-          return <SanmidHomePage onNavigate={navigate} />;
+          return <DevHomePage onNavigate={navigate} />;
       }
     };
 
     return (
-      <div className="sanmid-app-wrapper">
-        <main className="sanmid-main-container">
+      <div className="dev-app-wrapper">
+        <main className="dev-main-container">
           {renderDevPage()}
         </main>
       </div>

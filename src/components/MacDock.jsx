@@ -200,7 +200,7 @@ export default function MacDock() {
       </div>
 
       {/* Categorized Gear & Stack */}
-      <h2 className="sanmid-section-heading">Workspace &amp; Toolkit</h2>
+      <h2 className="dev-section-heading">Workspace &amp; Toolkit</h2>
       
       <div className="gear-category-grid">
         {gearCategories.map((cat) => (

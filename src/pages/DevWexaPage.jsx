@@ -1,7 +1,7 @@
 import React from 'react';
 import { ArrowLeft } from 'lucide-react';
 
-export default function SanmidWexaPage({ onNavigate }) {
+export default function DevWexaPage({ onNavigate }) {
   const auditProblems = [
     {
       num: 1,
@@ -51,7 +51,7 @@ export default function SanmidWexaPage({ onNavigate }) {
   ];
 
   return (
-    <article className="animate-fade-in">
+    <article className="dev-page-animate">
       <header className="cs-header">
         <button
           className="cs-back-btn"
@@ -69,7 +69,7 @@ export default function SanmidWexaPage({ onNavigate }) {
         <div className="cs-meta-grid">
           <div>
             <div className="cs-meta-label">Role &amp; Scope</div>
-            <div className="cs-meta-val">Lead Product Designer &amp; Design Technologist</div>
+            <div className="cs-meta-val">Lead Product Designer</div>
           </div>
           <div>
             <div className="cs-meta-label">Timeline</div>

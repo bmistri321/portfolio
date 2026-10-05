@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import { Github, Linkedin, Twitter } from '../components/Icons';
 
-export default function SanmidHomePage({ onNavigate }) {
+export default function DevHomePage({ onNavigate }) {
   const [activeTab, setActiveTab] = useState('work');
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
   const [theme, setTheme] = useState(() => {
@@ -178,12 +178,12 @@ export default function SanmidHomePage({ onNavigate }) {
   };
 
   return (
-    <div className="sanmid-page-animate">
+    <div className="dev-page-animate">
       {/* 1. TOP HEADER: Avatar + Name + Pronunciation Audio + Theme Toggle */}
-      <header className="sanmid-top-bar">
-        <div className="sanmid-profile-left">
-          <div className="sanmid-avatar-circle">
-            <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="sanmid-avatar-svg">
+      <header className="dev-top-bar">
+        <div className="dev-profile-left">
+          <div className="dev-avatar-circle">
+            <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="dev-avatar-svg">
               <circle cx="20" cy="20" r="20" fill="url(#pinkGrad)" />
               <path d="M12 20C12 15.5817 15.5817 12 20 12C24.4183 12 28 15.5817 28 20C28 24.4183 24.4183 28 20 28" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
               <circle cx="20" cy="20" r="3" fill="white" />
@@ -195,16 +195,16 @@ export default function SanmidHomePage({ onNavigate }) {
               </defs>
             </svg>
           </div>
-          <div className="sanmid-profile-meta">
-            <h1 className="sanmid-name-title">Bishal Mistri</h1>
-            <p className="sanmid-role-sub">Senior Product Designer</p>
+          <div className="dev-profile-meta">
+            <h1 className="dev-name-title">Bishal Mistri</h1>
+            <p className="dev-role-sub">Senior Product Designer</p>
           </div>
         </div>
 
-        <div className="sanmid-top-actions">
+        <div className="dev-top-actions">
           <button 
             onClick={playPronunciation} 
-            className="sanmid-icon-btn" 
+            className="dev-icon-btn" 
             aria-label="Pronounce name"
             title="Pronounce name"
           >
@@ -212,7 +212,7 @@ export default function SanmidHomePage({ onNavigate }) {
           </button>
           <button 
             onClick={toggleTheme} 
-            className="sanmid-icon-btn" 
+            className="dev-icon-btn" 
             aria-label="Toggle theme"
             title="Toggle theme"
           >
@@ -222,21 +222,21 @@ export default function SanmidHomePage({ onNavigate }) {
       </header>
 
       {/* 2. SIGNATURE SCRIPT TAGLINE (Caveat Cursive) */}
-      <div className="sanmid-handwritten-tagline">
+      <div className="dev-handwritten-tagline">
         Technical. Systems thinking. High agency.
       </div>
 
       {/* 3. NARRATIVE BIO WITH VIBRANT PINK LINKS */}
-      <div className="sanmid-bio-section">
-        <p className="sanmid-bio-paragraph">
-          I design end-to-end from 0-to-1, transforming messy, ambiguous, and technically challenging problems into shipped B2B solutions. Focused on craft and rapid prototyping. Currently at <a href="https://wexa.ai" target="_blank" rel="noopener noreferrer" className="sanmid-pink-link">Wexa AI</a>, previously at <a href="https://tier5.us" target="_blank" rel="noopener noreferrer" className="sanmid-pink-link">Tier5</a>. Master's in Design and Bachelor's in Computer Science.
+      <div className="dev-bio-section">
+        <p className="dev-bio-paragraph">
+          I design end-to-end from 0-to-1, transforming messy, ambiguous, and technically challenging problems into shipped B2B solutions. Focused on craft and rapid prototyping. Currently at <a href="https://wexa.ai" target="_blank" rel="noopener noreferrer" className="dev-pink-link">Wexa AI</a>, previously at <a href="https://tier5.us" target="_blank" rel="noopener noreferrer" className="dev-pink-link">Tier5</a>. Master's in Design and Bachelor's in Computer Science.
         </p>
 
-        <p className="sanmid-bio-paragraph">
+        <p className="dev-bio-paragraph">
           Outside of design, I'm into anthropology, keyboards, reading, coffee, board games, and{' '}
           <a
             href="/travel"
-            className="sanmid-pink-link"
+            className="dev-pink-link"
             onClick={(e) => {
               e.preventDefault();
               onNavigate('/travel');
@@ -247,7 +247,7 @@ export default function SanmidHomePage({ onNavigate }) {
           . I{' '}
           <a
             href="#writing"
-            className="sanmid-pink-link"
+            className="dev-pink-link"
             onClick={(e) => {
               e.preventDefault();
               setActiveTab('writing');
@@ -258,7 +258,7 @@ export default function SanmidHomePage({ onNavigate }) {
           and I recently started posting them online. Check out what's in my{' '}
           <a
             href="/dock"
-            className="sanmid-pink-link"
+            className="dev-pink-link"
             onClick={(e) => {
               e.preventDefault();
               onNavigate('/dock');
@@ -269,7 +269,7 @@ export default function SanmidHomePage({ onNavigate }) {
           . Always{' '}
           <a
             href="#tinkering"
-            className="sanmid-pink-link"
+            className="dev-pink-link"
             onClick={(e) => {
               e.preventDefault();
               setActiveTab('tinkering');
@@ -280,34 +280,34 @@ export default function SanmidHomePage({ onNavigate }) {
           .
         </p>
 
-        <p className="sanmid-funfact-text">
+        <p className="dev-funfact-text">
           Fun fact: You won't find anyone with my exact design &amp; code toolkit stack
         </p>
       </div>
 
       {/* 4. SOCIAL ICONS ROW */}
-      <div className="sanmid-social-row">
-        <a href="https://twitter.com/bishalmistri" target="_blank" rel="noopener noreferrer" className="sanmid-social-icon" aria-label="Twitter">
+      <div className="dev-social-row">
+        <a href="https://twitter.com/bishalmistri" target="_blank" rel="noopener noreferrer" className="dev-social-icon" aria-label="Twitter">
           <Twitter size={16} />
         </a>
-        <a href="mailto:contact@bishalmistri.com" className="sanmid-social-icon" aria-label="Email">
+        <a href="mailto:contact@bishalmistri.com" className="dev-social-icon" aria-label="Email">
           <Mail size={16} />
         </a>
-        <a href="https://linkedin.com/in/bishalmistri" target="_blank" rel="noopener noreferrer" className="sanmid-social-icon" aria-label="LinkedIn">
+        <a href="https://linkedin.com/in/bishalmistri" target="_blank" rel="noopener noreferrer" className="dev-social-icon" aria-label="LinkedIn">
           <Linkedin size={16} />
         </a>
-        <a href="https://github.com/bishalmistri" target="_blank" rel="noopener noreferrer" className="sanmid-social-icon" aria-label="GitHub">
+        <a href="https://github.com/bishalmistri" target="_blank" rel="noopener noreferrer" className="dev-social-icon" aria-label="GitHub">
           <Github size={16} />
         </a>
-        <a href="https://bishalmistri.com" target="_blank" rel="noopener noreferrer" className="sanmid-social-icon" aria-label="Website">
+        <a href="https://bishalmistri.com" target="_blank" rel="noopener noreferrer" className="dev-social-icon" aria-label="Website">
           <Globe size={16} />
         </a>
       </div>
 
       {/* 5. SEGMENTED FILTER PILL TABS */}
-      <div className="sanmid-tabs-container">
+      <div className="dev-tabs-container">
         <button
-          className={`sanmid-tab-pill ${activeTab === 'work' ? 'active' : ''}`}
+          className={`dev-tab-pill ${activeTab === 'work' ? 'active' : ''}`}
           onClick={() => setActiveTab('work')}
         >
           <Briefcase size={13} />
@@ -315,7 +315,7 @@ export default function SanmidHomePage({ onNavigate }) {
         </button>
 
         <button
-          className={`sanmid-tab-pill ${activeTab === 'tinkering' ? 'active' : ''}`}
+          className={`dev-tab-pill ${activeTab === 'tinkering' ? 'active' : ''}`}
           onClick={() => setActiveTab('tinkering')}
         >
           <Sparkles size={13} />
@@ -323,7 +323,7 @@ export default function SanmidHomePage({ onNavigate }) {
         </button>
 
         <button
-          className={`sanmid-tab-pill ${activeTab === 'writing' ? 'active' : ''}`}
+          className={`dev-tab-pill ${activeTab === 'writing' ? 'active' : ''}`}
           onClick={() => setActiveTab('writing')}
         >
           <FileText size={13} />
@@ -331,7 +331,7 @@ export default function SanmidHomePage({ onNavigate }) {
         </button>
 
         <button
-          className={`sanmid-tab-pill ${activeTab === 'archives' ? 'active' : ''}`}
+          className={`dev-tab-pill ${activeTab === 'archives' ? 'active' : ''}`}
           onClick={() => setActiveTab('archives')}
         >
           <Archive size={13} />
@@ -341,25 +341,25 @@ export default function SanmidHomePage({ onNavigate }) {
 
       {/* 6. 2-COLUMN PROJECT GRID */}
       {activeTab === 'writing' ? (
-        <div className="sanmid-writing-list">
+        <div className="dev-writing-list">
           {writings.map((item) => (
             <a
               key={item.title}
               href={item.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="sanmid-writing-row"
+              className="dev-writing-row"
             >
               <div>
-                <h3 className="sanmid-card-title">{item.title}</h3>
-                <p className="sanmid-card-metric">{item.metric}</p>
+                <h3 className="dev-card-title">{item.title}</h3>
+                <p className="dev-card-metric">{item.metric}</p>
               </div>
-              <span className="sanmid-year-badge">{item.date}</span>
+              <span className="dev-year-badge">{item.date}</span>
             </a>
           ))}
         </div>
       ) : (
-        <div className="sanmid-cards-grid">
+        <div className="dev-cards-grid">
           {getActiveList().map((project) => (
             <a
               key={project.id}
@@ -370,24 +370,24 @@ export default function SanmidHomePage({ onNavigate }) {
                   onNavigate(project.link);
                 }
               }}
-              className="sanmid-project-card"
+              className="dev-project-card"
             >
-              <div className="sanmid-card-img-box">
+              <div className="dev-card-img-box">
                 <img
                   src={project.image}
                   alt={project.title}
                   loading="lazy"
                   decoding="async"
-                  className="sanmid-card-img"
+                  className="dev-card-img"
                 />
               </div>
 
-              <div className="sanmid-card-info">
-                <div className="sanmid-card-title-row">
-                  <h3 className="sanmid-card-title">{project.title}</h3>
-                  {project.year && <span className="sanmid-year-badge">{project.year}</span>}
+              <div className="dev-card-info">
+                <div className="dev-card-title-row">
+                  <h3 className="dev-card-title">{project.title}</h3>
+                  {project.year && <span className="dev-year-badge">{project.year}</span>}
                 </div>
-                {project.metric && <p className="sanmid-card-metric">{project.metric}</p>}
+                {project.metric && <p className="dev-card-metric">{project.metric}</p>}
               </div>
             </a>
           ))}
@@ -395,11 +395,11 @@ export default function SanmidHomePage({ onNavigate }) {
       )}
 
       {/* 7. MINIMAL FOOTER */}
-      <footer className="sanmid-footer-row">
-        <div className="sanmid-footer-text">
-          Built with <span className="sanmid-footer-bold">Next.js</span> and <span className="sanmid-footer-bold">Cursor</span>
+      <footer className="dev-footer-row">
+        <div className="dev-footer-text">
+          Built with <span className="dev-footer-bold">Next.js</span> and <span className="dev-footer-bold">Cursor</span>
         </div>
-        <div className="sanmid-footer-name">Bishal</div>
+        <div className="dev-footer-name">Bishal</div>
       </footer>
     </div>
   );
