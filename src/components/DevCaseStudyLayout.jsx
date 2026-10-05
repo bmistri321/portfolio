@@ -14,7 +14,6 @@ export default function DevCaseStudyLayout({
 }) {
   const [activeSection, setActiveSection] = useState(sections[0]?.id || 'introduction');
   const [isClosing, setIsClosing] = useState(false);
-  const [scrollProgress, setScrollProgress] = useState(0);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const sheetRef = useRef(null);
 
@@ -38,19 +37,13 @@ export default function DevCaseStudyLayout({
     };
   }, []);
 
-  // 3. Scroll Progress & Back-To-Top Tracker
+  // 3. Back-To-Top Tracker on Scroll
   useEffect(() => {
     const sheetEl = sheetRef.current;
     if (!sheetEl) return;
 
     const handleScroll = () => {
-      const scrollTop = sheetEl.scrollTop;
-      const scrollHeight = sheetEl.scrollHeight - sheetEl.clientHeight;
-      if (scrollHeight > 0) {
-        const progress = Math.min(100, Math.max(0, (scrollTop / scrollHeight) * 100));
-        setScrollProgress(progress);
-      }
-      setShowScrollTop(scrollTop > 450);
+      setShowScrollTop(sheetEl.scrollTop > 450);
     };
 
     sheetEl.addEventListener('scroll', handleScroll, { passive: true });
@@ -180,17 +173,6 @@ export default function DevCaseStudyLayout({
         ref={sheetRef}
         className={`dev-sheet-panel ${isClosing ? 'dev-sheet-exit' : 'dev-sheet-enter'}`}
       >
-        {/* Dynamic Reading Scroll Progress Bar */}
-        <div className="dev-scroll-progress-track">
-          <div 
-            className="dev-scroll-progress-bar" 
-            style={{ width: `${scrollProgress}%` }} 
-            role="progressbar"
-            aria-valuenow={Math.round(scrollProgress)}
-            aria-valuemin="0"
-            aria-valuemax="100"
-          />
-        </div>
         <div className="dev-sheet-inner">
           {/* Left Sticky Table of Contents */}
           <aside className="dev-detail-toc" aria-label="Case study navigation">
