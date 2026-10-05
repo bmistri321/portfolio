@@ -76,6 +76,24 @@ export default function AdminLayout({
 
   const breadcrumbs = getBreadcrumbs();
 
+  const getDevSiteUrl = () => {
+    if (typeof window === 'undefined') return 'https://dev.bishalmistri.com';
+    const host = window.location.hostname.toLowerCase();
+    if (host === 'localhost' || host === '127.0.0.1') {
+      return '/?mode=dev';
+    }
+    return 'https://dev.bishalmistri.com';
+  };
+
+  const getMainSiteUrl = () => {
+    if (typeof window === 'undefined') return 'https://bishalmistri.com';
+    const host = window.location.hostname.toLowerCase();
+    if (host === 'localhost' || host === '127.0.0.1') {
+      return '/';
+    }
+    return 'https://bishalmistri.com';
+  };
+
   return (
     <div className="admin-root" data-admin-theme="dark">
       <div className="admin-shell">
@@ -210,13 +228,24 @@ export default function AdminLayout({
 
             <div className="admin-topbar-actions">
               <a
-                href="/"
+                href={getDevSiteUrl()}
                 target="_blank"
                 rel="noreferrer"
                 className="admin-btn admin-btn-ghost admin-btn-sm"
-                title="View live portfolio site in new tab"
+                title="Open Dev Site (dev.bishalmistri.com)"
               >
-                <span>Live Site</span>
+                <span>Dev Site</span>
+                <ExternalLink size={13} />
+              </a>
+
+              <a
+                href={getMainSiteUrl()}
+                target="_blank"
+                rel="noreferrer"
+                className="admin-btn admin-btn-ghost admin-btn-sm"
+                title="Open Main Site (bishalmistri.com)"
+              >
+                <span>Main Site</span>
                 <ExternalLink size={13} />
               </a>
 

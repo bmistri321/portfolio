@@ -13,6 +13,7 @@ import FloatingNav from './components/FloatingNav';
 // Dev Site Pages & Components (for dev.bishalmistri.com)
 import DevHomePage from './pages/DevHomePage';
 import DevCaseStudyPage from './pages/DevCaseStudyPage';
+import DevDynamicCaseStudyPage from './pages/DevDynamicCaseStudyPage';
 import DevWexaPage from './pages/DevWexaPage';
 import DevFrienderPage from './pages/DevFrienderPage';
 import DockPage from './pages/DockPage';
@@ -71,6 +72,7 @@ export default function App() {
     if (p.startsWith('/admin')) return p;
     if (p.includes('friender')) return '/casestudy/friender-case-study';
     if (p.includes('wexa')) return '/casestudy/wexa';
+    if (p.startsWith('/casestudy/')) return p;
     if (p.includes('dock')) return '/dock';
     if (p.includes('travel')) return '/travel';
     if (p.includes('playground')) return '/playground';
@@ -132,6 +134,10 @@ export default function App() {
         case '/casestudy':
           return <DevCaseStudyPage onNavigate={navigate} />;
         default:
+          if (currentPath.startsWith('/casestudy/')) {
+            const slug = currentPath.replace('/casestudy/', '');
+            return <DevDynamicCaseStudyPage slug={slug} onNavigate={navigate} />;
+          }
           return null;
       }
     };

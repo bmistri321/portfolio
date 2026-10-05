@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Volume2, 
   VolumeX, 
@@ -15,9 +15,11 @@ import {
 import { Github, Linkedin, Twitter } from '../components/Icons';
 import InteractiveGlobe from '../components/InteractiveGlobe';
 import { playUiSound, isSoundEnabled, setSoundEnabled } from '../utils/sound';
+import { contentService } from '../lib/contentService';
 
 export default function DevHomePage({ onNavigate }) {
   const [activeTab, setActiveTab] = useState('work');
+  const [cmsItems, setCmsItems] = useState([]);
   const [soundOn, setSoundOn] = useState(() => isSoundEnabled());
   const [theme, setTheme] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -25,6 +27,18 @@ export default function DevHomePage({ onNavigate }) {
     }
     return 'light';
   });
+
+  useEffect(() => {
+    async function loadPublished() {
+      try {
+        const items = await contentService.getAll({ status: 'published' });
+        setCmsItems(items);
+      } catch (err) {
+        console.warn('Could not load CMS items:', err);
+      }
+    }
+    loadPublished();
+  }, []);
 
   const toggleTheme = () => {
     playUiSound('toggle');
@@ -48,7 +62,7 @@ export default function DevHomePage({ onNavigate }) {
     setActiveTab(tab);
   };
 
-  const workProjects = [
+  const defaultWorkProjects = [
     {
       id: 'wexa-ai',
       title: 'Wexa AI (Phase 1)',
@@ -99,7 +113,7 @@ export default function DevHomePage({ onNavigate }) {
     }
   ];
 
-  const tinkeringProjects = [
+  const defaultTinkeringProjects = [
     {
       id: 'virtual-desktop',
       title: 'Virtual Desktop Prototype',
@@ -126,7 +140,7 @@ export default function DevHomePage({ onNavigate }) {
     }
   ];
 
-  const writings = [
+  const defaultWritings = [
     {
       title: 'Designing AI Agents That Don’t Hallucinate UX',
       date: 'Feb 2026',
@@ -147,7 +161,7 @@ export default function DevHomePage({ onNavigate }) {
     }
   ];
 
-  const archives = [
+  const defaultArchives = [
     {
       id: 'early-works',
       title: 'UX Design Mastery — 30 Days',
@@ -166,17 +180,61 @@ export default function DevHomePage({ onNavigate }) {
     }
   ];
 
+  // Merge CMS published items
+  const dynamicWork = cmsItems
+    .filter((i) => i.type === 'work')
+    .map((i) => ({
+      id: i.id,
+      title: i.title,
+      year: i.metadata?.year || new Date(i.published_at || i.created_at).getFullYear().toString(),
+      metric: i.excerpt || i.metadata?.client || 'Interactive product design & systems architecture',
+      image: i.cover_image || 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80',
+      link: `/casestudy/${i.slug}`
+    }));
+
+  const dynamicTinkering = cmsItems
+    .filter((i) => i.type === 'tinkering')
+    .map((i) => ({
+      id: i.id,
+      title: i.title,
+      year: i.metadata?.date || new Date(i.published_at || i.created_at).getFullYear().toString(),
+      metric: i.excerpt || 'Interactive code exploration & prototype',
+      image: i.cover_image || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80',
+      link: `/casestudy/${i.slug}`
+    }));
+
+  const dynamicWriting = cmsItems
+    .filter((i) => i.type === 'writing')
+    .map((i) => ({
+      id: i.id,
+      title: i.title,
+      date: new Date(i.published_at || i.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
+      metric: i.excerpt || i.metadata?.subtitle || 'Long-form editorial essay',
+      url: `/casestudy/${i.slug}`
+    }));
+
+  const dynamicArchives = cmsItems
+    .filter((i) => i.type === 'archive' || i.status === 'archived')
+    .map((i) => ({
+      id: i.id,
+      title: i.title,
+      year: new Date(i.archived_at || i.published_at || i.created_at).getFullYear().toString(),
+      metric: i.excerpt || 'Archived portfolio piece',
+      image: i.cover_image || 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=1200&q=80',
+      link: `/casestudy/${i.slug}`
+    }));
+
   const getActiveList = () => {
     switch (activeTab) {
       case 'tinkering':
-        return tinkeringProjects;
+        return [...dynamicTinkering, ...defaultTinkeringProjects];
       case 'archives':
-        return archives;
+        return [...dynamicArchives, ...defaultArchives];
       case 'writing':
-        return writings;
+        return [...dynamicWriting, ...defaultWritings];
       case 'work':
       default:
-        return workProjects;
+        return [...dynamicWork, ...defaultWorkProjects];
     }
   };
 
