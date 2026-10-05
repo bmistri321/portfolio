@@ -1407,6 +1407,66 @@ body {
   background: var(--dev-bg);
 }
 
+/* ==========================================================================
+   MOTION SYSTEM & TRANSITIONS
+   ========================================================================== */
+
+.dev-enter-animate {
+  animation: devPageEnter 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.dev-exit-animate {
+  animation: devPageExit 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes devPageEnter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes devPageExit {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+/* Progressive Scroll Reveal for Images & Sections */
+.dev-reveal {
+  opacity: 0;
+  transform: translateY(16px) scale(0.99);
+  transition: opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1), transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.dev-reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dev-reveal,
+  .dev-enter-animate,
+  .dev-exit-animate,
+  .dev-page-animate {
+    animation: none !important;
+    transition: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+
 
 
 
