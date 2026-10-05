@@ -37,18 +37,85 @@ export default function DevCaseStudyLayout({
     };
   }, []);
 
-  // 3. Back-To-Top Tracker on Scroll
+  // 3. Scroll Up / Pull Down at top to Close
   useEffect(() => {
     const sheetEl = sheetRef.current;
     if (!sheetEl) return;
+
+    let wheelAccum = 0;
+    let wheelTimeout = null;
+    let touchStartY = 0;
+    let isAtTopOnTouch = false;
+    let isReady = false;
+
+    // Grace period so opening gesture doesn't instantly close
+    const readyTimer = setTimeout(() => {
+      isReady = true;
+    }, 400);
+
+    const handleWheel = (e) => {
+      if (!isReady || isClosing) return;
+
+      if (sheetEl.scrollTop <= 0) {
+        if (e.deltaY < 0) {
+          wheelAccum += Math.abs(e.deltaY);
+          clearTimeout(wheelTimeout);
+          wheelTimeout = setTimeout(() => {
+            wheelAccum = 0;
+          }, 350);
+
+          if (wheelAccum >= 60) {
+            wheelAccum = 0;
+            handleClose();
+          }
+        } else {
+          wheelAccum = 0;
+        }
+      } else {
+        wheelAccum = 0;
+      }
+    };
+
+    const handleTouchStart = (e) => {
+      if (!isReady || isClosing) return;
+      if (sheetEl.scrollTop <= 0) {
+        isAtTopOnTouch = true;
+        touchStartY = e.touches[0].clientY;
+      } else {
+        isAtTopOnTouch = false;
+      }
+    };
+
+    const handleTouchMove = (e) => {
+      if (!isReady || isClosing || !isAtTopOnTouch) return;
+      if (sheetEl.scrollTop <= 0) {
+        const currentY = e.touches[0].clientY;
+        const diffY = currentY - touchStartY;
+        if (diffY > 75) {
+          isAtTopOnTouch = false;
+          handleClose();
+        }
+      }
+    };
 
     const handleScroll = () => {
       setShowScrollTop(sheetEl.scrollTop > 450);
     };
 
+    sheetEl.addEventListener('wheel', handleWheel, { passive: true });
+    sheetEl.addEventListener('touchstart', handleTouchStart, { passive: true });
+    sheetEl.addEventListener('touchmove', handleTouchMove, { passive: true });
     sheetEl.addEventListener('scroll', handleScroll, { passive: true });
-    return () => sheetEl.removeEventListener('scroll', handleScroll);
-  }, []);
+
+    return () => {
+      clearTimeout(readyTimer);
+      clearTimeout(wheelTimeout);
+      sheetEl.removeEventListener('wheel', handleWheel);
+      sheetEl.removeEventListener('touchstart', handleTouchStart);
+      sheetEl.removeEventListener('touchmove', handleTouchMove);
+      sheetEl.removeEventListener('scroll', handleScroll);
+    };
+  }, [isClosing]);
 
   // 4. Active Section Detection via IntersectionObserver
   useEffect(() => {
