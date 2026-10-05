@@ -223,7 +223,7 @@ export default function DevHomePage({ onNavigate }) {
 
       {/* 2. SIGNATURE SCRIPT TAGLINE (Caveat Cursive) */}
       <div className="dev-handwritten-tagline">
-        Technical. Systems thinking. High agency.
+        Design. Systems thinking. High agency.
       </div>
 
       {/* 3. NARRATIVE BIO WITH VIBRANT PINK LINKS */}
