@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X } from 'lucide-react';
+import { X, ArrowUp } from 'lucide-react';
 import { playUiSound } from '../utils/sound';
 
 export default function DevCaseStudyLayout({
@@ -14,6 +14,8 @@ export default function DevCaseStudyLayout({
 }) {
   const [activeSection, setActiveSection] = useState(sections[0]?.id || 'introduction');
   const [isClosing, setIsClosing] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [showScrollTop, setShowScrollTop] = useState(false);
   const sheetRef = useRef(null);
 
   // 1. Keyboard Navigation: Escape key closes project
@@ -36,7 +38,26 @@ export default function DevCaseStudyLayout({
     };
   }, []);
 
-  // 3. Active Section Detection via IntersectionObserver
+  // 3. Scroll Progress & Back-To-Top Tracker
+  useEffect(() => {
+    const sheetEl = sheetRef.current;
+    if (!sheetEl) return;
+
+    const handleScroll = () => {
+      const scrollTop = sheetEl.scrollTop;
+      const scrollHeight = sheetEl.scrollHeight - sheetEl.clientHeight;
+      if (scrollHeight > 0) {
+        const progress = Math.min(100, Math.max(0, (scrollTop / scrollHeight) * 100));
+        setScrollProgress(progress);
+      }
+      setShowScrollTop(scrollTop > 450);
+    };
+
+    sheetEl.addEventListener('scroll', handleScroll, { passive: true });
+    return () => sheetEl.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // 4. Active Section Detection via IntersectionObserver
   useEffect(() => {
     if (!sections.length || !sheetRef.current) return;
 
@@ -64,7 +85,7 @@ export default function DevCaseStudyLayout({
     return () => observer.disconnect();
   }, [sections]);
 
-  // 4. Scroll Reveal Animation for Content & Visuals
+  // 5. Scroll Reveal Animation for Content & Visuals
   useEffect(() => {
     if (!sheetRef.current) return;
 
@@ -97,6 +118,16 @@ export default function DevCaseStudyLayout({
     }, 240);
   };
 
+  const scrollToTop = () => {
+    playUiSound('tab');
+    if (sheetRef.current) {
+      sheetRef.current.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    }
+  };
+
   const scrollToSection = (id) => {
     playUiSound('tab');
     setActiveSection(id);
@@ -121,21 +152,45 @@ export default function DevCaseStudyLayout({
       className={`dev-sheet-backdrop ${isClosing ? 'dev-backdrop-exit' : 'dev-backdrop-enter'}`}
       onClick={handleBackdropClick}
     >
-      {/* Top-Right Floating Close Button */}
-      <button
-        className="dev-sheet-close-btn"
-        onClick={handleClose}
-        aria-label="Close case study and return to home"
-        title="Close (Esc)"
-      >
-        <X size={16} />
-      </button>
+      {/* Top-Right Floating Controls */}
+      <div className="dev-sheet-floating-controls">
+        {showScrollTop && (
+          <button
+            className="dev-sheet-top-btn"
+            onClick={scrollToTop}
+            aria-label="Scroll back to top"
+            title="Back to Top"
+          >
+            <ArrowUp size={15} />
+            <span className="dev-top-btn-label">Top</span>
+          </button>
+        )}
+        <button
+          className="dev-sheet-close-btn"
+          onClick={handleClose}
+          aria-label="Close case study and return to home"
+          title="Close (Esc)"
+        >
+          <X size={16} />
+        </button>
+      </div>
 
       {/* Slide-Up Sheet Panel with Rounded Top Corners */}
       <div
         ref={sheetRef}
         className={`dev-sheet-panel ${isClosing ? 'dev-sheet-exit' : 'dev-sheet-enter'}`}
       >
+        {/* Dynamic Reading Scroll Progress Bar */}
+        <div className="dev-scroll-progress-track">
+          <div 
+            className="dev-scroll-progress-bar" 
+            style={{ width: `${scrollProgress}%` }} 
+            role="progressbar"
+            aria-valuenow={Math.round(scrollProgress)}
+            aria-valuemin="0"
+            aria-valuemax="100"
+          />
+        </div>
         <div className="dev-sheet-inner">
           {/* Left Sticky Table of Contents */}
           <aside className="dev-detail-toc" aria-label="Case study navigation">
