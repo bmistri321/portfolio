@@ -1296,12 +1296,12 @@ body {
   to { opacity: 0; }
 }
 
-/* Slide-Up Sheet Panel with Top Gap & Rounded Top Corners */
+/* Slide-Up Sheet Panel with 20px Top Gap & Rounded Top Corners */
 .dev-sheet-panel {
   position: relative;
   width: 100%;
-  height: calc(100vh - 28px);
-  max-height: calc(100vh - 28px);
+  height: calc(100vh - 20px);
+  max-height: calc(100vh - 20px);
   border-radius: 16px 16px 0 0;
   background: var(--dev-bg);
   color: var(--dev-text-1);
@@ -1336,7 +1336,7 @@ body {
 /* Top-Right Floating Controls */
 .dev-sheet-floating-controls {
   position: fixed;
-  top: 42px;
+  top: 32px;
   right: 28px;
   z-index: 10001;
   display: flex;
@@ -1400,7 +1400,7 @@ body {
   width: 100%;
   max-width: 1440px;
   margin: 0 auto;
-  padding: 56px 48px 120px;
+  padding: 52px 48px 120px;
   position: relative;
   display: grid;
   grid-template-columns: 200px minmax(0, 680px) 200px;
@@ -1414,7 +1414,7 @@ body {
   max-width: 190px;
   flex-shrink: 0;
   position: sticky;
-  top: 56px;
+  top: 52px;
   height: fit-content;
   display: flex;
   flex-direction: column;
@@ -1423,13 +1423,13 @@ body {
 
 @media (max-width: 1024px) {
   .dev-sheet-panel {
-    height: calc(100vh - 16px);
-    max-height: calc(100vh - 16px);
+    height: calc(100vh - 20px);
+    max-height: calc(100vh - 20px);
     border-radius: 14px 14px 0 0;
   }
 
   .dev-sheet-floating-controls {
-    top: 24px;
+    top: 30px;
     right: 18px;
   }
 
@@ -1438,7 +1438,7 @@ body {
     width: 100%;
     max-width: 680px;
     margin: 0 auto;
-    padding: 36px 20px 80px;
+    padding: 32px 20px 80px;
     gap: 0;
   }
   
