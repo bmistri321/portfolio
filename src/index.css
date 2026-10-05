@@ -1420,28 +1420,30 @@ body {
 
 .dev-sheet-inner {
   width: 100%;
-  max-width: 1080px;
+  max-width: 1440px;
   margin: 0 auto;
-  padding: 48px 24px 120px;
+  padding: 56px 48px 120px;
   position: relative;
-  display: flex;
+  display: grid;
+  grid-template-columns: 200px minmax(0, 680px) 200px;
   justify-content: center;
-  gap: 52px;
+  gap: clamp(24px, 4vw, 56px);
 }
 
-/* Sticky Left Sidebar TOC */
+/* Sticky Left Sidebar TOC (Desktop Only) */
 .dev-detail-toc {
-  width: 140px;
+  width: 100%;
+  max-width: 190px;
   flex-shrink: 0;
   position: sticky;
-  top: 48px;
+  top: 56px;
   height: fit-content;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
 }
 
-@media (max-width: 860px) {
+@media (max-width: 1024px) {
   .dev-sheet-panel {
     height: calc(100vh - 16px);
     max-height: calc(100vh - 16px);
@@ -1454,24 +1456,17 @@ body {
   }
 
   .dev-sheet-inner {
-    flex-direction: column;
-    gap: 20px;
-    padding: 28px 16px 80px;
+    display: block;
+    width: 100%;
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 36px 20px 80px;
+    gap: 0;
   }
   
+  /* Strictly hide TOC on tablet and mobile */
   .dev-detail-toc {
-    position: relative;
-    top: 0;
-    width: 100%;
-    flex-direction: row;
-    overflow-x: auto;
-    padding-bottom: 8px;
-    margin-bottom: 12px;
-    border-bottom: 1px solid var(--dev-border-subtle);
-    scrollbar-width: none;
-  }
-  .dev-detail-toc::-webkit-scrollbar {
-    display: none;
+    display: none !important;
   }
 }
 
@@ -1510,9 +1505,10 @@ body {
 
 /* Detail Main Content */
 .dev-detail-content {
-  flex: 1;
-  max-width: 660px;
+  grid-column: 2;
   width: 100%;
+  max-width: 680px;
+  margin: 0 auto;
 }
 
 .dev-detail-title {
