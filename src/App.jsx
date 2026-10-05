@@ -17,28 +17,15 @@ import SanmidWexaPage from './pages/SanmidWexaPage';
 import SanmidFrienderPage from './pages/SanmidFrienderPage';
 import DockPage from './pages/DockPage';
 import TravelPage from './pages/TravelPage';
-import NavigationDock from './components/NavigationDock';
 
 export const isDevSubdomain = () => {
   if (typeof window === 'undefined') return false;
   const host = window.location.hostname.toLowerCase();
-  const search = window.location.search.toLowerCase();
-  const href = window.location.href.toLowerCase();
-
-  const stored = localStorage.getItem('bm_view_mode');
-  if (stored === 'dev') return true;
-  if (stored === 'main') return false;
-
   return (
-    host.includes('dev') ||
+    host.includes('dev.') ||
     host === 'dev.bishalmistri.com' ||
     host === 'www.dev.bishalmistri.com' ||
-    href.includes('dev.bishalmistri.com') ||
-    href.includes('www.dev.bishalmistri.com') ||
-    search.includes('view=dev') ||
-    search.includes('v=dev') ||
-    search.includes('sanmid') ||
-    search.includes('dev')
+    host.startsWith('dev.')
   );
 };
 
@@ -49,8 +36,7 @@ export const isBooksSubdomain = () => {
 };
 
 export default function App() {
-  const [viewMode, setViewMode] = useState(() => (isDevSubdomain() ? 'dev' : 'main'));
-  const isDev = viewMode === 'dev';
+  const isDev = isDevSubdomain();
   const isBooks = isBooksSubdomain();
 
   const getCleanPath = (path) => {
@@ -101,13 +87,7 @@ export default function App() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
-  const toggleViewMode = () => {
-    const next = isDev ? 'main' : 'dev';
-    localStorage.setItem('bm_view_mode', next);
-    setViewMode(next);
-  };
-
-  // 1. DEV SUBDOMAIN / MODE (Sanmid Replica)
+  // 1. DEV SUBDOMAIN (dev.bishalmistri.com -> Sanmid Replica)
   if (isDev) {
     const renderDevPage = () => {
       switch (currentPath) {
@@ -177,29 +157,6 @@ export default function App() {
         {renderMainPage()}
       </main>
       <FloatingNav currentPath={currentPath} onNavigate={navigate} />
-
-      {/* View Switcher Floating Badge */}
-      <button
-        onClick={toggleViewMode}
-        style={{
-          position: 'fixed',
-          top: '16px',
-          right: '16px',
-          fontSize: '11px',
-          fontFamily: 'monospace',
-          padding: '4px 10px',
-          borderRadius: '9999px',
-          background: '#f4f4f4',
-          color: '#555555',
-          border: '1px solid #e0e0e0',
-          cursor: 'pointer',
-          zIndex: 9999,
-          opacity: 0.8
-        }}
-        title="Click to toggle between Original View and Sanmid View"
-      >
-        ○ MAIN (Original View)
-      </button>
     </div>
   );
 }
