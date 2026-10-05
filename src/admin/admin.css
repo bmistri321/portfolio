@@ -44,26 +44,6 @@
   --admin-transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Light Theme overrides when active */
-[data-admin-theme="light"] {
-  --admin-bg-canvas: #f8fafc;
-  --admin-bg-surface: #ffffff;
-  --admin-bg-surface-elevated: #f1f5f9;
-  --admin-bg-surface-hover: #e2e8f0;
-  --admin-border: #e2e8f0;
-  --admin-border-subtle: #edf2f7;
-  --admin-text-primary: #0f172a;
-  --admin-text-secondary: #475569;
-  --admin-text-muted: #94a3b8;
-  --admin-accent-subtle: rgba(59, 130, 246, 0.08);
-  --admin-success-subtle: #d1fae5;
-  --admin-warning-subtle: #fef3c7;
-  --admin-danger-subtle: #fee2e2;
-  --admin-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
-  --admin-shadow-md: 0 8px 24px -4px rgba(0, 0, 0, 0.06);
-  --admin-shadow-elevated: 0 16px 36px -6px rgba(0, 0, 0, 0.08);
-}
-
 /* Reset and Base Layout */
 .admin-root {
   min-height: 100vh;

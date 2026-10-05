@@ -5,7 +5,7 @@ import {
   PenLine,
   ArrowRight,
   Clock,
-  Sparkles,
+  FileText,
   FileEdit
 } from 'lucide-react';
 import { contentService } from '../lib/contentService';
@@ -178,7 +178,7 @@ export default function DashboardPage({ onNavigate }) {
                           <img src={item.cover_image} alt="" className="admin-item-thumb" />
                         ) : (
                           <div className="admin-item-thumb" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--admin-text-muted)' }}>
-                            <Sparkles size={14} />
+                            <FileText size={14} />
                           </div>
                         )}
                         <div>

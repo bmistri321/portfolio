@@ -7,7 +7,7 @@ import {
   CheckCircle2,
   Copy,
   Check,
-  Sparkles,
+  Activity,
   ExternalLink
 } from 'lucide-react';
 import { getSupabaseConfig, saveSupabaseConfig } from '../lib/supabase';
@@ -144,7 +144,7 @@ CREATE POLICY "Authenticated users full access to content" ON public.content FOR
               <h2 style={{ fontSize: '15px', fontWeight: 600 }}>Supabase Database & Storage</h2>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: initialConfig.isConfigured ? 'var(--admin-success)' : 'var(--admin-warning)' }}>
-              <Sparkles size={13} />
+              <Activity size={13} />
               <span>{initialConfig.isConfigured ? 'Connected to Live Cloud' : 'Using Studio Local Store (Configurable)'}</span>
             </div>
           </div>

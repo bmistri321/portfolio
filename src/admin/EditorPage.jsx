@@ -5,7 +5,7 @@ import {
   Send,
   Eye,
   RotateCcw,
-  Sparkles,
+  Loader2,
   Image as ImageIcon,
   UploadCloud,
   Trash2,
@@ -458,7 +458,7 @@ export default function EditorPage({
           <div className={`admin-editor-save-state ${saveStatus}`}>
             {saveStatus === 'saving' && (
               <>
-                <Sparkles size={13} className="spin-icon" />
+                <Loader2 size={13} className="spin-icon" />
                 <span>Saving...</span>
               </>
             )}

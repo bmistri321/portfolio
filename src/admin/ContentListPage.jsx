@@ -9,7 +9,8 @@ import {
   Archive,
   RotateCcw,
   Trash2,
-  Sparkles,
+  Layers,
+  FileText,
   AlertTriangle,
   CheckCircle2,
   MoreHorizontal,
@@ -200,7 +201,7 @@ export default function ContentListPage({
                   <td colSpan={7} style={{ textAlign: 'center', padding: '48px 20px' }}>
                     <div style={{ maxWidth: '320px', margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
                       <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: 'var(--admin-bg-surface-elevated)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--admin-text-muted)' }}>
-                        <Sparkles size={18} />
+                        <Layers size={18} />
                       </div>
                       <div style={{ fontWeight: 500, fontSize: '15px', color: 'var(--admin-text-primary)' }}>
                         Nothing here yet
@@ -229,7 +230,7 @@ export default function ContentListPage({
                           <img src={item.cover_image} alt="" className="admin-item-thumb" />
                         ) : (
                           <div className="admin-item-thumb" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--admin-text-muted)' }}>
-                            <Sparkles size={14} />
+                            <FileText size={14} />
                           </div>
                         )}
                         <div>

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { supabaseAuth, getSupabaseConfig, saveStoredSession } from '../lib/supabase';
-import { Sparkles, Lock, ArrowRight, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Compass, Lock, ArrowRight, CheckCircle2, AlertCircle } from 'lucide-react';
 
 export default function AdminAuth({ onAuthenticated }) {
   const [email, setEmail] = useState('');
@@ -41,14 +41,14 @@ export default function AdminAuth({ onAuthenticated }) {
   };
 
   return (
-    <div className="admin-root" style={{ alignItems: 'center', justifyContent: 'center', minHeight: '100vh', padding: '24px' }}>
+    <div className="admin-root" data-admin-theme="dark" style={{ alignItems: 'center', justifyContent: 'center', minHeight: '100vh', padding: '24px' }}>
       <div className="admin-card" style={{ maxWidth: '420px', width: '100%', padding: '36px 32px' }}>
         <div style={{ textAlign: 'center', marginBottom: '28px' }}>
           <div style={{
             width: '48px',
             height: '48px',
             borderRadius: '12px',
-            background: 'linear-gradient(135deg, var(--admin-accent), var(--admin-sparkle))',
+            background: 'linear-gradient(135deg, var(--admin-accent), #6366f1)',
             display: 'inline-flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -56,7 +56,7 @@ export default function AdminAuth({ onAuthenticated }) {
             marginBottom: '16px',
             boxShadow: 'var(--admin-shadow-md)'
           }}>
-            <Sparkles size={24} />
+            <Compass size={24} />
           </div>
           <h1 style={{ fontSize: '22px', fontWeight: 600, letterSpacing: '-0.02em', marginBottom: '6px' }}>
             Publishing Studio

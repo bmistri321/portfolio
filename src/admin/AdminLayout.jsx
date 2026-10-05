@@ -12,12 +12,10 @@ import {
   ChevronRight,
   Menu,
   X,
-  Sparkles,
+  Compass,
   ExternalLink,
   LogOut,
-  Plus,
-  Sun,
-  Moon
+  Plus
 } from 'lucide-react';
 
 export default function AdminLayout({
@@ -29,16 +27,7 @@ export default function AdminLayout({
 }) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
-  const [theme, setTheme] = useState(() => (typeof localStorage !== 'undefined' ? localStorage.getItem('bm_admin_theme') || 'dark' : 'dark'));
 
-  const toggleTheme = () => {
-    const next = theme === 'dark' ? 'light' : 'dark';
-    setTheme(next);
-    if (typeof localStorage !== 'undefined') localStorage.setItem('bm_admin_theme', next);
-    if (typeof document !== 'undefined') {
-      document.documentElement.setAttribute('data-admin-theme', next);
-    }
-  };
 
   const navItems = [
     {
@@ -88,19 +77,19 @@ export default function AdminLayout({
   const breadcrumbs = getBreadcrumbs();
 
   return (
-    <div className="admin-root" data-admin-theme={theme}>
+    <div className="admin-root" data-admin-theme="dark">
       <div className="admin-shell">
         {/* Sidebar */}
         <aside className={`admin-sidebar ${isCollapsed ? 'collapsed' : ''} ${isMobileOpen ? 'open-mobile' : ''}`}>
           <div className="admin-sidebar-header">
             <div className="admin-brand" onClick={() => onNavigate('/admin')} style={{ cursor: 'pointer' }}>
               <div className="admin-brand-icon">
-                <Sparkles size={16} />
+                <Compass size={16} />
               </div>
               {!isCollapsed && (
                 <>
                   <span>Bishal Mistri</span>
-                  <span className="admin-brand-badge">CMS</span>
+                  <span className="admin-brand-badge">Studio</span>
                 </>
               )}
             </div>
@@ -220,15 +209,6 @@ export default function AdminLayout({
             </div>
 
             <div className="admin-topbar-actions">
-              <button
-                type="button"
-                className="admin-btn-ghost admin-btn-icon"
-                onClick={toggleTheme}
-                title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
-              >
-                {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
-              </button>
-
               <a
                 href="/"
                 target="_blank"
