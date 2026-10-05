@@ -134,30 +134,6 @@ export default function App() {
         <main className="sanmid-main-container">
           {renderDevPage()}
         </main>
-        <NavigationDock currentPath={currentPath} onNavigate={navigate} />
-
-        {/* View Switcher Floating Badge */}
-        <button
-          onClick={toggleViewMode}
-          style={{
-            position: 'fixed',
-            top: '16px',
-            right: '16px',
-            fontSize: '11px',
-            fontFamily: 'monospace',
-            padding: '4px 10px',
-            borderRadius: '9999px',
-            background: 'var(--sanmid-bg-subtle)',
-            color: 'var(--sanmid-text-2)',
-            border: '1px solid var(--sanmid-border-subtle)',
-            cursor: 'pointer',
-            zIndex: 9999,
-            opacity: 0.8
-          }}
-          title="Click to toggle between Sanmid View and Original View"
-        >
-          ● DEV (Sanmid View)
-        </button>
       </div>
     );
   }

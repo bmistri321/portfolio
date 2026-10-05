@@ -1,75 +1,242 @@
-import React from 'react';
-import ShowcaseCard from '../components/ShowcaseCard';
+import React, { useState } from 'react';
+import { 
+  Volume2, 
+  VolumeX, 
+  Sun, 
+  Moon, 
+  Briefcase, 
+  Sparkles, 
+  FileText, 
+  Archive, 
+  Mail, 
+  Globe, 
+  ArrowUpRight 
+} from 'lucide-react';
+import { Github, Linkedin, Twitter } from '../components/Icons';
 
 export default function SanmidHomePage({ onNavigate }) {
-  const projects = [
+  const [activeTab, setActiveTab] = useState('work');
+  const [isPlayingAudio, setIsPlayingAudio] = useState(false);
+  const [theme, setTheme] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    }
+    return 'light';
+  });
+
+  const toggleTheme = () => {
+    const next = theme === 'dark' ? 'light' : 'dark';
+    setTheme(next);
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem('theme', next);
+  };
+
+  const playPronunciation = () => {
+    if (typeof window === 'undefined') return;
+    setIsPlayingAudio(true);
+    try {
+      const utterance = new SpeechSynthesisUtterance('Bishal Mistri');
+      utterance.rate = 0.9;
+      utterance.onend = () => setIsPlayingAudio(false);
+      utterance.onerror = () => setIsPlayingAudio(false);
+      window.speechSynthesis.speak(utterance);
+    } catch {
+      setIsPlayingAudio(false);
+    }
+  };
+
+  const workProjects = [
     {
       id: 'wexa-ai',
       title: 'Wexa AI (Phase 1)',
       year: '2026',
-      metric: 'Reduce onboarding drop-off by 42% and automate workspace setup',
+      metric: 'Reduce support ticket by 30% and save ~$20M annually',
       image: 'https://cdn.jsdelivr.net/gh/bmistri321/Images-web@main/Img-wexa-2.avif',
       link: '/casestudy/wexa'
     },
     {
       id: 'friender-crm',
-      title: 'Friender CRM',
+      title: 'Friender Toolbar & CRM',
       year: '2025',
-      metric: '50k+ active users, higher retention, ~3.5h saved weekly per rep',
+      metric: '100M+ end users, higher NPS, ~$8M saved',
       image: 'https://cdn.jsdelivr.net/gh/bmistri321/casestudy-2@main/Cover.avif',
       link: '/casestudy/friender-case-study'
     },
     {
-      id: 'varcle-analytics',
-      title: 'Varcle Observability Platform',
+      id: 'varcle-platform',
+      title: 'Varcle Platform Redesign',
       year: '2024',
-      metric: 'Real-time telemetry and sub-second anomaly detection for multi-cloud infra',
+      metric: '400k+ admins, less churn, more revenue',
       image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80',
       link: '/casestudy/wexa'
     },
     {
-      id: 'antigravity-toolkit',
-      title: 'Antigravity Developer Workspace',
+      id: 'antigravity-workflows',
+      title: 'Antigravity Admin Workflows',
       year: '2023-2026',
-      metric: 'Floating AI context menu and zero-latency AST code refactoring',
+      metric: 'Admin workflows for Cloud IDE · $20B ARR',
       image: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1200&q=80',
       link: '/casestudy/wexa'
     },
     {
-      id: 'design-system',
-      title: 'Design System & Tokens',
-      year: 'WIP',
-      metric: 'Documentation, primitives, and 3-tier token architecture',
+      id: 'observability',
+      title: 'Realtime Observability',
+      year: '2023-2026',
+      metric: 'Session insights for cloud admins · $20B ARR',
       image: 'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=1200&q=80',
+      link: '/casestudy/wexa'
+    },
+    {
+      id: 'design-system',
+      title: 'Core Design System',
+      year: 'WIP',
+      metric: 'Documentation, tokens and components library',
+      image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80',
+      link: '/dock'
+    }
+  ];
+
+  const tinkeringProjects = [
+    {
+      id: 'virtual-desktop',
+      title: 'Virtual Desktop Prototype',
+      year: '2026',
+      metric: 'Prototype of a Windows Virtual Desktop (made with AI)',
+      image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80',
+      link: '/playground'
+    },
+    {
+      id: 'dock-physics',
+      title: 'macOS Spring Dock',
+      year: '2025',
+      metric: 'Smooth magnification curve and bouncy dock interaction in React',
+      image: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=1200&q=80',
       link: '/dock'
     },
     {
-      id: 'virtual-desktop',
-      title: 'Interactive Web Playground',
-      year: 'WIP',
-      metric: 'Prototypes of ideas, spring physics, and canvas shaders',
-      image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80',
+      id: 'token-generator',
+      title: 'Figma Variables Tokenizer',
+      year: '2025',
+      metric: 'Automated 3-layer design token generator from JSON',
+      image: 'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=1200&q=80',
       link: '/playground'
     }
   ];
 
+  const writings = [
+    {
+      title: 'Designing AI Agents That Don’t Hallucinate UX',
+      date: 'Feb 2026',
+      metric: 'System prompts, latency states, and conversational guardrails in B2B SaaS',
+      url: 'https://medium.com/@bishalmistri'
+    },
+    {
+      title: 'The 3-Layer Design Token Architecture for Modern Teams',
+      date: 'Dec 2025',
+      metric: 'Primitives, Semantics & Component tokens for light/dark theme scalability',
+      url: 'https://medium.com/@bishalmistri'
+    },
+    {
+      title: 'Why Micro-Interactions Make or Break SaaS Retention',
+      date: 'Oct 2025',
+      metric: 'Sub-pixel alignment, keyboard shortcuts, and perceived speed',
+      url: 'https://medium.com/@bishalmistri'
+    }
+  ];
+
+  const archives = [
+    {
+      id: 'early-works',
+      title: 'UX Design Mastery — 30 Days',
+      year: '2024',
+      metric: 'Published guide on product psychology and wireframing',
+      image: 'https://cdn.jsdelivr.net/gh/bmistri321/casestudy-2@main/Cover.avif',
+      link: '/book/ux.mastery.30.days'
+    },
+    {
+      id: 'travel-archive',
+      title: 'Visual Travel Logs & Moments',
+      year: '2023-2025',
+      metric: 'Photographs and architectural studies across Asia',
+      image: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=1200&q=80',
+      link: '/travel'
+    }
+  ];
+
+  const getActiveList = () => {
+    switch (activeTab) {
+      case 'tinkering':
+        return tinkeringProjects;
+      case 'archives':
+        return archives;
+      case 'writing':
+        return writings;
+      case 'work':
+      default:
+        return workProjects;
+    }
+  };
+
   return (
     <div className="sanmid-page-animate">
-      {/* Header Bio */}
-      <header className="sanmid-header">
-        <h1 className="sanmid-main-title">Bishal Mistri</h1>
-        <h2 className="sanmid-sub-title">Product Designer &amp; Design Technologist</h2>
-        <div className="sanmid-tagline">Technical. Systems thinking. High agency.</div>
+      {/* 1. TOP HEADER: Avatar + Name + Pronunciation Audio + Theme Toggle */}
+      <header className="sanmid-top-bar">
+        <div className="sanmid-profile-left">
+          <div className="sanmid-avatar-circle">
+            <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="sanmid-avatar-svg">
+              <circle cx="20" cy="20" r="20" fill="url(#pinkGrad)" />
+              <path d="M12 20C12 15.5817 15.5817 12 20 12C24.4183 12 28 15.5817 28 20C28 24.4183 24.4183 28 20 28" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
+              <circle cx="20" cy="20" r="3" fill="white" />
+              <defs>
+                <linearGradient id="pinkGrad" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse">
+                  <stop stopColor="#F43F5E" />
+                  <stop offset="1" stopColor="#D946EF" />
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+          <div className="sanmid-profile-meta">
+            <h1 className="sanmid-name-title">Bishal Mistri</h1>
+            <p className="sanmid-role-sub">Senior Product Designer</p>
+          </div>
+        </div>
 
-        <p className="sanmid-bio-p">
-          I design end-to-end from 0-to-1, transforming messy, ambiguous, and technically challenging problems into shipped B2B solutions. Focused on craft, typography, and rapid prototyping.
+        <div className="sanmid-top-actions">
+          <button 
+            onClick={playPronunciation} 
+            className="sanmid-icon-btn" 
+            aria-label="Pronounce name"
+            title="Pronounce name"
+          >
+            {isPlayingAudio ? <VolumeX size={17} color="#E11D48" /> : <Volume2 size={17} />}
+          </button>
+          <button 
+            onClick={toggleTheme} 
+            className="sanmid-icon-btn" 
+            aria-label="Toggle theme"
+            title="Toggle theme"
+          >
+            {theme === 'dark' ? <Sun size={17} /> : <Moon size={17} />}
+          </button>
+        </div>
+      </header>
+
+      {/* 2. SIGNATURE SCRIPT TAGLINE (Caveat Cursive) */}
+      <div className="sanmid-handwritten-tagline">
+        Technical. Systems thinking. High agency.
+      </div>
+
+      {/* 3. NARRATIVE BIO WITH VIBRANT PINK LINKS */}
+      <div className="sanmid-bio-section">
+        <p className="sanmid-bio-paragraph">
+          I design end-to-end from 0-to-1, transforming messy, ambiguous, and technically challenging problems into shipped B2B solutions. Focused on craft and rapid prototyping. Currently at <a href="https://wexa.ai" target="_blank" rel="noopener noreferrer" className="sanmid-pink-link">Wexa AI</a>, previously at <a href="https://tier5.us" target="_blank" rel="noopener noreferrer" className="sanmid-pink-link">Tier5</a>. Master's in Design and Bachelor's in Computer Science.
         </p>
 
-        <p className="sanmid-bio-p">
-          Outside of design, I am into photography, mechanical keyboards, coffee, and{' '}
+        <p className="sanmid-bio-paragraph">
+          Outside of design, I'm into anthropology, keyboards, reading, coffee, board games, and{' '}
           <a
             href="/travel"
-            className="sanmid-inline-link"
+            className="sanmid-pink-link"
             onClick={(e) => {
               e.preventDefault();
               onNavigate('/travel');
@@ -79,17 +246,19 @@ export default function SanmidHomePage({ onNavigate }) {
           </a>
           . I{' '}
           <a
-            href="https://medium.com/@bishalmistri"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="sanmid-inline-link"
+            href="#writing"
+            className="sanmid-pink-link"
+            onClick={(e) => {
+              e.preventDefault();
+              setActiveTab('writing');
+            }}
           >
             write
           </a>{' '}
-          and share thoughts online. Check out what is in my{' '}
+          and I recently started posting them online. Check out what's in my{' '}
           <a
             href="/dock"
-            className="sanmid-inline-link"
+            className="sanmid-pink-link"
             onClick={(e) => {
               e.preventDefault();
               onNavigate('/dock');
@@ -99,11 +268,11 @@ export default function SanmidHomePage({ onNavigate }) {
           </a>
           . Always{' '}
           <a
-            href="/playground"
-            className="sanmid-inline-link"
+            href="#tinkering"
+            className="sanmid-pink-link"
             onClick={(e) => {
               e.preventDefault();
-              onNavigate('/playground');
+              setActiveTab('tinkering');
             }}
           >
             tinkering
@@ -111,32 +280,126 @@ export default function SanmidHomePage({ onNavigate }) {
           .
         </p>
 
-        <div className="sanmid-funfact">
-          Fun fact: Obsessed with sub-pixel alignment, keyboard-driven UI, and zero-latency interactions
-        </div>
-      </header>
+        <p className="sanmid-funfact-text">
+          Fun fact: You won't find anyone with my exact design &amp; code toolkit stack
+        </p>
+      </div>
 
-      {/* Project Showcase List */}
-      <section className="sanmid-project-list">
-        {projects.map((project) => (
-          <ShowcaseCard
-            key={project.id}
-            title={project.title}
-            year={project.year}
-            metric={project.metric}
-            image={project.image}
-            link={project.link}
-            onNavigate={onNavigate}
-          />
-        ))}
-      </section>
+      {/* 4. SOCIAL ICONS ROW */}
+      <div className="sanmid-social-row">
+        <a href="https://twitter.com/bishalmistri" target="_blank" rel="noopener noreferrer" className="sanmid-social-icon" aria-label="Twitter">
+          <Twitter size={16} />
+        </a>
+        <a href="mailto:contact@bishalmistri.com" className="sanmid-social-icon" aria-label="Email">
+          <Mail size={16} />
+        </a>
+        <a href="https://linkedin.com/in/bishalmistri" target="_blank" rel="noopener noreferrer" className="sanmid-social-icon" aria-label="LinkedIn">
+          <Linkedin size={16} />
+        </a>
+        <a href="https://github.com/bishalmistri" target="_blank" rel="noopener noreferrer" className="sanmid-social-icon" aria-label="GitHub">
+          <Github size={16} />
+        </a>
+        <a href="https://bishalmistri.com" target="_blank" rel="noopener noreferrer" className="sanmid-social-icon" aria-label="Website">
+          <Globe size={16} />
+        </a>
+      </div>
 
-      {/* Footer */}
-      <footer className="sanmid-footer">
-        <div>
-          Built with <span className="sanmid-footer-strong">React</span> and <span className="sanmid-footer-strong">Cursor</span>
+      {/* 5. SEGMENTED FILTER PILL TABS */}
+      <div className="sanmid-tabs-container">
+        <button
+          className={`sanmid-tab-pill ${activeTab === 'work' ? 'active' : ''}`}
+          onClick={() => setActiveTab('work')}
+        >
+          <Briefcase size={13} />
+          <span>Work</span>
+        </button>
+
+        <button
+          className={`sanmid-tab-pill ${activeTab === 'tinkering' ? 'active' : ''}`}
+          onClick={() => setActiveTab('tinkering')}
+        >
+          <Sparkles size={13} />
+          <span>Tinkering</span>
+        </button>
+
+        <button
+          className={`sanmid-tab-pill ${activeTab === 'writing' ? 'active' : ''}`}
+          onClick={() => setActiveTab('writing')}
+        >
+          <FileText size={13} />
+          <span>Writing</span>
+        </button>
+
+        <button
+          className={`sanmid-tab-pill ${activeTab === 'archives' ? 'active' : ''}`}
+          onClick={() => setActiveTab('archives')}
+        >
+          <Archive size={13} />
+          <span>Archives</span>
+        </button>
+      </div>
+
+      {/* 6. 2-COLUMN PROJECT GRID */}
+      {activeTab === 'writing' ? (
+        <div className="sanmid-writing-list">
+          {writings.map((item) => (
+            <a
+              key={item.title}
+              href={item.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="sanmid-writing-row"
+            >
+              <div>
+                <h3 className="sanmid-card-title">{item.title}</h3>
+                <p className="sanmid-card-metric">{item.metric}</p>
+              </div>
+              <span className="sanmid-year-badge">{item.date}</span>
+            </a>
+          ))}
         </div>
-        <div className="sanmid-footer-author">Bishal</div>
+      ) : (
+        <div className="sanmid-cards-grid">
+          {getActiveList().map((project) => (
+            <a
+              key={project.id}
+              href={project.link}
+              onClick={(e) => {
+                if (project.link.startsWith('/')) {
+                  e.preventDefault();
+                  onNavigate(project.link);
+                }
+              }}
+              className="sanmid-project-card"
+            >
+              <div className="sanmid-card-img-box">
+                <img
+                  src={project.image}
+                  alt={project.title}
+                  loading="lazy"
+                  decoding="async"
+                  className="sanmid-card-img"
+                />
+              </div>
+
+              <div className="sanmid-card-info">
+                <div className="sanmid-card-title-row">
+                  <h3 className="sanmid-card-title">{project.title}</h3>
+                  {project.year && <span className="sanmid-year-badge">{project.year}</span>}
+                </div>
+                {project.metric && <p className="sanmid-card-metric">{project.metric}</p>}
+              </div>
+            </a>
+          ))}
+        </div>
+      )}
+
+      {/* 7. MINIMAL FOOTER */}
+      <footer className="sanmid-footer-row">
+        <div className="sanmid-footer-text">
+          Built with <span className="sanmid-footer-bold">Next.js</span> and <span className="sanmid-footer-bold">Cursor</span>
+        </div>
+        <div className="sanmid-footer-name">Bishal</div>
       </footer>
     </div>
   );
