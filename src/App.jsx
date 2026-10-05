@@ -89,33 +89,41 @@ export default function App() {
 
   // 1. DEV SUBDOMAIN (dev.bishalmistri.com -> Dev Site)
   if (isDev) {
-    const renderDevPage = () => {
+    const isDetailPage = currentPath.startsWith('/casestudy/');
+
+    const renderDetailCaseStudy = () => {
+      switch (currentPath) {
+        case '/casestudy/wexa':
+          return <DevWexaPage onNavigate={navigate} />;
+        case '/casestudy/friender-case-study':
+          return <DevFrienderPage onNavigate={navigate} />;
+        case '/casestudy':
+          return <DevCaseStudyPage onNavigate={navigate} />;
+        default:
+          return null;
+      }
+    };
+
+    const renderBasePage = () => {
       switch (currentPath) {
         case '/dock':
           return <DockPage onNavigate={navigate} />;
         case '/travel':
           return <TravelPage onNavigate={navigate} />;
-        case '/casestudy':
-          return <DevCaseStudyPage onNavigate={navigate} />;
-        case '/casestudy/wexa':
-          return <DevWexaPage onNavigate={navigate} />;
-        case '/casestudy/friender-case-study':
-          return <DevFrienderPage onNavigate={navigate} />;
         case '/playground':
           return <PlaygroundPage onNavigate={navigate} />;
-        case '/':
         default:
           return <DevHomePage onNavigate={navigate} />;
       }
     };
 
-    const isDetailPage = currentPath.startsWith('/casestudy/');
-
     return (
       <div className="dev-app-wrapper">
-        <main className={isDetailPage ? "dev-detail-container" : "dev-main-container"}>
-          {renderDevPage()}
+        <main className="dev-main-container">
+          {renderBasePage()}
         </main>
+
+        {isDetailPage && renderDetailCaseStudy()}
       </div>
     );
   }
