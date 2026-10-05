@@ -18,8 +18,28 @@ import DevFrienderPage from './pages/DevFrienderPage';
 import DockPage from './pages/DockPage';
 import TravelPage from './pages/TravelPage';
 
+// Admin CMS Application (for admin.bishalmistri.com & /admin)
+import AdminApp from './admin/AdminApp';
+
+export const isAdminSubdomain = () => {
+  if (typeof window === 'undefined') return false;
+  const host = window.location.hostname.toLowerCase();
+  const search = window.location.search;
+  const path = window.location.pathname.toLowerCase();
+  return (
+    host === 'admin.bishalmistri.com' ||
+    host === 'www.admin.bishalmistri.com' ||
+    host.startsWith('admin.') ||
+    host.includes('.admin.') ||
+    host.includes('admin.bishalmistri.com') ||
+    path.startsWith('/admin') ||
+    search.includes('mode=admin')
+  );
+};
+
 export const isDevSubdomain = () => {
   if (typeof window === 'undefined') return false;
+  if (isAdminSubdomain()) return false;
   const host = window.location.hostname.toLowerCase();
   const search = window.location.search;
   return (
@@ -35,17 +55,20 @@ export const isDevSubdomain = () => {
 
 export const isBooksSubdomain = () => {
   if (typeof window === 'undefined') return false;
+  if (isAdminSubdomain()) return false;
   const host = window.location.hostname.toLowerCase();
   return host === 'books.bishalmistri.com' || host.startsWith('books.');
 };
 
 export default function App() {
+  const isAdmin = isAdminSubdomain();
   const isDev = isDevSubdomain();
   const isBooks = isBooksSubdomain();
 
   const getCleanPath = (path) => {
     let p = (path || '/').toLowerCase().replace('.html', '').replace(/^\/p\//, '/');
     if (!p.startsWith('/')) p = '/' + p;
+    if (p.startsWith('/admin')) return p;
     if (p.includes('friender')) return '/casestudy/friender-case-study';
     if (p.includes('wexa')) return '/casestudy/wexa';
     if (p.includes('dock')) return '/dock';
@@ -90,6 +113,11 @@ export default function App() {
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
+
+  // 0. ADMIN PORTAL (admin.bishalmistri.com OR /admin)
+  if (isAdmin || currentPath.startsWith('/admin')) {
+    return <AdminApp onNavigateLive={navigate} />;
+  }
 
   // 1. DEV SUBDOMAIN (dev.bishalmistri.com -> Dev Site)
   if (isDev) {
