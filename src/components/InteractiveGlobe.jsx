@@ -57,13 +57,6 @@ export default function InteractiveGlobe({
   const canvasRef = useRef(null);
   const rotYRef = useRef(0.4);
   const rotXRef = useRef(0.2);
-  const dragRef = useRef({
-    active: false,
-    startX: 0,
-    startY: 0,
-    startRotY: 0,
-    startRotX: 0,
-  });
   const animRef = useRef(0);
   const timeRef = useRef(0);
   const dotsRef = useRef([]);
@@ -106,28 +99,13 @@ export default function InteractiveGlobe({
     const radius = Math.min(w, h) * 0.44;
     const fov = 400;
 
-    if (!dragRef.current.active) {
-      rotYRef.current += autoRotateSpeed;
-    }
+    // Automatic smooth rotation
+    rotYRef.current += autoRotateSpeed;
 
     timeRef.current += 0.02;
     const time = timeRef.current;
 
     ctx.clearRect(0, 0, w, h);
-
-    // Subtle background circle / glow
-    const glowGrad = ctx.createRadialGradient(cx, cy, radius * 0.5, cx, cy, radius * 1.2);
-    glowGrad.addColorStop(0, 'rgba(244, 63, 94, 0.12)');
-    glowGrad.addColorStop(1, 'rgba(217, 70, 239, 0.02)');
-    ctx.fillStyle = glowGrad;
-    ctx.fillRect(0, 0, w, h);
-
-    // Sphere rim outline
-    ctx.beginPath();
-    ctx.arc(cx, cy, radius, 0, Math.PI * 2);
-    ctx.strokeStyle = 'rgba(244, 63, 94, 0.18)';
-    ctx.lineWidth = 1;
-    ctx.stroke();
 
     const ry = rotYRef.current;
     const rx = rotXRef.current;
@@ -233,31 +211,6 @@ export default function InteractiveGlobe({
     return () => cancelAnimationFrame(animRef.current);
   }, [draw]);
 
-  const onPointerDown = useCallback((e) => {
-    dragRef.current = {
-      active: true,
-      startX: e.clientX,
-      startY: e.clientY,
-      startRotY: rotYRef.current,
-      startRotX: rotXRef.current,
-    };
-    try {
-      e.target.setPointerCapture(e.pointerId);
-    } catch (_) {}
-  }, []);
-
-  const onPointerMove = useCallback((e) => {
-    if (!dragRef.current.active) return;
-    const dx = e.clientX - dragRef.current.startX;
-    const dy = e.clientY - dragRef.current.startY;
-    rotYRef.current = dragRef.current.startRotY + dx * 0.006;
-    rotXRef.current = Math.max(-1, Math.min(1, dragRef.current.startRotX + dy * 0.006));
-  }, []);
-
-  const onPointerUp = useCallback(() => {
-    dragRef.current.active = false;
-  }, []);
-
   return (
     <canvas
       ref={canvasRef}
@@ -267,13 +220,9 @@ export default function InteractiveGlobe({
         height: size,
         borderRadius: '50%',
         display: 'block',
-        cursor: 'grab'
+        pointerEvents: 'none',
+        cursor: 'default'
       }}
-      onPointerDown={onPointerDown}
-      onPointerMove={onPointerMove}
-      onPointerUp={onPointerUp}
-      onPointerCancel={onPointerUp}
-      title="Interactive 3D Globe (Drag to rotate)"
     />
   );
 }
