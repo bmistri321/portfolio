@@ -397,7 +397,7 @@ export default function DevHomePage({ onNavigate }) {
       {/* 7. MINIMAL FOOTER */}
       <footer className="dev-footer-row">
         <div className="dev-footer-text">
-          Built with <span className="dev-footer-bold">Next.js</span> and <span className="dev-footer-bold">Cursor</span>
+          Built with <span className="dev-footer-bold">Next.js</span> and <span className="dev-footer-bold">Antigravity</span>
         </div>
         <div className="dev-footer-name">Bishal</div>
       </footer>
