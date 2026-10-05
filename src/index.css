@@ -917,17 +917,29 @@ body {
 }
 
 .dev-avatar-circle {
-  width: 36px;
-  height: 36px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
   overflow: hidden;
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  background: radial-gradient(circle, rgba(244, 63, 94, 0.15) 0%, rgba(217, 70, 239, 0.05) 100%);
+  box-shadow: 0 0 0 1px rgba(244, 63, 94, 0.2);
 }
 
-.dev-avatar-svg {
+.dev-interactive-globe {
   width: 100%;
   height: 100%;
-  display: block;
+  border-radius: 50%;
+  cursor: grab;
+  touch-action: none;
+}
+
+.dev-interactive-globe:active {
+  cursor: grabbing;
 }
 
 .dev-profile-meta {

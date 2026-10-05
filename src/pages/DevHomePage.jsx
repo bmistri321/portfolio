@@ -13,6 +13,7 @@ import {
   ArrowUpRight 
 } from 'lucide-react';
 import { Github, Linkedin, Twitter } from '../components/Icons';
+import InteractiveGlobe from '../components/InteractiveGlobe';
 
 export default function DevHomePage({ onNavigate }) {
   const [activeTab, setActiveTab] = useState('work');
@@ -183,17 +184,7 @@ export default function DevHomePage({ onNavigate }) {
       <header className="dev-top-bar">
         <div className="dev-profile-left">
           <div className="dev-avatar-circle">
-            <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="dev-avatar-svg">
-              <circle cx="20" cy="20" r="20" fill="url(#pinkGrad)" />
-              <path d="M12 20C12 15.5817 15.5817 12 20 12C24.4183 12 28 15.5817 28 20C28 24.4183 24.4183 28 20 28" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
-              <circle cx="20" cy="20" r="3" fill="white" />
-              <defs>
-                <linearGradient id="pinkGrad" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse">
-                  <stop stopColor="#F43F5E" />
-                  <stop offset="1" stopColor="#D946EF" />
-                </linearGradient>
-              </defs>
-            </svg>
+            <InteractiveGlobe size={38} />
           </div>
           <div className="dev-profile-meta">
             <h1 className="dev-name-title">Bishal Mistri</h1>
