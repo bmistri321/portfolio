@@ -1,6 +1,6 @@
-# Robots.txt for portfolio.bishalmistri.com
+# Robots.txt for www.bishalmistri.com
 User-agent: *
 Allow: /
 
 # Sitemap URL
-Sitemap: https://portfolio.bishalmistri.com/sitemap.xml
+Sitemap: https://www.bishalmistri.com/sitemap.xml

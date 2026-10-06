@@ -64,7 +64,7 @@ export default function FloatingNav({ currentPath, onNavigate }) {
 
   const handleNavClick = (path) => {
     if (typeof window !== 'undefined' && window.location.hostname.toLowerCase().startsWith('books.')) {
-      window.location.href = `https://portfolio.bishalmistri.com${path === '/' ? '' : path}`;
+      window.location.href = `https://www.bishalmistri.com${path === '/' ? '' : path}`;
       return;
     }
     onNavigate(path);

@@ -8,11 +8,27 @@ import MediaLibraryPage from './MediaLibraryPage';
 import SettingsPage from './SettingsPage';
 import PreviewModal from './PreviewModal';
 import { contentService } from '../lib/contentService';
-import { getStoredSession, saveStoredSession } from '../lib/supabase';
+import { getStoredSession, supabaseAuth } from '../lib/supabase';
 import './admin.css';
 
 export default function AdminApp({ onNavigateLive }) {
   const [session, setSession] = useState(() => getStoredSession());
+  const [checking, setChecking] = useState(true);
+
+  // Validate the stored session against the Supabase server on load.
+  // Anything that is not a live server session (legacy bypass tokens,
+  // expired or revoked JWTs) is dropped and the login screen is shown.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const user = await supabaseAuth.validateSession();
+      if (!cancelled) {
+        setSession(user ? getStoredSession() : null);
+        setChecking(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
   const [currentPath, setCurrentPath] = useState(() => {
     if (typeof window !== 'undefined') {
       const p = window.location.pathname;
@@ -66,10 +82,23 @@ export default function AdminApp({ onNavigateLive }) {
     return () => window.removeEventListener('popstate', handlePop);
   }, []);
 
-  const handleLogout = () => {
-    saveStoredSession(null);
-    setSession(null);
+  const handleLogout = async () => {
+    try {
+      await supabaseAuth.signOut();
+    } finally {
+      setSession(null);
+    }
   };
+
+  // While the stored session is being validated, show a neutral loader
+  // so a stale/forged session never flashes the studio UI.
+  if (checking) {
+    return (
+      <div className="admin-root" data-admin-theme="dark" style={{ alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
+        <p style={{ color: 'var(--admin-text-secondary)', fontSize: '14px' }}>Checking session…</p>
+      </div>
+    );
+  }
 
   // If unauthenticated, show Studio Auth Screen
   if (!session) {

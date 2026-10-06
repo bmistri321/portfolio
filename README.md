@@ -2,7 +2,7 @@
 
 Official portfolio website of **Bishal Mistri**, Product Designer specializing in user-centered digital experiences, B2B SaaS platforms, design systems, and product discovery.
 
-🌐 **Live URL**: [https://portfolio.bishalmistri.com/](https://portfolio.bishalmistri.com/)
+🌐 **Live URL**: [https://www.bishalmistri.com/](https://www.bishalmistri.com/)
 
 ---
 

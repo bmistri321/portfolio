@@ -155,7 +155,7 @@ CREATE POLICY "Authenticated users full access to content" ON public.content FOR
               <input
                 type="text"
                 className="admin-form-input"
-                placeholder="https://qirpufadoruqvgubpqzx.supabase.co"
+                placeholder="https://your-project.supabase.co"
                 value={supabaseUrl}
                 onChange={(e) => setSupabaseUrl(e.target.value)}
               />

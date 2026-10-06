@@ -102,6 +102,11 @@ export async function supabaseRequest(endpoint, options = {}) {
 }
 
 // Auth API Methods
+
+// Access tokens ever minted by the old client-side bypass (no password).
+// Any stored session carrying one is rejected outright.
+const LEGACY_FAKE_TOKENS = ['studio_pass_local', 'local_studio_session', 'local-admin'];
+
 export const supabaseAuth = {
   async signInWithPassword(email, password) {
     const { url, anonKey } = getSupabaseConfig();
@@ -149,10 +154,49 @@ export const supabaseAuth = {
     }
   },
 
+  // Validate the stored session against the Supabase server.
+  // Returns the user on success, clears the session and returns null otherwise.
+  async validateSession() {
+    const session = getStoredSession();
+    if (!session || !session.access_token) return null;
+
+    // Reject tokens minted by the old client-side bypass.
+    if (LEGACY_FAKE_TOKENS.includes(session.access_token)) {
+      saveStoredSession(null);
+      return null;
+    }
+
+    // Reject locally-expired sessions before hitting the network.
+    if (session.expires_at && Date.now() > session.expires_at) {
+      saveStoredSession(null);
+      return null;
+    }
+
+    const { url, anonKey } = getSupabaseConfig();
+    if (!url || !anonKey) return null;
+
+    try {
+      const res = await fetch(`${url}/auth/v1/user`, {
+        headers: {
+          'apikey': anonKey,
+          'Authorization': `Bearer ${session.access_token}`
+        }
+      });
+      if (!res.ok) {
+        saveStoredSession(null);
+        return null;
+      }
+      return await res.json();
+    } catch {
+      // Fail closed on network error.
+      return null;
+    }
+  },
+
   async getUser() {
     const session = getStoredSession();
     if (!session) return null;
-    
+
     // Check local expiry
     if (session.expires_at && Date.now() > session.expires_at) {
       saveStoredSession(null);

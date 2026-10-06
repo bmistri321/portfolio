@@ -94,7 +94,7 @@ export default function BookPage({ onNavigate }) {
           {/* Back Button */}
           <a 
             className="pm-back-btn" 
-            href={isBooksSubdomain ? 'https://portfolio.bishalmistri.com' : '/'} 
+            href={isBooksSubdomain ? 'https://www.bishalmistri.com' : '/'} 
             onClick={(e) => {
               if (isBooksSubdomain) {
                 return;
