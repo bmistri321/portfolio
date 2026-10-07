@@ -72,7 +72,8 @@ export function generateSlug(text) {
 // Utility: Calculate Reading Time
 export function calculateReadingTime(content) {
   if (!content) return '1 min read';
-  const clean = content.replace(/[#*`_~[\]()]/g, '');
+  const noHtml = String(content).replace(/<[^>]*>/g, ' ');
+  const clean = noHtml.replace(/[#*`_~[\]()]/g, '');
   const words = clean.trim().split(/\s+/).filter(Boolean).length;
   const minutes = Math.max(1, Math.ceil(words / 200));
   return `${minutes} min read`;

@@ -1708,3 +1708,28 @@ body {
 .cs-html-body li { margin-bottom: 6px; }
 .cs-html-body a { color: var(--dev-pink); text-decoration: underline; text-underline-offset: 2px; }
 .cs-html-body strong { font-weight: 650; }
+
+/* Unified article media: inline images, figures, video */
+.cs-html-body img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 10px;
+  display: block;
+  margin: 18px auto;
+}
+.cs-html-body figure { margin: 20px 0; }
+.cs-html-body figure img { margin: 0 auto; }
+.cs-html-body figcaption {
+  font-size: 12.5px;
+  color: var(--dev-text-3);
+  text-align: center;
+  margin-top: 8px;
+  line-height: 1.5;
+}
+.cs-html-body video {
+  width: 100%;
+  border-radius: 10px;
+  background: #000;
+  margin: 18px 0;
+  display: block;
+}

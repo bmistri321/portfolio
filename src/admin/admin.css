@@ -1036,3 +1036,58 @@
   border: 1px solid var(--admin-border);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
 }
+
+/* Slash-command menu (type "/") — dark floating picker like the reference */
+.admin-slash-menu {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  background: #232328;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 10px;
+  padding: 5px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.28);
+}
+.admin-slash-menu button {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: transparent;
+  border: none;
+  border-radius: 7px;
+  color: #f4f4f6;
+  font-size: 13px;
+  font-weight: 550;
+  padding: 7px 10px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.admin-slash-menu button:hover { background: rgba(255, 255, 255, 0.1); }
+.admin-slash-menu .asm-hint {
+  font-size: 10.5px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+/* Upload progress pill */
+.admin-uploading-pill {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  z-index: 40;
+  background: #232328;
+  color: #f4f4f6;
+  font-size: 12px;
+  font-weight: 550;
+  border-radius: 9999px;
+  padding: 7px 14px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.22);
+  animation: admin-pulse 1.2s ease-in-out infinite;
+}
+@keyframes admin-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+
+/* Unified article editor: a touch more presence than section bodies */
+.admin-article-editor .ql-editor { min-height: 320px; font-size: 14.5px; }

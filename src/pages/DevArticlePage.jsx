@@ -85,6 +85,46 @@ function renderSectionBody(body) {
   return isHtml(body) ? renderHtmlBody(body) : renderBlocks(body);
 }
 
+const RICH_ALLOWED = {
+  ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 's', 'a', 'ul', 'ol', 'li',
+    'blockquote', 'h2', 'h3', 'img', 'figure', 'figcaption', 'video', 'source'],
+  ALLOWED_ATTR: ['href', 'target', 'rel', 'src', 'alt', 'controls', 'preload'],
+};
+
+// Split a unified article document at its H2s into nav-able pseudo-sections.
+// Content before the first H2 becomes an "Overview" section.
+function splitArticleHtml(html) {
+  const doc = new DOMParser().parseFromString(`<div>${String(html || '')}</div>`, 'text/html');
+  const root = doc.body.firstChild;
+  const sections = [];
+  let cur = null;
+  const startSection = (id, label, heading) => {
+    cur = { id, label, heading, parts: [] };
+    sections.push(cur);
+  };
+  Array.from(root.childNodes).forEach((node) => {
+    if (node.nodeName === 'H2') {
+      startSection(slugId(node.textContent), node.textContent.trim(), true);
+    } else {
+      if (!cur) startSection('overview', 'Overview', false);
+      cur.parts.push(node.outerHTML !== undefined ? node.outerHTML : node.textContent);
+    }
+  });
+  return sections
+    .filter((s) => s.parts.join('').trim().length > 0)
+    .map((s) => ({
+      id: s.id,
+      label: s.label,
+      heading: s.heading ? s.label : null,
+      html: DOMPurify.sanitize(s.parts.join(''), RICH_ALLOWED),
+    }));
+}
+
+// Render one unified-document chunk as sanitized HTML.
+function renderArticleChunk(html) {
+  return <div className="cs-html-body" dangerouslySetInnerHTML={{ __html: html }} />;
+}
+
 const slugId = (t) =>
   String(t || 'section')
     .toLowerCase()
@@ -114,17 +154,25 @@ function RichArticle({ item, siblings, onNavigate }) {
   const linkFor = (s) => s.metadata?.link || `/casestudy/${s.slug}`;
   const meta = [md.year, md.readingTime || '5 minutes read'].filter(Boolean).join(' · ');
 
-  const sections = (md.sections || []).map((sec) => ({
-    id: slugId(sec.title),
-    label: sec.title,
-    heading: sec.title,
-    content: (
-      <>
-        {renderSectionBody(sec.body)}
-        {renderImages(sec.images)}
-      </>
-    ),
-  }));
+  const useUnified = item.content && item.content.trim().length > 0;
+  const sections = useUnified
+    ? splitArticleHtml(item.content).map((sec) => ({
+        id: sec.id,
+        label: sec.label,
+        heading: sec.heading,
+        content: renderArticleChunk(sec.html),
+      }))
+    : (md.sections || []).map((sec) => ({
+        id: slugId(sec.title),
+        label: sec.title,
+        heading: sec.title,
+        content: (
+          <>
+            {renderSectionBody(sec.body)}
+            {renderImages(sec.images)}
+          </>
+        ),
+      }));
 
   return (
     <DevCaseStudyLayout
@@ -342,7 +390,9 @@ export default function DevArticlePage({ slug, onNavigate }) {
     );
   }
 
-  const rich = item.metadata?.sections && item.metadata.sections.length > 0;
+  const rich =
+    (item.content && item.content.trim().length > 0) ||
+    (item.metadata?.sections && item.metadata.sections.length > 0);
   return rich
     ? <RichArticle item={item} siblings={siblings} onNavigate={onNavigate} />
     : <GenericArticle item={item} onNavigate={onNavigate} />;
