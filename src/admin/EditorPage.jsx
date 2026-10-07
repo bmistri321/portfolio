@@ -920,7 +920,7 @@ export default function EditorPage({
                 Case Study & Project Meta
               </h3>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <div className="admin-meta-rows">
                 <div className="admin-form-group">
                   <label className="admin-form-label">Client / Company</label>
                   <input

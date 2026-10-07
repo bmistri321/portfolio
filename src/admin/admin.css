@@ -1123,3 +1123,27 @@
   background: var(--admin-bg-canvas);
   border-radius: var(--admin-radius-sm);
 }
+
+/* Inline property rows (editor): label on the left, value on the right,
+   one per line — no grid, no boxes. */
+.admin-meta-rows {
+  display: flex;
+  flex-direction: column;
+}
+.admin-meta-rows .admin-form-group {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 20px;
+  padding: 9px 0;
+}
+.admin-meta-rows .admin-form-label {
+  flex: 0 0 150px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.admin-meta-rows .admin-form-input {
+  flex: 1;
+  min-width: 0;
+}
