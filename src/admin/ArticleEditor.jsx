@@ -293,6 +293,15 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
     }
   };
 
+  const insertTextAt = (index) => {
+    const quill = quillRef.current;
+    if (!quill) return;
+    const idx = clampIndex(index ?? cursorIndex());
+    quill.insertText(idx, '\n', 'user');
+    quill.setSelection(Math.min(idx + 1, quill.getLength()), 'silent');
+    quill.focus();
+  };
+
   const insertDividerAt = (index) => {
     const quill = quillRef.current;
     if (!quill) return;
@@ -399,6 +408,7 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
   // API for the Insert panel (drag from panel, drop files on tiles, click).
   useImperativeHandle(ref, () => ({
     insertDivider: (index) => insertDividerAt(index ?? null),
+    insertText: (index) => insertTextAt(index ?? null),
     insertFiles: (index, files) => insertFilesAt(index ?? null, files),
     pickFiles: (kind, index) => pickFilesAt(kind, index ?? null),
     indexFromPoint: (x, y) => indexFromPoint(x, y),
@@ -423,6 +433,8 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
     const idx = indexFromPoint(e.clientX, e.clientY);
     if (kind === 'divider') {
       insertDividerAt(idx);
+    } else if (kind === 'text') {
+      insertTextAt(idx);
     } else if (kind) {
       pickFilesAt(kind, idx);
     } else if (files.length > 0) {

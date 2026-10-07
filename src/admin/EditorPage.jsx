@@ -29,6 +29,7 @@ import {
   Minus,
   Video,
   Film,
+  Type,
   Info,
   ChevronDown,
   X
@@ -66,6 +67,7 @@ const INSERT_TILES = [
   { kind: 'video', label: 'Video', hint: 'Upload MP4', Icon: Video },
   { kind: 'gif', label: 'GIF', hint: 'Upload', Icon: Film },
   { kind: 'divider', label: 'Divider', hint: 'Horizontal line', Icon: Minus },
+  { kind: 'text', label: 'Text', hint: 'Paragraph block', Icon: Type },
 ];
 
 export default function EditorPage({
@@ -669,9 +671,10 @@ export default function EditorPage({
                   }}
                   onClick={() => {
                     if (kind === 'divider') articleRef.current?.insertDivider(null);
+                    else if (kind === 'text') articleRef.current?.insertText(null);
                     else articleRef.current?.pickFiles(kind, null);
                   }}
-                  title={kind === 'divider' ? 'Click to insert a divider line' : 'Drag into the document, click to upload, or drop files here'}
+                  title={kind === 'divider' ? 'Click to insert a divider line' : kind === 'text' ? 'Drag into the document or click to insert a text paragraph' : 'Drag into the document, click to upload, or drop files here'}
                 >
                   <span className="admin-insert-tile-icon">
                     <Icon size={16} />
@@ -1190,7 +1193,7 @@ export default function EditorPage({
                   key={`article-${formData.id}`}
                   value={formData.content || ''}
                   onChange={(html) => handleFieldChange('content', html)}
-                  placeholder="Write the case study… Use the Insert panel for images, video, GIFs or dividers."
+                  placeholder="Write the case study… Use the Insert panel for text, images, video, GIFs or dividers."
                 />
               </div>
             </div>
