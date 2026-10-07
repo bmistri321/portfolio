@@ -488,9 +488,59 @@ export default function EditorPage({
   };
 
   if (loading) {
+    // Skeleton mirrors the edit page structure: top bar, insert panel,
+    // cover, title, meta rows, article lines, SEO panel.
+    const sk = (style) => <div className="admin-skel" style={style} />;
     return (
-      <div className="admin-page-container" style={{ textAlign: 'center', padding: '100px 0' }}>
-        <p style={{ color: 'var(--admin-text-muted)' }}>Loading studio canvas...</p>
+      <div className="admin-editor-layout" aria-hidden>
+        <header className="admin-editor-topbar">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+            {sk({ width: 110, height: 30, borderRadius: 8 })}
+            {sk({ width: 170, height: 36, borderRadius: 8 })}
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            {sk({ width: 90, height: 32, borderRadius: 8 })}
+            {sk({ width: 96, height: 36, borderRadius: 8 })}
+          </div>
+        </header>
+        <div className="admin-editor-canvas-wrap">
+          {formData.type === 'work' && (
+            <aside className="admin-insert-panel">
+              {sk({ width: 80, height: 14 })}
+              {[0, 1, 2, 3].map((i) => (
+                <div key={i}>{sk({ height: 54, borderRadius: 10 })}</div>
+              ))}
+            </aside>
+          )}
+          <div className="admin-editor-canvas">
+            {sk({ height: 240, borderRadius: 12 })}
+            {sk({ height: 40, width: '55%' })}
+            {sk({ height: 20, width: '92%' })}
+            {sk({ height: 20, width: '78%' })}
+            <div style={{ height: 8 }} />
+            {[0, 1, 2, 3, 4].map((i) => (
+              <div key={i} style={{ display: 'flex', gap: 20, alignItems: 'center' }}>
+                {sk({ width: 150, height: 13, flexShrink: 0 })}
+                {sk({ height: 13, flex: 1 })}
+              </div>
+            ))}
+            <div style={{ height: 8 }} />
+            {sk({ height: 18, width: 110 })}
+            {[96, 100, 89, 97, 94, 72].map((w, i) => (
+              <div key={i}>{sk({ height: 15, width: `${w}%` })}</div>
+            ))}
+          </div>
+          <aside className="admin-seo-panel">
+            {sk({ width: 60, height: 14 })}
+            {sk({ height: 13, width: '45%' })}
+            {sk({ height: 30, borderRadius: 6 })}
+            {sk({ height: 13, width: '55%' })}
+            {sk({ height: 62, borderRadius: 6 })}
+            {sk({ height: 13, width: '50%' })}
+            {sk({ height: 30, borderRadius: 6 })}
+            {sk({ height: 140, borderRadius: 8 })}
+          </aside>
+        </div>
       </div>
     );
   }

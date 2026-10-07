@@ -1340,3 +1340,15 @@ textarea.admin-form-input {
   pointer-events: none;
   z-index: 30;
 }
+
+/* Skeleton loader: shimmering blocks that mirror the page structure */
+.admin-skel {
+  border-radius: 6px;
+  background: linear-gradient(90deg, #e9e9ed 25%, #f5f5f7 50%, #e9e9ed 75%);
+  background-size: 200% 100%;
+  animation: admin-skel-shimmer 1.3s ease-in-out infinite;
+}
+@keyframes admin-skel-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
