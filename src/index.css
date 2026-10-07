@@ -1728,6 +1728,8 @@ body {
 }
 .cs-html-body video {
   width: 100%;
+  max-width: 100%;
+  height: auto;
   border-radius: 10px;
   background: #000;
   margin: 18px 0;

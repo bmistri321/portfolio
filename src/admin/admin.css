@@ -1284,3 +1284,15 @@ textarea.admin-form-input {
   overflow: hidden;
   width: 100%;
 }
+
+/* Video embeds behave like a YouTube iframe: full body width, ratio kept,
+   never overflowing the document. */
+.admin-quill-wrap .ql-editor video {
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 10px;
+  background: #000;
+  margin: 18px 0;
+}
