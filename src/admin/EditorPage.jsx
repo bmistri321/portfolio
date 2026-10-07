@@ -31,7 +31,10 @@ import {
   Type,
   Info,
   ChevronDown,
-  X
+  X,
+  Link2,
+  RefreshCw,
+  Download
 } from 'lucide-react';
 import {
   contentService,
@@ -108,6 +111,11 @@ export default function EditorPage({
   const [slugStatus, setSlugStatus] = useState({ checked: false, isUnique: true, msg: '' });
   const [quotePopup, setQuotePopup] = useState(null); // { index } — pending quote insertion
   const [manualSaved, setManualSaved] = useState(false); // Save button turns green after a manual save
+  const [mediumUrl, setMediumUrl] = useState('');
+  const [mediumBusy, setMediumBusy] = useState(false);
+  const [mediumMsg, setMediumMsg] = useState(null); // { ok: bool, text: string }
+  const [mediumUpdate, setMediumUpdate] = useState(null); // newer Medium version held back by local edits
+  const mediumAutoCheckedRef = useRef(false);
 
   const textareaRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -372,6 +380,176 @@ export default function EditorPage({
       alert(`Unpublish failed: ${err.message}`);
     }
   };
+
+  // ---------- Medium import / sync (Writing) ----------
+  // Linked state lives in metadata.medium: { url, postId, feedUrl, sync,
+  // lastSyncedAt, contentHash }. No DB migration needed.
+  const medium = formData.metadata?.medium || null;
+
+  const fetchMediumArticle = async (url) => {
+    const res = await fetch('/api/fetch-medium', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url })
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!data.ok) throw new Error(data.error || 'Could not fetch the article.');
+    return data;
+  };
+
+  // Applies fetched Medium data to the form. Sync updates the article body
+  // (+ excerpt); the title and cover are only set on import, never silently
+  // overwritten afterwards.
+  const applyMediumData = (data, { overwriteTitle }) => {
+    setFormData((prev) => {
+      const next = { ...prev };
+      if (overwriteTitle || !next.title || next.title === 'Untitled Piece') {
+        next.title = data.title || next.title;
+        next.slug = generateSlug(next.title);
+        if (!next.seo_title) next.seo_title = next.title;
+      }
+      if (overwriteTitle || !next.excerpt) next.excerpt = data.excerpt || next.excerpt;
+      next.content = data.html;
+      if (!next.cover_image && data.coverImage) {
+        next.cover_image = data.coverImage;
+        if (!next.thumbnail) next.thumbnail = data.coverImage;
+        if (!next.og_image) next.og_image = data.coverImage;
+      }
+      next.metadata = {
+        ...next.metadata,
+        readingTime: calculateReadingTime(data.html),
+        medium: {
+          url: data.url,
+          postId: data.postId,
+          feedUrl: data.feedUrl,
+          sync: prev.metadata?.medium?.sync !== false,
+          lastSyncedAt: new Date().toISOString(),
+          contentHash: data.contentHash
+        }
+      };
+      return next;
+    });
+    setMediumUpdate(null);
+    scheduleAutosave();
+  };
+
+  const handleMediumImport = async () => {
+    const url = mediumUrl.trim();
+    if (!url) {
+      setMediumMsg({ ok: false, text: 'Paste a Medium article link first.' });
+      return;
+    }
+    if (
+      formData.content && formData.content.trim() &&
+      !window.confirm('Replace the current content with the Medium article?')
+    ) return;
+    setMediumBusy(true);
+    setMediumMsg(null);
+    try {
+      const data = await fetchMediumArticle(url);
+      applyMediumData(data, { overwriteTitle: true });
+      setMediumUrl('');
+      setMediumMsg({ ok: true, text: `Imported \u201C${data.title}\u201D from Medium.` });
+    } catch (err) {
+      setMediumMsg({ ok: false, text: err.message });
+    } finally {
+      setMediumBusy(false);
+    }
+  };
+
+  const handleMediumSync = async (dataOverride) => {
+    const m = formDataRef.current?.metadata?.medium;
+    if (!m?.url) return;
+    setMediumBusy(true);
+    setMediumMsg(null);
+    try {
+      const data = dataOverride || await fetchMediumArticle(m.url);
+      if (data.contentHash === m.contentHash) {
+        setFormData((prev) => ({
+          ...prev,
+          metadata: {
+            ...prev.metadata,
+            medium: { ...prev.metadata.medium, lastSyncedAt: new Date().toISOString() }
+          }
+        }));
+        scheduleAutosave();
+        setMediumMsg({ ok: true, text: 'Already up to date with Medium.' });
+        return;
+      }
+      const localEdited =
+        formDataRef.current?.updated_at && m.lastSyncedAt &&
+        new Date(formDataRef.current.updated_at) > new Date(m.lastSyncedAt);
+      if (localEdited && !dataOverride) {
+        // Hold the newer version for review instead of clobbering his edits.
+        setMediumUpdate(data);
+        setMediumMsg({
+          ok: false,
+          text: 'Medium has a newer version, but you edited this piece after the last sync. Review it below before overwriting your edits.'
+        });
+        return;
+      }
+      if (localEdited && dataOverride && !window.confirm('Overwrite your edits with Medium\u2019s version?')) return;
+      applyMediumData(data, { overwriteTitle: false });
+      setMediumMsg({ ok: true, text: 'Updated from Medium.' });
+    } catch (err) {
+      setMediumMsg({ ok: false, text: err.message });
+    } finally {
+      setMediumBusy(false);
+    }
+  };
+
+  const toggleMediumSync = () => {
+    setFormData((prev) => ({
+      ...prev,
+      metadata: {
+        ...prev.metadata,
+        medium: { ...prev.metadata.medium, sync: !(prev.metadata.medium?.sync !== false) }
+      }
+    }));
+    scheduleAutosave();
+  };
+
+  const unlinkMedium = () => {
+    if (!window.confirm('Unlink this piece from Medium? Auto-sync will stop; the imported text stays.')) return;
+    setFormData((prev) => {
+      const md = { ...prev.metadata };
+      delete md.medium;
+      return { ...prev, metadata: md };
+    });
+    setMediumUpdate(null);
+    setMediumMsg(null);
+    scheduleAutosave();
+  };
+
+  // Quiet background check: if this piece is linked with auto-sync on and we
+  // have not checked in over a day, look for a newer Medium version. Applies
+  // it directly when there are no local edits; otherwise holds it for review.
+  useEffect(() => {
+    if (loading || isNew || mediumAutoCheckedRef.current) return;
+    mediumAutoCheckedRef.current = true;
+    const m = formDataRef.current?.metadata?.medium;
+    if (!m?.url || m.sync === false) return;
+    const last = m.lastSyncedAt ? new Date(m.lastSyncedAt).getTime() : 0;
+    if (Date.now() - last < 24 * 3600 * 1000) return;
+    (async () => {
+      try {
+        const data = await fetchMediumArticle(m.url);
+        if (!data.ok || data.contentHash === m.contentHash) return;
+        const localEdited =
+          formDataRef.current?.updated_at && m.lastSyncedAt &&
+          new Date(formDataRef.current.updated_at) > new Date(m.lastSyncedAt);
+        if (localEdited) {
+          setMediumUpdate(data);
+          setMediumMsg({ ok: false, text: 'Medium has a newer version of this piece. Review it below when ready.' });
+        } else {
+          applyMediumData(data, { overwriteTitle: false });
+          setMediumMsg({ ok: true, text: 'Synced the latest version from Medium.' });
+        }
+      } catch {
+        // Quiet: the manual "Sync from Medium" button surfaces errors.
+      }
+    })();
+  }, [loading, isNew]);
 
   // Cover Image Handling
   const handleCoverUpload = async (file) => {
@@ -656,6 +834,123 @@ export default function EditorPage({
         )}
         <div className="admin-editor-canvas">
           <>
+              {/* Medium import / sync (Writing only) */}
+              {formData.type === 'writing' && (
+                <div
+                  style={{
+                    border: '1px solid var(--admin-border)',
+                    borderRadius: '12px',
+                    padding: '14px 16px',
+                    marginBottom: '20px'
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: medium ? '10px' : '12px' }}>
+                    <Link2 size={15} style={{ color: 'var(--admin-text-muted)' }} />
+                    <span style={{ fontSize: '13.5px', fontWeight: 600 }}>Medium</span>
+                    {medium?.lastSyncedAt && (
+                      <span style={{ fontSize: '11.5px', color: 'var(--admin-text-muted)', marginLeft: 'auto' }}>
+                        Last synced {new Date(medium.lastSyncedAt).toLocaleString()}
+                      </span>
+                    )}
+                  </div>
+
+                  {!medium ? (
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <input
+                        type="url"
+                        value={mediumUrl}
+                        onChange={(e) => setMediumUrl(e.target.value)}
+                        onKeyDown={(e) => { if (e.key === 'Enter') handleMediumImport(); }}
+                        placeholder="Paste a Medium article link to import its title and text…"
+                        disabled={mediumBusy}
+                        style={{
+                          flex: 1,
+                          background: 'rgba(255,255,255,0.04)',
+                          border: '1px solid var(--admin-border)',
+                          borderRadius: '8px',
+                          padding: '8px 10px',
+                          fontSize: '13px',
+                          color: 'var(--admin-text-primary)',
+                          fontFamily: 'inherit'
+                        }}
+                      />
+                      <button
+                        type="button"
+                        className="admin-btn admin-btn-primary admin-btn-sm"
+                        onClick={handleMediumImport}
+                        disabled={mediumBusy}
+                      >
+                        {mediumBusy ? <Loader2 size={14} /> : <Download size={14} />}
+                        <span>{mediumBusy ? 'Importing…' : 'Import'}</span>
+                      </button>
+                    </div>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                      <a
+                        href={medium.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        style={{ fontSize: '12.5px', color: 'var(--admin-text-secondary)', wordBreak: 'break-all' }}
+                      >
+                        {medium.url}
+                      </a>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                        <button
+                          type="button"
+                          className="admin-btn admin-btn-sm"
+                          onClick={() => handleMediumSync()}
+                          disabled={mediumBusy}
+                        >
+                          <RefreshCw size={14} />
+                          <span>{mediumBusy ? 'Syncing…' : 'Sync from Medium'}</span>
+                        </button>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12.5px', cursor: 'pointer', color: 'var(--admin-text-secondary)' }}>
+                          <input type="checkbox" checked={medium.sync !== false} onChange={toggleMediumSync} />
+                          Auto-sync daily
+                        </label>
+                        <button
+                          type="button"
+                          className="admin-btn admin-btn-ghost admin-btn-sm"
+                          onClick={unlinkMedium}
+                        >
+                          Unlink
+                        </button>
+                      </div>
+                      <div style={{ fontSize: '11.5px', color: 'var(--admin-text-muted)', lineHeight: 1.5 }}>
+                        Edits you make on Medium appear here automatically. Sync updates the article text; your title and cover stay as you set them.
+                      </div>
+                    </div>
+                  )}
+
+                  {mediumUpdate && (
+                    <div style={{ marginTop: '10px', padding: '10px 12px', border: '1px solid #d97706', borderRadius: '8px' }}>
+                      <div style={{ fontSize: '12.5px', marginBottom: '8px' }}>
+                        Medium has a newer version — you edited this piece after the last sync.
+                      </div>
+                      <button
+                        type="button"
+                        className="admin-btn admin-btn-sm"
+                        onClick={() => handleMediumSync(mediumUpdate)}
+                        disabled={mediumBusy}
+                      >
+                        Overwrite with Medium's version
+                      </button>
+                    </div>
+                  )}
+                  {mediumMsg && (
+                    <div
+                      style={{
+                        marginTop: '10px',
+                        fontSize: '12.5px',
+                        color: mediumMsg.ok ? '#16a34a' : 'var(--admin-danger)'
+                      }}
+                    >
+                      {mediumMsg.text}
+                    </div>
+                  )}
+                </div>
+              )}
+
               {/* Cover Image Uploader */}
               <div
                 className="admin-cover-dropzone"
