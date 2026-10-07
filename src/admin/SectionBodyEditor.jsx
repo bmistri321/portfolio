@@ -1,14 +1,13 @@
 import React, { useEffect, useRef } from 'react';
 import Quill from 'quill';
-import 'quill/dist/quill.snow.css';
+import 'quill/dist/quill.bubble.css';
 import { ensureHtml } from '../lib/miniFormat';
 
-// Blogger-style toolbar: headings, inline formats, quote, lists, link.
+// Floating contextual toolbar (no boxes): headings, inline formats, quote, lists, link.
 const TOOLBAR = [
-  [{ header: [2, 3, false] }],
   ['bold', 'italic', 'underline'],
-  ['blockquote'],
-  [{ list: 'bullet' }, { list: 'ordered' }],
+  [{ header: [2, 3, false] }],
+  ['blockquote', { list: 'bullet' }, { list: 'ordered' }],
   ['link', 'clean'],
 ];
 
@@ -24,7 +23,7 @@ export default function SectionBodyEditor({ value, onChange, placeholder }) {
     if (quillRef.current || !containerRef.current) return;
 
     const quill = new Quill(containerRef.current, {
-      theme: 'snow',
+      theme: 'bubble',
       placeholder: placeholder || 'Write here...',
       modules: { toolbar: TOOLBAR },
     });
