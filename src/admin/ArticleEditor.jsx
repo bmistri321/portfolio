@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState, forwardRef, useImperativeHandle } from 'react';
 import Quill from 'quill';
 import 'quill/dist/quill.bubble.css';
+import { Trash2, Repeat } from 'lucide-react';
 import { mediaService } from '../lib/contentService';
 
 // ---------------------------------------------------------------------------
@@ -111,7 +112,9 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
   onChangeRef.current = onChange;
 
   const [uploading, setUploading] = useState(null); // 'image' | 'video' | 'gif' | null
+  const [mediaHover, setMediaHover] = useState(null); // { kind, node, top, right } | null
   const pendingIndex = useRef(0);
+  const replaceRef = useRef(null); // DOM node to swap out after a Replace upload
 
   const imageInputRef = useRef(null);
   const videoInputRef = useRef(null);
@@ -135,6 +138,35 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
       onChangeRef.current(isEmpty ? '' : quill.root.innerHTML);
     });
 
+    // Hovering an image/video/GIF shows the Delete / Replace bar.
+    const onMediaOver = (e) => {
+      const t = e.target && e.target.closest ? e.target.closest('img, video') : null;
+      if (t && quill.root.contains(t) && wrapRef.current) {
+        const wrapRect = wrapRef.current.getBoundingClientRect();
+        const r = t.getBoundingClientRect();
+        const srcAttr = t.getAttribute('src') || '';
+        const kind = t.tagName === 'VIDEO' ? 'video' : (/\.gif(\?|$)/i.test(srcAttr) ? 'gif' : 'image');
+        setMediaHover({
+          kind,
+          node: t,
+          top: Math.max(0, r.top - wrapRect.top + 8),
+          right: Math.max(0, wrapRect.right - r.right + 8),
+        });
+      }
+    };
+    const onMediaOut = (e) => {
+      const rt = e.relatedTarget;
+      if (rt && rt.closest && rt.closest('.admin-media-hoverbar')) return;
+      const t = e.target && e.target.closest ? e.target.closest('img, video') : null;
+      const rtt = rt && rt.closest ? rt.closest('img, video') : null;
+      if (t && t === rtt) return;
+      setMediaHover(null);
+    };
+    const onScrollHide = () => setMediaHover(null);
+    quill.root.addEventListener('mouseover', onMediaOver);
+    quill.root.addEventListener('mouseout', onMediaOut);
+    document.addEventListener('scroll', onScrollHide, true);
+
     // Never let a stray file drop navigate the browser away from the editor.
     const killDrop = (e) => e.preventDefault();
     document.addEventListener('dragover', killDrop);
@@ -144,6 +176,9 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
     const containerEl = containerRef.current;
     return () => {
       quillRef.current = null;
+      quill.root.removeEventListener('mouseover', onMediaOver);
+      quill.root.removeEventListener('mouseout', onMediaOut);
+      document.removeEventListener('scroll', onScrollHide, true);
       document.removeEventListener('dragover', killDrop);
       document.removeEventListener('drop', killDrop);
       if (containerEl) containerEl.innerHTML = '';
@@ -210,11 +245,25 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
   const handleFile = async (kind, file, atIndex) => {
     if (!file) return;
     const quill = quillRef.current;
+    const replaceNode = replaceRef.current;
+    replaceRef.current = null;
     setUploading(kind);
     try {
       const processed = kind === 'image' ? await compressImage(file) : file;
       const url = await uploadToSupabase(processed, file.name);
-      const idx = clampIndex(atIndex ?? pendingIndex.current);
+      let idx = clampIndex(atIndex ?? pendingIndex.current);
+      // Replace: remove the old media first so the new one takes its exact spot.
+      if (replaceNode) {
+        try {
+          const blot = Quill.find(replaceNode);
+          if (blot && quill.root.contains(replaceNode)) {
+            idx = quill.getIndex(blot);
+            quill.deleteText(idx, 1, 'user');
+          }
+        } catch {
+          /* old node already gone */
+        }
+      }
       if (kind === 'video') {
         quill.insertEmbed(idx, 'articleVideo', url, 'user');
       } else {
@@ -226,6 +275,46 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
       alert(err.message || 'Upload failed.');
     } finally {
       setUploading(null);
+    }
+  };
+
+  const blotIndexOf = (node) => {
+    try {
+      const blot = Quill.find(node);
+      if (blot) return quillRef.current.getIndex(blot);
+    } catch {
+      /* ignore */
+    }
+    return null;
+  };
+
+  const deleteHoverMedia = () => {
+    const quill = quillRef.current;
+    const node = mediaHover?.node;
+    setMediaHover(null);
+    if (!quill || !node) return;
+    const idx = blotIndexOf(node);
+    if (idx !== null) quill.deleteText(idx, 1, 'user');
+  };
+
+  const replaceHoverMedia = () => {
+    const node = mediaHover?.node;
+    const kind = mediaHover?.kind;
+    setMediaHover(null);
+    if (!node || !kind) return;
+    replaceRef.current = node;
+    const idx = blotIndexOf(node);
+    pendingIndex.current = idx !== null ? idx : cursorIndex();
+    const input =
+      kind === 'video' ? videoInputRef.current : kind === 'gif' ? gifInputRef.current : imageInputRef.current;
+    if (input) {
+      // If the file dialog is dismissed, forget the pending replacement.
+      const onCancel = () => {
+        if (replaceRef.current === node) replaceRef.current = null;
+        input.removeEventListener('cancel', onCancel);
+      };
+      input.addEventListener('cancel', onCancel);
+      input.click();
     }
   };
 
@@ -272,6 +361,23 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
       onDrop={onDropOnEditor}
     >
       <div ref={containerRef} />
+
+      {mediaHover && (
+        <div
+          className="admin-media-hoverbar"
+          style={{ position: 'absolute', top: mediaHover.top, right: mediaHover.right, zIndex: 40 }}
+          onMouseLeave={() => setMediaHover(null)}
+        >
+          <button type="button" className="danger" onMouseDown={(e) => e.preventDefault()} onClick={deleteHoverMedia}>
+            <Trash2 size={14} />
+            <span>Delete</span>
+          </button>
+          <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={replaceHoverMedia}>
+            <Repeat size={14} />
+            <span>Replace</span>
+          </button>
+        </div>
+      )}
 
       {uploading && (
         <div className="admin-uploading-pill">

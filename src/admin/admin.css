@@ -1296,3 +1296,34 @@ textarea.admin-form-input {
   background: #000;
   margin: 18px 0;
 }
+
+/* Hover bar on article images / videos / GIFs: Delete + Replace */
+.admin-media-hoverbar {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  background: #232328;
+  border-radius: 10px;
+  padding: 5px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.28);
+}
+.admin-media-hoverbar button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: none;
+  border-radius: 7px;
+  color: #f4f4f6;
+  font-size: 12.5px;
+  font-weight: 550;
+  padding: 7px 10px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.admin-media-hoverbar button:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+.admin-media-hoverbar button.danger:hover {
+  background: rgba(255, 92, 92, 0.28);
+}
