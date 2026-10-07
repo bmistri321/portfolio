@@ -169,14 +169,13 @@ export default function DevHomePage({ onNavigate }) {
           </a>
           . I{' '}
           <a
-            href="#writing"
+            href="https://instagram.com/bishalsphotos"
+            target="_blank"
+            rel="noopener noreferrer"
             className="dev-pink-link"
-            onClick={(e) => {
-              e.preventDefault();
-              handleTabChange('writing');
-            }}
+            onClick={() => playUiSound('open')}
           >
-            write
+            photograph
           </a>{' '}
           and I recently started posting them online. Check out what's in my{' '}
           <a
