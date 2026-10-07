@@ -90,12 +90,33 @@ export default function AdminApp({ onNavigateLive }) {
     }
   };
 
-  // While the stored session is being validated, show a neutral loader
-  // so a stale/forged session never flashes the studio UI.
+  // While the stored session is being validated, show a skeleton of the
+  // admin shell so a stale/forged session never flashes the studio UI.
   if (checking) {
+    const sk = (style) => <div className="admin-skel" style={style} />;
     return (
-      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#ffffff' }}>
-        <p style={{ color: '#a7a7b3', fontSize: '14px', fontFamily: '"Inter", system-ui, sans-serif' }}>Checking session…</p>
+      <div className="admin-root" aria-hidden>
+        <aside className="admin-sidebar" style={{ padding: '20px 16px', gap: 10 }}>
+          {sk({ width: 120, height: 26, borderRadius: 8 })}
+          <div style={{ height: 18 }} />
+          {[0, 1, 2, 3, 4, 5].map((i) => (
+            <div key={i}>{sk({ height: 38, borderRadius: 9 })}</div>
+          ))}
+        </aside>
+        <div className="admin-main" style={{ padding: '28px 32px', gap: 22 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            {sk({ width: 220, height: 30 })}
+            {sk({ width: 130, height: 38, borderRadius: 9 })}
+          </div>
+          <div style={{ display: 'flex', gap: 16 }}>
+            {[0, 1, 2].map((i) => (
+              <div key={i} style={{ flex: 1 }}>{sk({ height: 96, borderRadius: 12 })}</div>
+            ))}
+          </div>
+          {[0, 1, 2, 3].map((i) => (
+            <div key={i}>{sk({ height: 64, borderRadius: 12 })}</div>
+          ))}
+        </div>
       </div>
     );
   }
