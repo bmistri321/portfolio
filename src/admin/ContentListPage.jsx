@@ -14,9 +14,14 @@ import {
   AlertTriangle,
   CheckCircle2,
   MoreHorizontal,
-  Star
+  Star,
+  ChevronUp,
+  ChevronDown,
+  Link2,
+  Loader2,
+  Download
 } from 'lucide-react';
-import { contentService } from '../lib/contentService';
+import { contentService, calculateReadingTime } from '../lib/contentService';
 
 export default function ContentListPage({
   defaultType = 'all',
@@ -40,6 +45,14 @@ export default function ContentListPage({
     title: '',
     message: ''
   });
+
+  // Medium quick-import (Writing list)
+  const [mediumUrl, setMediumUrl] = useState('');
+  const [mediumBusy, setMediumBusy] = useState(false);
+  const [mediumMsg, setMediumMsg] = useState(null); // { ok: bool, text: string }
+
+  const isWriting = typeFilter === 'writing';
+  const showOrder = isWriting && sortOption === 'order_index';
 
   const loadContent = async () => {
     try {
@@ -123,6 +136,85 @@ export default function ContentListPage({
     }
   };
 
+  // Paste a Medium link here to add the article straight to the Writing list
+  // (created as a draft — click its title to review and publish).
+  const handleMediumImport = async () => {
+    const url = mediumUrl.trim();
+    if (!url) {
+      setMediumMsg({ ok: false, text: 'Paste a Medium article link first.' });
+      return;
+    }
+    setMediumBusy(true);
+    setMediumMsg(null);
+    try {
+      const res = await fetch('/api/fetch-medium', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url })
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!data.ok) throw new Error(data.error || 'Could not fetch the article.');
+      const now = new Date().toISOString();
+      await contentService.create({
+        type: 'writing',
+        status: 'draft',
+        title: data.title || 'Untitled Piece',
+        excerpt: data.excerpt || '',
+        content: data.html,
+        cover_image: data.coverImage || null,
+        author: data.author || 'Bishal Mistri',
+        metadata: {
+          readingTime: calculateReadingTime(data.html),
+          medium: {
+            url: data.url,
+            postId: data.postId,
+            feedUrl: data.feedUrl,
+            sync: true,
+            lastSyncedAt: now,
+            contentHash: data.contentHash
+          }
+        }
+      });
+      setMediumUrl('');
+      setMediumMsg({ ok: true, text: `Imported \u201C${data.title}\u201D as a draft \u2014 click its title to review and publish.` });
+      loadContent();
+    } catch (err) {
+      setMediumMsg({ ok: false, text: err.message });
+    } finally {
+      setMediumBusy(false);
+    }
+  };
+
+  // Move a row up/down in the custom (live-site) order.
+  const handleMove = async (item, dir) => {
+    const sorted = [...items];
+    const i = sorted.findIndex((r) => r.id === item.id);
+    const j = dir === 'up' ? i - 1 : i + 1;
+    if (i < 0 || j < 0 || j >= sorted.length) return;
+    const other = sorted[j];
+    const a = Number(item.order_index);
+    const b = Number(other.order_index);
+    try {
+      if (Number.isFinite(a) && Number.isFinite(b) && a !== b) {
+        // Clean swap of the two positions.
+        await contentService.update(item.id, { order_index: b });
+        await contentService.update(other.id, { order_index: a });
+      } else {
+        // Equal or missing positions: re-seat this pair by renumbering
+        // the whole list so the order is unambiguous.
+        const reordered = [...sorted];
+        const [moved] = reordered.splice(i, 1);
+        reordered.splice(j, 0, moved);
+        for (let k = 0; k < reordered.length; k++) {
+          await contentService.update(reordered[k].id, { order_index: (k + 1) * 10 });
+        }
+      }
+      loadContent();
+    } catch (err) {
+      alert(`Reorder failed: ${err.message}`);
+    }
+  };
+
   return (
     <div className="admin-page-container">
       {/* Header */}
@@ -141,6 +233,56 @@ export default function ContentListPage({
           <span>New {typeFilter === 'all' || typeFilter === 'archive' ? 'Piece' : typeFilter.charAt(0).toUpperCase() + typeFilter.slice(1)}</span>
         </button>
       </div>
+
+      {/* Medium quick-import (Writing list only) */}
+      {isWriting && (
+        <div className="admin-card" style={{ marginBottom: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+            <Link2 size={15} style={{ color: 'var(--admin-text-muted)' }} />
+            <span style={{ fontSize: '13.5px', fontWeight: 600 }}>Import from Medium</span>
+          </div>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <input
+              type="url"
+              value={mediumUrl}
+              onChange={(e) => setMediumUrl(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') handleMediumImport(); }}
+              placeholder="Paste a Medium article link to add it to this list…"
+              disabled={mediumBusy}
+              style={{
+                flex: 1,
+                background: 'rgba(255,255,255,0.04)',
+                border: '1px solid var(--admin-border)',
+                borderRadius: '8px',
+                padding: '8px 10px',
+                fontSize: '13px',
+                color: 'var(--admin-text-primary)',
+                fontFamily: 'inherit'
+              }}
+            />
+            <button
+              type="button"
+              className="admin-btn admin-btn-primary admin-btn-sm"
+              onClick={handleMediumImport}
+              disabled={mediumBusy}
+            >
+              {mediumBusy ? <Loader2 size={14} /> : <Download size={14} />}
+              <span>{mediumBusy ? 'Importing…' : 'Add to list'}</span>
+            </button>
+          </div>
+          {mediumMsg && (
+            <div
+              style={{
+                marginTop: '8px',
+                fontSize: '12.5px',
+                color: mediumMsg.ok ? '#16a34a' : 'var(--admin-danger)'
+              }}
+            >
+              {mediumMsg.text}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Filter & Search Bar */}
       <div className="admin-card" style={{ marginBottom: '24px' }}>
@@ -201,6 +343,7 @@ export default function ContentListPage({
           <table className="admin-table">
             <thead>
               <tr>
+                {showOrder && <th style={{ width: '60px' }}></th>}
                 <th>Title</th>
                 <th>Type</th>
                 <th>Status</th>
@@ -213,13 +356,13 @@ export default function ContentListPage({
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={7} style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--admin-text-muted)' }}>
+                  <td colSpan={showOrder ? 8 : 7} style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--admin-text-muted)' }}>
                     Loading studio items...
                   </td>
                 </tr>
               ) : items.length === 0 ? (
                 <tr>
-                  <td colSpan={7} style={{ textAlign: 'center', padding: '48px 20px' }}>
+                  <td colSpan={showOrder ? 8 : 7} style={{ textAlign: 'center', padding: '48px 20px' }}>
                     <div style={{ maxWidth: '320px', margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
                       <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: 'var(--admin-bg-surface-elevated)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--admin-text-muted)' }}>
                         <Layers size={18} />
@@ -243,8 +386,34 @@ export default function ContentListPage({
                   </td>
                 </tr>
               ) : (
-                items.map((item) => (
+                items.map((item, idx) => (
                   <tr key={item.id}>
+                    {showOrder && (
+                      <td>
+                        <div style={{ display: 'flex', gap: '2px' }}>
+                          <button
+                            type="button"
+                            className="admin-btn admin-btn-ghost admin-btn-sm"
+                            onClick={() => handleMove(item, 'up')}
+                            disabled={idx === 0}
+                            title="Move up (higher on the live site)"
+                            style={{ padding: '6px' }}
+                          >
+                            <ChevronUp size={14} />
+                          </button>
+                          <button
+                            type="button"
+                            className="admin-btn admin-btn-ghost admin-btn-sm"
+                            onClick={() => handleMove(item, 'down')}
+                            disabled={idx === items.length - 1}
+                            title="Move down (lower on the live site)"
+                            style={{ padding: '6px' }}
+                          >
+                            <ChevronDown size={14} />
+                          </button>
+                        </div>
+                      </td>
+                    )}
                     <td>
                       <div className="admin-item-title-wrap">
                         {item.cover_image ? (
@@ -285,6 +454,8 @@ export default function ContentListPage({
                     <td>{formatDate(item.updated_at || item.created_at)}</td>
                     <td className="admin-actions-cell">
                       <div className="admin-actions-group">
+                        {!isWriting && (
+                          <>
                         <button
                           type="button"
                           className="admin-btn admin-btn-ghost admin-btn-sm"
@@ -353,6 +524,7 @@ export default function ContentListPage({
                           </button>
                         )}
 
+                        </>)}
                         <button
                           type="button"
                           className="admin-btn admin-btn-ghost admin-btn-sm"

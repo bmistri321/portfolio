@@ -155,7 +155,7 @@ export default function DevHomePage({ onNavigate }) {
         </p>
 
         <p className="dev-bio-paragraph">
-          Outside of design, I'm into anthropology, keyboards, reading, coffee, board games, and{' '}
+          Outside of design, I'm into arts, coffee, online games, and{' '}
           <a
             href="/travel"
             className="dev-pink-link"
