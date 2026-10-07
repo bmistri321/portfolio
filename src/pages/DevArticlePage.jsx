@@ -87,8 +87,8 @@ function renderSectionBody(body) {
 
 const RICH_ALLOWED = {
   ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 's', 'a', 'ul', 'ol', 'li',
-    'blockquote', 'h2', 'h3', 'img', 'figure', 'figcaption', 'video', 'source', 'hr'],
-  ALLOWED_ATTR: ['href', 'target', 'rel', 'src', 'alt', 'controls', 'preload'],
+    'blockquote', 'h2', 'h3', 'img', 'figure', 'figcaption', 'video', 'source', 'hr', 'div'],
+  ALLOWED_ATTR: ['href', 'target', 'rel', 'src', 'alt', 'controls', 'preload', 'class', 'data-sentiment'],
 };
 
 // Split a unified article document at its H2s into nav-able pseudo-sections.

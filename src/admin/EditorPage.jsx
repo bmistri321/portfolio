@@ -52,6 +52,7 @@ const INSERT_TILES = [
   { kind: 'gif', label: 'GIF', hint: 'Upload', Icon: Film },
   { kind: 'divider', label: 'Divider', hint: 'Horizontal line', Icon: Minus },
   { kind: 'text', label: 'Text', hint: 'Paragraph block', Icon: Type },
+  { kind: 'quote', label: 'Quote', hint: 'Positive / negative', Icon: Quote },
 ];
 
 export default function EditorPage({
@@ -105,6 +106,7 @@ export default function EditorPage({
   const [mediaTarget, setMediaTarget] = useState('cover'); // 'cover' or 'editor'
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [slugStatus, setSlugStatus] = useState({ checked: false, isUnique: true, msg: '' });
+  const [quotePopup, setQuotePopup] = useState(null); // { index } — pending quote insertion
 
   const textareaRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -218,6 +220,21 @@ export default function EditorPage({
     );
     if (ok) handleFieldChange('type', nextType);
   };
+
+  const confirmQuote = (sentiment) => {
+    if (quotePopup) {
+      articleRef.current?.insertCallout(quotePopup.index, sentiment);
+      setQuotePopup(null);
+    }
+  };
+
+  // Esc closes the quote popup
+  useEffect(() => {
+    if (!quotePopup) return;
+    const onKey = (e) => { if (e.key === 'Escape') setQuotePopup(null); };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [quotePopup]);
 
   // ---------- Autosave ----------
   // formDataRef always holds the latest form, so the debounced saver never
@@ -608,15 +625,17 @@ export default function EditorPage({
                   onDrop={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
+                    if (kind === 'quote') return;
                     const files = Array.from(e.dataTransfer.files || []);
                     if (files.length) articleRef.current?.insertFiles(null, files);
                   }}
                   onClick={() => {
                     if (kind === 'divider') articleRef.current?.insertDivider(null);
                     else if (kind === 'text') articleRef.current?.insertText(null);
+                    else if (kind === 'quote') articleRef.current?.requestQuote(null);
                     else articleRef.current?.pickFiles(kind, null);
                   }}
-                  title={kind === 'divider' ? 'Click to insert a divider line' : kind === 'text' ? 'Drag into the document or click to insert a text paragraph' : 'Drag into the document, click to upload, or drop files here'}
+                  title={kind === 'divider' ? 'Click to insert a divider line' : kind === 'text' ? 'Drag into the document or click to insert a text paragraph' : kind === 'quote' ? 'Drag into the document or click, then choose Positive or Negative' : 'Drag into the document, click to upload, or drop files here'}
                 >
                   <span className="admin-insert-tile-icon">
                     <Icon size={16} />
@@ -972,6 +991,7 @@ export default function EditorPage({
                   key={`article-${formData.id}`}
                   value={formData.content || ''}
                   onChange={(html) => handleFieldChange('content', html)}
+                  onRequestQuote={(idx) => setQuotePopup({ index: idx })}
                   placeholder="Write the case study… Use the Insert panel for text, images, video, GIFs or dividers."
                 />
               </div>
@@ -980,6 +1000,26 @@ export default function EditorPage({
 
 
         </div>
+
+        {quotePopup && (
+          <div className="admin-quote-popup-backdrop" onClick={() => setQuotePopup(null)}>
+            <div className="admin-quote-popup" onClick={(e) => e.stopPropagation()} role="dialog" aria-label="Choose quote style">
+              <h4 className="admin-quote-popup-title">Quote style?</h4>
+              <p className="admin-quote-popup-sub">Pick how this quote should look.</p>
+              <div className="admin-quote-popup-btns">
+                <button type="button" className="admin-quote-btn admin-quote-positive" onClick={() => confirmQuote('positive')}>
+                  Positive
+                </button>
+                <button type="button" className="admin-quote-btn admin-quote-negative" onClick={() => confirmQuote('negative')}>
+                  Negative
+                </button>
+              </div>
+              <button type="button" className="admin-quote-cancel" onClick={() => setQuotePopup(null)}>
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
 
         <aside className="admin-seo-panel">
           <h3 className="admin-seo-panel-title">SEO</h3>

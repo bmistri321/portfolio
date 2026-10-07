@@ -1660,3 +1660,22 @@ body {
   border: none;
   margin: 40px 0;
 }
+.cs-html-body .ql-callout {
+  border-radius: 10px;
+  padding: 16px 20px;
+  margin: 26px 0;
+  border-left: 3px solid transparent;
+  font-size: 14px;
+  line-height: 1.68;
+  color: var(--dev-text-2);
+}
+.cs-html-body .ql-callout[data-sentiment="positive"] {
+  background: #f0fdf4;
+  border-left-color: #22c55e;
+}
+.cs-html-body .ql-callout[data-sentiment="negative"] {
+  background: #fdf2f4;
+  border-left-color: #e11d48;
+}
+.cs-html-body .ql-callout p { margin: 0 0 12px 0; }
+.cs-html-body .ql-callout p:last-child { margin-bottom: 0; }

@@ -1049,6 +1049,82 @@
 }
 
 
+/* Quote callout block (Insert panel) — tinted by sentiment */
+.admin-quill-wrap .ql-callout {
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin: 16px 0;
+  border-left: 3px solid transparent;
+}
+.admin-quill-wrap .ql-callout[data-sentiment="positive"] {
+  background: #f0fdf4;
+  border-left-color: #22c55e;
+}
+.admin-quill-wrap .ql-callout[data-sentiment="negative"] {
+  background: #fdf2f4;
+  border-left-color: #e11d48;
+}
+.admin-quill-wrap .ql-callout p { margin: 0 0 10px 0; }
+.admin-quill-wrap .ql-callout p:last-child { margin-bottom: 0; }
+
+/* Quote style popup */
+.admin-quote-popup-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(18, 18, 24, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 300;
+}
+.admin-quote-popup {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 24px 26px;
+  width: 300px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+  text-align: center;
+}
+.admin-quote-popup-title {
+  margin: 0 0 4px 0;
+  font-size: 17px;
+  font-weight: 700;
+  color: #14141a;
+}
+.admin-quote-popup-sub {
+  margin: 0 0 18px 0;
+  font-size: 13px;
+  color: #6b6b78;
+}
+.admin-quote-popup-btns {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.admin-quote-btn {
+  flex: 1;
+  border: none;
+  border-radius: 10px;
+  padding: 11px 0;
+  font-size: 14px;
+  font-weight: 650;
+  cursor: pointer;
+  color: #ffffff;
+  transition: transform 0.12s ease, opacity 0.12s ease;
+}
+.admin-quote-btn:hover { transform: translateY(-1px); opacity: 0.92; }
+.admin-quote-positive { background: #16a34a; }
+.admin-quote-negative { background: #e11d48; }
+.admin-quote-cancel {
+  background: none;
+  border: none;
+  font-size: 13px;
+  color: #8a8a96;
+  cursor: pointer;
+  padding: 4px 8px;
+}
+.admin-quote-cancel:hover { color: #14141a; }
+
 /* Upload progress pill */
 .admin-uploading-pill {
   position: absolute;

@@ -46,6 +46,38 @@ try {
   /* already registered */
 }
 
+// ---------------------------------------------------------------------------
+// Callout blot — a tinted quote box (positive = green, negative = red).
+// A block format, so the text inside stays editable like a normal paragraph.
+// ---------------------------------------------------------------------------
+const BlockBlot = Quill.import('blots/block');
+class CalloutBlot extends BlockBlot {
+  static create(sentiment) {
+    const node = super.create();
+    node.setAttribute('data-sentiment', sentiment || 'positive');
+    return node;
+  }
+  static formats(domNode) {
+    return domNode.getAttribute('data-sentiment') || undefined;
+  }
+  format(name, value) {
+    if (name === 'callout') {
+      if (value) this.domNode.setAttribute('data-sentiment', value);
+      else this.domNode.removeAttribute('data-sentiment');
+    } else {
+      super.format(name, value);
+    }
+  }
+}
+CalloutBlot.blotName = 'callout';
+CalloutBlot.tagName = 'div';
+CalloutBlot.className = 'ql-callout';
+try {
+  Quill.register(CalloutBlot);
+} catch {
+  /* already registered */
+}
+
 // Floating contextual toolbar (select text) — no boxes anywhere.
 const TOOLBAR = [
   ['bold', 'italic', 'underline'],
@@ -104,7 +136,9 @@ function kindOfFile(file) {
 // Type text, select for the floating toolbar, press "/" for image/video/GIF,
 // or drag options in from the Insert panel.
 // ---------------------------------------------------------------------------
-const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, placeholder }, ref) {
+const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, placeholder, onRequestQuote }, ref) {
+  const onRequestQuoteRef = useRef(onRequestQuote);
+  onRequestQuoteRef.current = onRequestQuote;
   const wrapRef = useRef(null);
   const containerRef = useRef(null);
   const quillRef = useRef(null);
@@ -323,6 +357,32 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
     quill.focus();
   };
 
+  const insertCalloutAt = (index, sentiment) => {
+    const quill = quillRef.current;
+    if (!quill) return;
+    const idx = clampIndex(index ?? cursorIndex());
+    quill.insertText(idx, '\n', 'user');
+    quill.formatLine(idx, 1, 'callout', sentiment || 'positive', 'user');
+    quill.setSelection(idx, 'silent');
+    quill.focus();
+  };
+
+  // Quote tile: if the position is already inside a callout, strip it
+  // (toggle off); otherwise ask for positive / negative via the popup.
+  const requestQuoteAt = (index) => {
+    const quill = quillRef.current;
+    if (!quill) return;
+    const idx = clampIndex(index ?? cursorIndex());
+    const fmt = quill.getFormat(idx) || {};
+    if (fmt.callout) {
+      quill.formatLine(idx, 1, 'callout', false, 'user');
+      quill.setSelection(idx, 'silent');
+      quill.focus();
+      return;
+    }
+    if (onRequestQuoteRef.current) onRequestQuoteRef.current(idx);
+  };
+
   const insertDividerAt = (index) => {
     const quill = quillRef.current;
     if (!quill) return;
@@ -430,6 +490,8 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
   useImperativeHandle(ref, () => ({
     insertDivider: (index) => insertDividerAt(index ?? null),
     insertText: (index) => insertTextAt(index ?? null),
+    insertCallout: (index, sentiment) => insertCalloutAt(index ?? null, sentiment),
+    requestQuote: (index) => requestQuoteAt(index ?? null),
     insertFiles: (index, files) => insertFilesAt(index ?? null, files),
     pickFiles: (kind, index) => pickFilesAt(kind, index ?? null),
     indexFromPoint: (x, y) => indexFromPoint(x, y),
@@ -454,6 +516,8 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
     const idx = indexFromPoint(e.clientX, e.clientY);
     if (kind === 'divider') {
       insertDividerAt(idx);
+    } else if (kind === 'quote') {
+      requestQuoteAt(idx);
     } else if (kind === 'text') {
       insertTextAt(idx);
     } else if (kind) {
