@@ -1,42 +1,39 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
-import ShowcaseCard from '../components/ShowcaseCard';
+import { contentService } from '../lib/contentService';
 
+// Case-study index: rendered from the CMS so it always matches the admin panel.
 export default function DevCaseStudyPage({ onNavigate }) {
-  const allProjects = [
-    {
-      id: 'wexa-ai',
-      title: 'Wexa AI (Phase 1)',
-      year: '2026',
-      metric: 'Reduce support ticket by 30% and save ~$20M annually',
-      image: 'https://cdn.jsdelivr.net/gh/bmistri321/Images-web@main/Img-wexa-2.avif',
-      link: '/casestudy/wexa'
-    },
-    {
-      id: 'friender-crm',
-      title: 'Friender Toolbar & CRM',
-      year: '2025',
-      metric: '100M+ end users, higher NPS, ~$8M saved',
-      image: 'https://cdn.jsdelivr.net/gh/bmistri321/casestudy-2@main/Cover.avif',
-      link: '/casestudy/friender-case-study'
-    },
-    {
-      id: 'varcle-platform',
-      title: 'Varcle Platform Redesign',
-      year: '2024',
-      metric: '400k+ admins, less churn, more revenue',
-      image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80',
-      link: '/casestudy/wexa'
-    },
-    {
-      id: 'antigravity-workflows',
-      title: 'Antigravity Admin Workflows',
-      year: '2023-2026',
-      metric: 'Admin workflows for Cloud IDE · $20B ARR',
-      image: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1200&q=80',
-      link: '/casestudy/wexa'
+  const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function load() {
+      try {
+        const items = await contentService.getAll({ type: 'work', status: 'published' });
+        if (cancelled) return;
+        setProjects(
+          items.map((i) => ({
+            id: i.id,
+            title: i.title,
+            year: i.metadata?.year || new Date(i.published_at || i.created_at).getFullYear().toString(),
+            metric: i.excerpt || i.metadata?.client || 'Interactive product design & systems architecture',
+            image:
+              i.cover_image ||
+              'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80',
+            link: i.metadata?.link || i.metadata?.projectUrl || `/casestudy/${i.slug}`,
+          }))
+        );
+      } catch (err) {
+        console.warn('Could not load case studies:', err);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
     }
-  ];
+    load();
+    return () => { cancelled = true; };
+  }, []);
 
   return (
     <div className="dev-page-animate">
@@ -55,38 +52,46 @@ export default function DevCaseStudyPage({ onNavigate }) {
         </p>
       </header>
 
-      <div className="dev-cards-grid">
-        {allProjects.map((project) => (
-          <a
-            key={project.id}
-            href={project.link}
-            onClick={(e) => {
-              if (project.link.startsWith('/')) {
-                e.preventDefault();
-                onNavigate(project.link);
-              }
-            }}
-            className="dev-project-card"
-          >
-            <div className="dev-card-img-box">
-              <img
-                src={project.image}
-                alt={project.title}
-                loading="lazy"
-                decoding="async"
-                className="dev-card-img"
-              />
-            </div>
-            <div className="dev-card-info">
-              <div className="dev-card-title-row">
-                <h3 className="dev-card-title">{project.title}</h3>
-                {project.year && <span className="dev-year-badge">{project.year}</span>}
+      {loading ? (
+        <p style={{ color: '#9CA3AF', padding: '40px 0', textAlign: 'center' }}>Loading case studies...</p>
+      ) : projects.length === 0 ? (
+        <p style={{ color: '#9CA3AF', padding: '40px 0', textAlign: 'center' }}>
+          No case studies published yet. Publish work items in the admin studio.
+        </p>
+      ) : (
+        <div className="dev-cards-grid">
+          {projects.map((project) => (
+            <a
+              key={project.id}
+              href={project.link}
+              onClick={(e) => {
+                if (project.link.startsWith('/')) {
+                  e.preventDefault();
+                  onNavigate(project.link);
+                }
+              }}
+              className="dev-project-card"
+            >
+              <div className="dev-card-img-box">
+                <img
+                  src={project.image}
+                  alt={project.title}
+                  loading="lazy"
+                  decoding="async"
+                  className="dev-card-img"
+                />
               </div>
-              {project.metric && <p className="dev-card-metric">{project.metric}</p>}
-            </div>
-          </a>
-        ))}
-      </div>
+              <div className="dev-card-info">
+                <div className="dev-card-title-row">
+                  <h3 className="dev-card-title">{project.title}</h3>
+                  {project.year && <span className="dev-year-badge">{project.year}</span>}
+                </div>
+                {project.metric && <p className="dev-card-metric">{project.metric}</p>}
+              </div>
+            </a>
+          ))}
+        </div>
+      )}
 
       <footer className="dev-footer-row" style={{ marginTop: '48px' }}>
         <div>
