@@ -113,6 +113,7 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
 
   const [uploading, setUploading] = useState(null); // 'image' | 'video' | 'gif' | null
   const [mediaHover, setMediaHover] = useState(null); // { kind, node, top, right } | null
+  const [dropHint, setDropHint] = useState(null); // { top } | null — blue insert line while dragging
   const pendingIndex = useRef(0);
   const replaceRef = useRef(null); // DOM node to swap out after a Replace upload
 
@@ -196,10 +197,7 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
     return quill.getSelection()?.index ?? quill.getLength();
   };
 
-  // Map drop coordinates to a document index via the DOM caret.
-  const indexFromPoint = (clientX, clientY) => {
-    const quill = quillRef.current;
-    if (!quill) return 0;
+  const caretRangeAt = (clientX, clientY) => {
     try {
       let range = null;
       if (document.caretRangeFromPoint) {
@@ -212,18 +210,87 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
           range.collapse(true);
         }
       }
-      if (range && quill.root.contains(range.startContainer)) {
+      const quill = quillRef.current;
+      if (range && quill && quill.root.contains(range.startContainer)) return range;
+    } catch {
+      /* fall through */
+    }
+    return null;
+  };
+
+  // Index without touching the live selection (used while dragging).
+  const quietIndexFromPoint = (clientX, clientY) => {
+    const quill = quillRef.current;
+    if (!quill) return 0;
+    const range = caretRangeAt(clientX, clientY);
+    if (!range) return quill.getLength();
+    const sc = range.startContainer;
+    if (sc.nodeType === 3) {
+      const leaf = Quill.find(sc);
+      if (leaf) {
+        try {
+          return quill.getIndex(leaf) + range.startOffset;
+        } catch {
+          /* fall through */
+        }
+      }
+    }
+    const el = sc.nodeType === 1 ? sc : sc.parentNode;
+    const blot = el ? Quill.find(el, true) : null;
+    if (blot) {
+      try {
+        return quill.getIndex(blot);
+      } catch {
+        /* fall through */
+      }
+    }
+    return quill.getLength();
+  };
+
+  // Map drop coordinates to a document index via the DOM caret (applies the selection).
+  const indexFromPoint = (clientX, clientY) => {
+    const quill = quillRef.current;
+    if (!quill) return 0;
+    const range = caretRangeAt(clientX, clientY);
+    if (range) {
+      try {
         const sel = window.getSelection();
         sel.removeAllRanges();
         sel.addRange(range);
         quill.focus();
         const qsel = quill.getSelection();
         if (qsel) return qsel.index;
+      } catch {
+        /* fall through */
       }
-    } catch {
-      /* fall through */
     }
     return quill.getLength();
+  };
+
+  // Blue insert line while a tile / file is dragged over the document.
+  const isInsertDrag = (e) => {
+    const types = Array.from(e.dataTransfer.types || []);
+    return types.includes(INSERT_MIME) || types.includes('Files');
+  };
+
+  const showDropHint = (e) => {
+    if (!isInsertDrag(e)) {
+      setDropHint(null);
+      return;
+    }
+    const quill = quillRef.current;
+    if (!quill || !wrapRef.current || !containerRef.current) return;
+    const idx = quietIndexFromPoint(e.clientX, e.clientY);
+    try {
+      const b = quill.getBounds(idx);
+      const top =
+        containerRef.current.getBoundingClientRect().top -
+        wrapRef.current.getBoundingClientRect().top +
+        b.top;
+      setDropHint({ top });
+    } catch {
+      /* ignore */
+    }
   };
 
   const insertDividerAt = (index) => {
@@ -337,9 +404,20 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
     indexFromPoint: (x, y) => indexFromPoint(x, y),
   }));
 
+  const onDragOverWrap = (e) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'copy';
+    showDropHint(e);
+  };
+
+  const onDragLeaveWrap = (e) => {
+    if (!e.currentTarget.contains(e.relatedTarget)) setDropHint(null);
+  };
+
   const onDropOnEditor = async (e) => {
     e.preventDefault();
     e.stopPropagation();
+    setDropHint(null);
     const kind = e.dataTransfer.getData(INSERT_MIME);
     const files = Array.from(e.dataTransfer.files || []);
     const idx = indexFromPoint(e.clientX, e.clientY);
@@ -357,10 +435,13 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
       ref={wrapRef}
       className="admin-quill-wrap admin-article-editor"
       style={{ position: 'relative' }}
-      onDragOver={(e) => e.preventDefault()}
+      onDragEnter={showDropHint}
+      onDragOver={onDragOverWrap}
+      onDragLeave={onDragLeaveWrap}
       onDrop={onDropOnEditor}
     >
       <div ref={containerRef} />
+      {dropHint && <div className="admin-drop-hint" style={{ top: dropHint.top }} />}
 
       {mediaHover && (
         <div

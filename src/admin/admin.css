@@ -1327,3 +1327,16 @@ textarea.admin-form-input {
 .admin-media-hoverbar button.danger:hover {
   background: rgba(255, 92, 92, 0.28);
 }
+
+/* Blue insert line: shows exactly where a dragged tile/file will land */
+.admin-drop-hint {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 3px;
+  margin-top: -1px;
+  background: #2f7bff;
+  border-radius: 2px;
+  pointer-events: none;
+  z-index: 30;
+}
