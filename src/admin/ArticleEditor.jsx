@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState, forwardRef, useImperativeHandle } from 'react';
 import Quill from 'quill';
 import 'quill/dist/quill.bubble.css';
-import { Trash2, Repeat } from 'lucide-react';
+import { Trash2, Repeat, Settings2, X } from 'lucide-react';
 import { mediaService } from '../lib/contentService';
 
 // ---------------------------------------------------------------------------
@@ -9,15 +9,29 @@ import { mediaService } from '../lib/contentService';
 // ---------------------------------------------------------------------------
 const BlockEmbed = Quill.import('blots/block/embed');
 class ArticleVideoBlot extends BlockEmbed {
-  static create(src) {
+  static create(value) {
     const node = super.create();
-    node.setAttribute('controls', '');
+    const v = typeof value === 'string' ? { src: value } : (value || {});
+    node.setAttribute('src', v.src || '');
     node.setAttribute('preload', 'metadata');
-    node.setAttribute('src', src);
+    if (v.controls !== false) node.setAttribute('controls', '');
+    if (v.autoplay) {
+      node.setAttribute('autoplay', '');
+      node.setAttribute('playsinline', '');
+    }
+    if (v.muted) {
+      node.setAttribute('muted', '');
+      node.muted = true;
+    }
     return node;
   }
   static value(node) {
-    return node.getAttribute('src');
+    return {
+      src: node.getAttribute('src'),
+      controls: node.hasAttribute('controls'),
+      autoplay: node.hasAttribute('autoplay'),
+      muted: node.hasAttribute('muted'),
+    };
   }
 }
 ArticleVideoBlot.blotName = 'articleVideo';
@@ -147,6 +161,8 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
 
   const [uploading, setUploading] = useState(null); // 'image' | 'video' | 'gif' | null
   const [mediaHover, setMediaHover] = useState(null); // { kind, node, top, right } | null
+  const [videoSettings, setVideoSettings] = useState(null); // { node, top, right, settings } | null
+  const videoSettingsRef = useRef(null);
   const [dropHint, setDropHint] = useState(null); // { top } | null — blue insert line while dragging
   const lastDropIndexRef = useRef(null); // index the blue line was drawn from — the drop lands exactly there
   const pendingIndex = useRef(0);
@@ -198,7 +214,7 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
       if (t && t === rtt) return;
       setMediaHover(null);
     };
-    const onScrollHide = () => setMediaHover(null);
+    const onScrollHide = () => { setMediaHover(null); closeVideoSettings(); };
     quill.root.addEventListener('mouseover', onMediaOver);
     quill.root.addEventListener('mouseout', onMediaOut);
     document.addEventListener('scroll', onScrollHide, true);
@@ -469,6 +485,92 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
     if (idx !== null) quill.deleteText(idx, 1, 'user');
   };
 
+  // ---- Video playback settings (autoplay / muted / controls) ----
+  const VIDEO_SETTING_DEFS = [
+    { key: 'controls', label: 'Controls', desc: 'Show the play bar' },
+    { key: 'autoplay', label: 'Autoplay', desc: 'Starts automatically' },
+    { key: 'muted', label: 'Muted', desc: 'Start silent' },
+  ];
+
+  const readVideoSettings = (node) => ({
+    controls: node.hasAttribute('controls'),
+    autoplay: node.hasAttribute('autoplay'),
+    muted: node.hasAttribute('muted') || !!node.muted,
+  });
+
+  const applyVideoSettings = (node, s) => {
+    if (s.controls) node.setAttribute('controls', '');
+    else node.removeAttribute('controls');
+    if (s.autoplay) {
+      node.setAttribute('autoplay', '');
+      node.setAttribute('playsinline', '');
+    } else {
+      node.removeAttribute('autoplay');
+      node.removeAttribute('playsinline');
+    }
+    if (s.muted) {
+      node.setAttribute('muted', '');
+      node.muted = true;
+    } else {
+      node.removeAttribute('muted');
+      node.muted = false;
+    }
+  };
+
+  const closeVideoSettings = () => {
+    videoSettingsRef.current = null;
+    setVideoSettings(null);
+  };
+
+  const openVideoSettings = () => {
+    const node = mediaHover?.node;
+    if (!node || !wrapRef.current) return;
+    const wrapRect = wrapRef.current.getBoundingClientRect();
+    const r = node.getBoundingClientRect();
+    const entry = {
+      node,
+      settings: readVideoSettings(node),
+      top: Math.max(0, r.bottom - wrapRect.top + 8),
+      right: Math.max(0, wrapRect.right - r.right),
+    };
+    videoSettingsRef.current = entry;
+    setVideoSettings(entry);
+  };
+
+  const toggleVideoSetting = (key) => {
+    const quill = quillRef.current;
+    const entry = videoSettingsRef.current;
+    if (!quill || !entry?.node || !quill.root.contains(entry.node)) return;
+    const node = entry.node;
+    const next = { ...entry.settings, [key]: !entry.settings[key] };
+    // Browsers block unmuted autoplay — keep the pair consistent.
+    if (key === 'autoplay' && next.autoplay) next.muted = true;
+    if (key === 'muted' && !next.muted) next.autoplay = false;
+    applyVideoSettings(node, next);
+    const updated = { ...entry, settings: next };
+    videoSettingsRef.current = updated;
+    setVideoSettings(updated);
+    // Push through the normal change pipeline so autosave picks it up.
+    if (onChangeRef.current) onChangeRef.current(quill.root.innerHTML);
+  };
+
+  // Dismiss the video settings card on Esc or outside click.
+  useEffect(() => {
+    if (!videoSettings) return;
+    const onKey = (e) => { if (e.key === 'Escape') closeVideoSettings(); };
+    const onDown = (e) => {
+      if (!e.target.closest('.admin-video-settings') && !e.target.closest('.admin-media-hoverbar')) {
+        closeVideoSettings();
+      }
+    };
+    document.addEventListener('keydown', onKey);
+    document.addEventListener('mousedown', onDown);
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      document.removeEventListener('mousedown', onDown);
+    };
+  }, [videoSettings]);
+
   const replaceHoverMedia = () => {
     const node = mediaHover?.node;
     const kind = mediaHover?.kind;
@@ -578,6 +680,47 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
               <span>Replace</span>
             </button>
           )}
+          {mediaHover.kind === 'video' && (
+            <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={openVideoSettings} title="Playback settings">
+              <Settings2 size={14} />
+              <span>Settings</span>
+            </button>
+          )}
+        </div>
+      )}
+
+      {videoSettings && (
+        <div
+          className="admin-video-settings"
+          style={{ position: 'absolute', top: videoSettings.top, right: videoSettings.right, zIndex: 50 }}
+        >
+          <div className="admin-video-settings-head">
+            <span>Playback</span>
+            <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={closeVideoSettings} aria-label="Close playback settings">
+              <X size={14} />
+            </button>
+          </div>
+          {VIDEO_SETTING_DEFS.map(({ key, label, desc }) => {
+            const on = !!videoSettings.settings[key];
+            return (
+              <button
+                key={key}
+                type="button"
+                className="admin-video-toggle-row"
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => toggleVideoSetting(key)}
+              >
+                <span className="admin-video-toggle-text">
+                  <span className="admin-video-toggle-label">{label}</span>
+                  <span className="admin-video-toggle-desc">{desc}</span>
+                </span>
+                <span className={`admin-toggle${on ? ' on' : ''}`} aria-hidden="true">
+                  <span className="admin-toggle-knob" />
+                </span>
+              </button>
+            );
+          })}
+          <p className="admin-video-settings-note">Autoplay needs Muted — browsers block sound-on autoplay.</p>
         </div>
       )}
 

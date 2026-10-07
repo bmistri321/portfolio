@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import DevCaseStudyLayout from '../components/DevCaseStudyLayout';
 import SharedFooter from '../components/SharedFooter';
-import { contentService } from '../lib/contentService';
+import { contentService, calculateReadingTime } from '../lib/contentService';
 import DOMPurify from 'dompurify';
 import { isHtml } from '../lib/miniFormat';
 
@@ -88,7 +88,7 @@ function renderSectionBody(body) {
 const RICH_ALLOWED = {
   ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 's', 'a', 'ul', 'ol', 'li',
     'blockquote', 'h2', 'h3', 'img', 'figure', 'figcaption', 'video', 'source', 'hr', 'div'],
-  ALLOWED_ATTR: ['href', 'target', 'rel', 'src', 'alt', 'controls', 'preload', 'class', 'data-sentiment'],
+  ALLOWED_ATTR: ['href', 'target', 'rel', 'src', 'alt', 'controls', 'preload', 'autoplay', 'muted', 'playsinline', 'class', 'data-sentiment'],
 };
 
 // Makes repeat ids unique: foo, foo-2, foo-3… (duplicate headings otherwise
@@ -174,9 +174,12 @@ function RichArticle({ item, onNavigate }) {
         }));
       })();
 
+  const readTime = md.readingTime || calculateReadingTime(item.content);
+
   return (
     <DevCaseStudyLayout
       title={item.title}
+      meta={readTime}
       heroVisual={
         item.cover_image
           ? { image: item.cover_image, alt: item.title }
