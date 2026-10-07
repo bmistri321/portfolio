@@ -70,7 +70,7 @@ export default function PreviewModal({ item, onClose }) {
         <div style={{
           flex: 1,
           overflowY: 'auto',
-          backgroundColor: '#000000',
+          backgroundColor: '#ececef',
           display: 'flex',
           justifyContent: 'center',
           padding: viewport === 'mobile' ? '30px 16px' : '40px 24px'
@@ -78,13 +78,13 @@ export default function PreviewModal({ item, onClose }) {
           <div style={{
             width: '100%',
             maxWidth: viewport === 'mobile' ? '390px' : '760px',
-            backgroundColor: '#0a0a0a',
-            border: viewport === 'mobile' ? '1px solid #27272a' : 'none',
-            borderRadius: viewport === 'mobile' ? '28px' : '0',
-            padding: viewport === 'mobile' ? '28px 20px' : '0 20px',
-            color: '#ffffff',
+            backgroundColor: '#ffffff',
+            border: viewport === 'mobile' ? '1px solid #e4e4e7' : '1px solid #e4e4e7',
+            borderRadius: viewport === 'mobile' ? '28px' : '12px',
+            padding: viewport === 'mobile' ? '28px 20px' : '32px 28px',
+            color: '#18181b',
             fontFamily: '-apple-system, BlinkMacSystemFont, "Inter", sans-serif',
-            boxShadow: viewport === 'mobile' ? '0 20px 50px rgba(0,0,0,0.8)' : 'none',
+            boxShadow: viewport === 'mobile' ? '0 20px 50px rgba(0,0,0,0.12)' : '0 4px 20px rgba(0,0,0,0.06)',
             minHeight: '100%'
           }}>
             {/* Cover Image */}
@@ -120,7 +120,7 @@ export default function PreviewModal({ item, onClose }) {
               {item.tags && item.tags.length > 0 && (
                 <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '24px' }}>
                   {item.tags.map((t) => (
-                    <span key={t} style={{ fontSize: '11.5px', padding: '3px 9px', borderRadius: '9999px', backgroundColor: '#18181b', color: '#d4d4d8', border: '1px solid #27272a' }}>
+                    <span key={t} style={{ fontSize: '11.5px', padding: '3px 9px', borderRadius: '9999px', backgroundColor: '#f0f0f3', color: '#52525b', border: '1px solid #e4e4e7' }}>
                       {t}
                     </span>
                   ))}
@@ -128,10 +128,10 @@ export default function PreviewModal({ item, onClose }) {
               )}
             </div>
 
-            <hr style={{ border: 'none', borderTop: '1px solid #27272a', margin: '28px 0' }} />
+            <hr style={{ border: 'none', borderTop: '1px solid #e4e4e7', margin: '28px 0' }} />
 
             {/* Content Body Rendering */}
-            <div style={{ fontSize: '16px', lineHeight: 1.8, color: '#e4e4e7', whiteSpace: 'pre-line' }}>
+            <div style={{ fontSize: '16px', lineHeight: 1.8, color: '#3f3f46', whiteSpace: 'pre-line' }}>
               {item.content || 'No content written yet.'}
             </div>
 
@@ -139,8 +139,8 @@ export default function PreviewModal({ item, onClose }) {
             {item.metadata?.sections && item.metadata.sections.length > 0 && (
               <div style={{ marginTop: '40px', display: 'flex', flexDirection: 'column', gap: '28px' }}>
                 {item.metadata.sections.map((sec, idx) => (
-                  <div key={idx} style={{ padding: '20px', borderRadius: '12px', backgroundColor: '#121215', border: '1px solid #222226' }}>
-                    <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '10px', color: '#ffffff' }}>
+                  <div key={idx} style={{ padding: '20px', borderRadius: '12px', backgroundColor: '#f7f7f8', border: '1px solid #e4e4e7' }}>
+                    <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '10px', color: '#18181b' }}>
                       {sec.title}
                     </h3>
                     <p style={{ fontSize: '15px', color: '#a1a1aa', lineHeight: 1.7, whiteSpace: 'pre-line' }}>

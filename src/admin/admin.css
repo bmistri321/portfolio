@@ -4,26 +4,26 @@
    ============================================================================== */
 
 :root {
-  --admin-bg-canvas: #09090b;
-  --admin-bg-surface: #141417;
-  --admin-bg-surface-elevated: #1e1e23;
-  --admin-bg-surface-hover: #27272e;
-  --admin-border: #27272a;
-  --admin-border-subtle: #1f1f23;
-  --admin-text-primary: #f4f4f5;
-  --admin-text-secondary: #a1a1aa;
-  --admin-text-muted: #71717a;
-  --admin-accent: #3b82f6;
-  --admin-accent-hover: #2563eb;
-  --admin-accent-subtle: rgba(59, 130, 246, 0.12);
+  --admin-bg-canvas: #f4f4f6;
+  --admin-bg-surface: #ffffff;
+  --admin-bg-surface-elevated: #ffffff;
+  --admin-bg-surface-hover: #f0f0f3;
+  --admin-border: #e4e4e7;
+  --admin-border-subtle: #eeeef1;
+  --admin-text-primary: #18181b;
+  --admin-text-secondary: #52525b;
+  --admin-text-muted: #a1a1aa;
+  --admin-accent: #7c5cff;
+  --admin-accent-hover: #6a4de6;
+  --admin-accent-subtle: rgba(124, 92, 255, 0.12);
   --admin-sparkle: #8b5cf6;
   --admin-sparkle-subtle: rgba(139, 92, 246, 0.12);
-  --admin-success: #10b981;
-  --admin-success-subtle: rgba(16, 185, 129, 0.12);
-  --admin-warning: #f59e0b;
-  --admin-warning-subtle: rgba(245, 158, 11, 0.12);
-  --admin-danger: #ef4444;
-  --admin-danger-subtle: rgba(239, 68, 68, 0.12);
+  --admin-success: #059669;
+  --admin-success-subtle: rgba(5, 150, 105, 0.12);
+  --admin-warning: #d97706;
+  --admin-warning-subtle: rgba(217, 119, 6, 0.12);
+  --admin-danger: #dc2626;
+  --admin-danger-subtle: rgba(220, 38, 38, 0.10);
   
   --admin-font-ui: -apple-system, BlinkMacSystemFont, "Inter", "Geist", "Segoe UI", Roboto, sans-serif;
   --admin-font-mono: "JetBrains Mono", "SFMono-Regular", Menlo, Monaco, Consolas, monospace;
@@ -34,9 +34,9 @@
   --admin-radius-lg: 14px;
   --admin-radius-full: 9999px;
   
-  --admin-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.2);
-  --admin-shadow-md: 0 4px 20px -2px rgba(0, 0, 0, 0.35);
-  --admin-shadow-elevated: 0 10px 30px -5px rgba(0, 0, 0, 0.5);
+  --admin-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06);
+  --admin-shadow-md: 0 4px 20px -2px rgba(0, 0, 0, 0.10);
+  --admin-shadow-elevated: 0 10px 30px -5px rgba(0, 0, 0, 0.14);
   
   --admin-sidebar-width: 260px;
   --admin-sidebar-collapsed: 72px;
@@ -230,7 +230,7 @@
 .admin-topbar {
   height: var(--admin-header-height);
   padding: 0 28px;
-  background-color: rgba(9, 9, 11, 0.85);
+  background-color: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--admin-border);
@@ -502,7 +502,7 @@
   letter-spacing: 0.06em;
   color: var(--admin-text-muted);
   border-bottom: 1px solid var(--admin-border);
-  background-color: rgba(255, 255, 255, 0.01);
+  background-color: rgba(0, 0, 0, 0.025);
 }
 
 .admin-table td {

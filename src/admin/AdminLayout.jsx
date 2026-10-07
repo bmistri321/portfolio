@@ -91,7 +91,7 @@ export default function AdminLayout({
   };
 
   return (
-    <div className="admin-root" data-admin-theme="dark">
+    <div className="admin-root" data-admin-theme="light">
       <div className="admin-shell">
         {/* Sidebar */}
         <aside className={`admin-sidebar ${isMobileOpen ? 'open-mobile' : ''}`}>
