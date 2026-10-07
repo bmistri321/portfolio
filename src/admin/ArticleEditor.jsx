@@ -3,6 +3,7 @@ import Quill from 'quill';
 import 'quill/dist/quill.bubble.css';
 import { Trash2, Repeat, Settings2, X } from 'lucide-react';
 import { mediaService } from '../lib/contentService';
+import EditorVideoChrome from './EditorVideoChrome';
 
 // ---------------------------------------------------------------------------
 // Custom <video> blot (real video tag — Quill's built-in video blot is iframe-only)
@@ -210,7 +211,7 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
     };
     const onMediaOut = (e) => {
       const rt = e.relatedTarget;
-      if (rt && rt.closest && rt.closest('.admin-media-hoverbar')) return;
+      if (rt && rt.closest && rt.closest('.admin-media-hoverbar, .vp-overlay')) return;
       const t = e.target && e.target.closest ? e.target.closest('img, video, hr.article-divider') : null;
       const rtt = rt && rt.closest ? rt.closest('img, video, hr.article-divider') : null;
       if (t && t === rtt) return;
@@ -650,7 +651,10 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
         <div
           className="admin-media-hoverbar"
           style={{ position: 'absolute', top: mediaHover.top, right: mediaHover.right, zIndex: 40 }}
-          onMouseLeave={() => setMediaHover(null)}
+          onMouseLeave={(e) => {
+            if (e.relatedTarget && e.relatedTarget.closest && e.relatedTarget.closest('.vp-overlay')) return;
+            setMediaHover(null);
+          }}
         >
           <button type="button" className="danger" onMouseDown={(e) => e.preventDefault()} onClick={deleteHoverMedia}>
             <Trash2 size={14} />
@@ -669,6 +673,14 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
             </button>
           )}
         </div>
+      )}
+
+      {mediaHover && mediaHover.kind === 'video' && mediaHover.node && mediaHover.node.hasAttribute('controls') && (
+        <EditorVideoChrome
+          video={mediaHover.node}
+          wrapRef={wrapRef}
+          onLeave={() => setMediaHover(null)}
+        />
       )}
 
       {videoSettings && (

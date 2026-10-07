@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { enhanceVideos } from './videoPlayer';
 import { X, ArrowUp } from 'lucide-react';
 import { playUiSound } from '../utils/sound';
 
@@ -13,6 +14,14 @@ export default function DevCaseStudyLayout({
   const [isClosing, setIsClosing] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const sheetRef = useRef(null);
+  const articleRef = useRef(null);
+
+  // Swap native video controls for the designed player on article videos.
+  useEffect(() => {
+    if (!articleRef.current) return;
+    const cleanup = enhanceVideos(articleRef.current);
+    return cleanup;
+  }, [sections]);
 
   // 1. Keyboard Navigation: Escape key closes project
   useEffect(() => {
@@ -257,7 +266,7 @@ export default function DevCaseStudyLayout({
           </aside>
 
           {/* Main Content Column */}
-          <article className="dev-detail-content">
+          <article className="dev-detail-content" ref={articleRef}>
             <header className="dev-reveal" style={{ marginBottom: '32px' }}>
               <h1 className="dev-detail-title">{title}</h1>
               {meta && <div className="dev-detail-meta">{meta}</div>}

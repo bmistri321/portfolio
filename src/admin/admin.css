@@ -1459,6 +1459,14 @@ textarea.admin-form-input {
   margin: 18px 0;
 }
 
+/* The designed player chrome replaces native controls on hovered videos.
+   The `controls` attribute itself stays put — it IS the "show play bar"
+   setting and what gets saved. (Firefox can't hide native controls via CSS,
+   so there it falls back to native + our chrome.) */
+.admin-quill-wrap .ql-editor video.vp-native-hidden::-webkit-media-controls {
+  display: none !important;
+}
+
 /* Hover bar on article images / videos / GIFs: Delete + Replace */
 .admin-media-hoverbar {
   display: flex;
