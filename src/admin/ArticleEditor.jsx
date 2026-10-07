@@ -148,6 +148,7 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
   const [uploading, setUploading] = useState(null); // 'image' | 'video' | 'gif' | null
   const [mediaHover, setMediaHover] = useState(null); // { kind, node, top, right } | null
   const [dropHint, setDropHint] = useState(null); // { top } | null — blue insert line while dragging
+  const lastDropIndexRef = useRef(null); // index the blue line was drawn from — the drop lands exactly there
   const pendingIndex = useRef(0);
   const replaceRef = useRef(null); // DOM node to swap out after a Replace upload
 
@@ -294,7 +295,19 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
     const blot = el ? Quill.find(el, true) : null;
     if (blot) {
       try {
-        return quill.getIndex(blot);
+        const idx = quill.getIndex(blot);
+        // A caret sitting directly on an element (block boundary / margins)
+        // carries no text offset: resolve to the block's start or end by
+        // which vertical half the pointer is in, so the preview line and
+        // the drop agree on top vs bottom.
+        if (sc.nodeType === 1 && el !== quill.root && typeof el.getBoundingClientRect === 'function') {
+          const r = el.getBoundingClientRect();
+          if (r.height > 0 && clientY >= r.top + r.height / 2) {
+            const len = typeof blot.length === 'function' ? blot.length() : 1;
+            return idx + Math.max(0, len - 1);
+          }
+        }
+        return idx;
       } catch {
         /* fall through */
       }
@@ -331,11 +344,13 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
   const showDropHint = (e) => {
     if (!isInsertDrag(e)) {
       setDropHint(null);
+      lastDropIndexRef.current = null;
       return;
     }
     const quill = quillRef.current;
     if (!quill || !wrapRef.current || !containerRef.current) return;
     const idx = quietIndexFromPoint(e.clientX, e.clientY);
+    lastDropIndexRef.current = idx;
     try {
       const b = quill.getBounds(idx);
       const top =
@@ -504,7 +519,10 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
   };
 
   const onDragLeaveWrap = (e) => {
-    if (!e.currentTarget.contains(e.relatedTarget)) setDropHint(null);
+    if (!e.currentTarget.contains(e.relatedTarget)) {
+      setDropHint(null);
+      lastDropIndexRef.current = null;
+    }
   };
 
   const onDropOnEditor = async (e) => {
@@ -513,7 +531,11 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
     setDropHint(null);
     const kind = e.dataTransfer.getData(INSERT_MIME);
     const files = Array.from(e.dataTransfer.files || []);
-    const idx = indexFromPoint(e.clientX, e.clientY);
+    // Land exactly where the blue line was — never recompute via a different
+    // path (the DOM-selection round-trip disagrees with the preview at
+    // block boundaries).
+    const idx = lastDropIndexRef.current ?? quietIndexFromPoint(e.clientX, e.clientY);
+    lastDropIndexRef.current = null;
     if (kind === 'divider') {
       insertDividerAt(idx);
     } else if (kind === 'quote') {
