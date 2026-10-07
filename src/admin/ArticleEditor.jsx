@@ -292,65 +292,43 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
     return null;
   };
 
-  // Index without touching the live selection (used while dragging).
-  const quietIndexFromPoint = (clientX, clientY) => {
+  // Resolve a drop point to a block boundary: { index, top }.
+  // Tiles insert whole blocks, so only the vertical position matters. The
+  // blue preview line AND the actual drop both use this one function, so the
+  // item always lands exactly where the line was: `top` is the line's Y and
+  // `index` is the boundary it represents (no getBounds/newline ambiguity).
+  const dropPositionFromPoint = (clientX, clientY) => {
     const quill = quillRef.current;
-    if (!quill) return 0;
-    const range = caretRangeAt(clientX, clientY);
-    if (!range) return quill.getLength();
-    const sc = range.startContainer;
-    if (sc.nodeType === 3) {
-      const leaf = Quill.find(sc);
-      if (leaf) {
-        try {
-          return quill.getIndex(leaf) + range.startOffset;
-        } catch {
-          /* fall through */
-        }
+    if (!quill || !wrapRef.current) return null;
+    const wrapRect = wrapRef.current.getBoundingClientRect();
+    const kids = Array.from(quill.root.children).filter(
+      (c) => c.getBoundingClientRect().height > 0
+    );
+    if (!kids.length) return { index: 0, top: 0 };
+    let target = kids[kids.length - 1];
+    let after = true;
+    for (const kid of kids) {
+      const r = kid.getBoundingClientRect();
+      if (clientY < r.bottom) {
+        target = kid;
+        after = r.height > 0 && clientY >= r.top + r.height / 2;
+        break;
       }
     }
-    const el = sc.nodeType === 1 ? sc : sc.parentNode;
-    const blot = el ? Quill.find(el, true) : null;
-    if (blot) {
-      try {
-        const idx = quill.getIndex(blot);
-        // A caret sitting directly on an element (block boundary / margins)
-        // carries no text offset: resolve to the block's start or end by
-        // which vertical half the pointer is in, so the preview line and
-        // the drop agree on top vs bottom.
-        if (sc.nodeType === 1 && el !== quill.root && typeof el.getBoundingClientRect === 'function') {
-          const r = el.getBoundingClientRect();
-          if (r.height > 0 && clientY >= r.top + r.height / 2) {
-            const len = typeof blot.length === 'function' ? blot.length() : 1;
-            return idx + Math.max(0, len - 1);
-          }
-        }
-        return idx;
-      } catch {
-        /* fall through */
-      }
+    const blot = Quill.find(target);
+    if (!blot) return null;
+    let idx = 0;
+    try {
+      idx = quill.getIndex(blot);
+    } catch {
+      return null;
     }
-    return quill.getLength();
-  };
-
-  // Map drop coordinates to a document index via the DOM caret (applies the selection).
-  const indexFromPoint = (clientX, clientY) => {
-    const quill = quillRef.current;
-    if (!quill) return 0;
-    const range = caretRangeAt(clientX, clientY);
-    if (range) {
-      try {
-        const sel = window.getSelection();
-        sel.removeAllRanges();
-        sel.addRange(range);
-        quill.focus();
-        const qsel = quill.getSelection();
-        if (qsel) return qsel.index;
-      } catch {
-        /* fall through */
-      }
-    }
-    return quill.getLength();
+    const len = typeof blot.length === 'function' ? blot.length() : 1;
+    const r = target.getBoundingClientRect();
+    return {
+      index: after ? idx + len : idx,
+      top: (after ? r.bottom : r.top) - wrapRect.top,
+    };
   };
 
   // Blue insert line while a tile / file is dragged over the document.
@@ -365,20 +343,14 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
       lastDropIndexRef.current = null;
       return;
     }
-    const quill = quillRef.current;
-    if (!quill || !wrapRef.current || !containerRef.current) return;
-    const idx = quietIndexFromPoint(e.clientX, e.clientY);
-    lastDropIndexRef.current = idx;
-    try {
-      const b = quill.getBounds(idx);
-      const top =
-        containerRef.current.getBoundingClientRect().top -
-        wrapRef.current.getBoundingClientRect().top +
-        b.top;
-      setDropHint({ top });
-    } catch {
-      /* ignore */
+    const pos = dropPositionFromPoint(e.clientX, e.clientY);
+    if (!pos) {
+      setDropHint(null);
+      lastDropIndexRef.current = null;
+      return;
     }
+    lastDropIndexRef.current = pos.index;
+    setDropHint({ top: Math.max(0, pos.top) });
   };
 
   const insertTextAt = (index) => {
@@ -639,10 +611,13 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
     setDropHint(null);
     const kind = e.dataTransfer.getData(INSERT_MIME);
     const files = Array.from(e.dataTransfer.files || []);
-    // Land exactly where the blue line was — never recompute via a different
-    // path (the DOM-selection round-trip disagrees with the preview at
-    // block boundaries).
-    const idx = lastDropIndexRef.current ?? quietIndexFromPoint(e.clientX, e.clientY);
+    // Land exactly where the blue line was: reuse the preview's own index,
+    // or resolve fresh with the same function — never a different path.
+    let idx = lastDropIndexRef.current;
+    if (idx == null) {
+      const pos = dropPositionFromPoint(e.clientX, e.clientY);
+      idx = pos ? pos.index : quillRef.current ? quillRef.current.getLength() : 0;
+    }
     lastDropIndexRef.current = null;
     if (kind === 'divider') {
       insertDividerAt(idx);
