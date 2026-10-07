@@ -248,7 +248,7 @@ export default function DevCaseStudyLayout({
                   className={`dev-toc-item ${isActive ? 'active' : ''}`}
                   aria-current={isActive ? 'true' : undefined}
                 >
-                  {isActive && <span className="dev-toc-dot" aria-hidden="true" />}
+                  <span className="dev-toc-dot" aria-hidden="true" style={{ visibility: isActive ? 'visible' : 'hidden' }} />
                   <span>{sec.label}</span>
                 </button>
               );
