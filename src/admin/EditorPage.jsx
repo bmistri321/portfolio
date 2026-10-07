@@ -1140,7 +1140,7 @@ export default function EditorPage({
                   key={`article-${formData.id}`}
                   value={formData.content || ''}
                   onChange={(html) => handleFieldChange('content', html)}
-                  placeholder="Write the case study… Type '/' to add an image, video or GIF."
+                  placeholder="Write the case study… Use the Insert panel for images, video, GIFs or dividers."
                 />
               </div>
             </div>

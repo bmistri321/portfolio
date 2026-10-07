@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState, forwardRef, useImperativeHandle } from 'react';
 import Quill from 'quill';
 import 'quill/dist/quill.bubble.css';
-import { Image as ImageIcon, Video, Film } from 'lucide-react';
 import { mediaService } from '../lib/contentService';
 
 // ---------------------------------------------------------------------------
@@ -111,8 +110,6 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
   const onChangeRef = useRef(onChange);
   onChangeRef.current = onChange;
 
-  const [slash, setSlash] = useState(null); // { index, top, left }
-  const slashRef = useRef(null);
   const [uploading, setUploading] = useState(null); // 'image' | 'video' | 'gif' | null
   const pendingIndex = useRef(0);
 
@@ -120,17 +117,12 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
   const videoInputRef = useRef(null);
   const gifInputRef = useRef(null);
 
-  const setSlashState = (s) => {
-    slashRef.current = s;
-    setSlash(s);
-  };
-
   useEffect(() => {
     if (quillRef.current || !containerRef.current) return;
 
     const quill = new Quill(containerRef.current, {
       theme: 'bubble',
-      placeholder: placeholder || "Start writing… Type '/' for image, video or GIF.",
+      placeholder: placeholder || 'Start writing… Use the Insert panel for images, video, GIFs or dividers.',
       modules: { toolbar: TOOLBAR },
     });
 
@@ -138,42 +130,10 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
       quill.clipboard.dangerouslyPasteHTML(value);
     }
 
-    const maybeOpenSlash = () => {
-      const sel = quill.getSelection();
-      if (!sel) {
-        setSlashState(null);
-        return;
-      }
-      // Keep open while the user types a filter word after "/"
-      if (slashRef.current) {
-        const sIdx = slashRef.current.index;
-        if (sel.index > sIdx) {
-          const between = quill.getText(sIdx, sel.index - sIdx);
-          if (/^\/\w*$/.test(between)) return;
-        }
-        setSlashState(null);
-        return;
-      }
-      // Open when "/" is typed at the start of a line
-      const idx = sel.index;
-      if (idx > 0 && quill.getText(idx - 1, 1) === '/' && (idx === 1 || quill.getText(idx - 2, 1) === '\n')) {
-        const b = quill.getBounds(idx - 1);
-        setSlashState({ index: idx - 1, top: b.top + b.height + 8, left: Math.max(0, b.left) });
-      }
-    };
-
-    quill.on('text-change', (delta, oldDelta, source) => {
+    quill.on('text-change', () => {
       const isEmpty = quill.getText().trim().length === 0;
       onChangeRef.current(isEmpty ? '' : quill.root.innerHTML);
-      if (source === 'user') maybeOpenSlash();
     });
-    quill.on('selection-change', (range) => {
-      if (!range && slashRef.current) setSlashState(null);
-    });
-    const onKey = (e) => {
-      if (e.key === 'Escape') setSlashState(null);
-    };
-    quill.root.addEventListener('keydown', onKey);
 
     // Never let a stray file drop navigate the browser away from the editor.
     const killDrop = (e) => e.preventDefault();
@@ -184,7 +144,6 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
     const containerEl = containerRef.current;
     return () => {
       quillRef.current = null;
-      quill.root.removeEventListener('keydown', onKey);
       document.removeEventListener('dragover', killDrop);
       document.removeEventListener('drop', killDrop);
       if (containerEl) containerEl.innerHTML = '';
@@ -304,25 +263,6 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
     }
   };
 
-  const removeSlashAndFocus = () => {
-    const quill = quillRef.current;
-    const s = slashRef.current;
-    let idx = quill.getSelection()?.index ?? quill.getLength();
-    if (s) {
-      const end = quill.getSelection()?.index ?? s.index + 1;
-      quill.deleteText(s.index, Math.max(1, end - s.index), 'user');
-      idx = s.index;
-      setSlashState(null);
-    }
-    pendingIndex.current = idx;
-    return idx;
-  };
-
-  const chooseMedia = (kind) => {
-    removeSlashAndFocus();
-    pickFilesAt(kind, pendingIndex.current);
-  };
-
   return (
     <div
       ref={wrapRef}
@@ -332,29 +272,6 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
       onDrop={onDropOnEditor}
     >
       <div ref={containerRef} />
-
-      {slash && (
-        <div
-          className="admin-slash-menu"
-          style={{ position: 'absolute', top: slash.top, left: slash.left, zIndex: 40 }}
-        >
-          <button type="button" onClick={() => chooseMedia('image')}>
-            <ImageIcon size={15} />
-            <span className="asm-label">Image</span>
-            <span className="asm-hint">upload & compress</span>
-          </button>
-          <button type="button" onClick={() => chooseMedia('video')}>
-            <Video size={15} />
-            <span className="asm-label">Video</span>
-            <span className="asm-hint">upload MP4</span>
-          </button>
-          <button type="button" onClick={() => chooseMedia('gif')}>
-            <Film size={15} />
-            <span className="asm-label">GIF</span>
-            <span className="asm-hint">upload</span>
-          </button>
-        </div>
-      )}
 
       {uploading && (
         <div className="admin-uploading-pill">
