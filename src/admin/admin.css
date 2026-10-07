@@ -599,13 +599,15 @@
 
 /* Editor Studio Layout */
 .admin-editor-layout {
-  min-height: 100vh;
+  height: 100vh;
   display: flex;
   flex-direction: column;
   background-color: var(--admin-bg-canvas);
+  overflow: hidden;
 }
 
 .admin-editor-topbar {
+  flex-shrink: 0;
   height: var(--admin-header-height);
   padding: 0 24px;
   background-color: var(--admin-bg-surface);
@@ -636,19 +638,26 @@
 
 .admin-editor-canvas-wrap {
   flex: 1;
-  padding: 48px 24px 100px;
+  min-height: 0;
+  padding: 40px 24px 0;
   display: flex;
   justify-content: center;
-  align-items: flex-start;
+  align-items: stretch;
   gap: 56px;
+  overflow: hidden;
 }
 
 .admin-editor-canvas {
-  width: 100%;
+  flex: 1 1 0;
+  min-width: 0;
   max-width: 780px;
+  height: 100%;
+  min-height: 0;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 24px;
+  padding-bottom: 120px;
 }
 
 /* Title & Inputs in Editor */
@@ -1254,18 +1263,41 @@
   margin: 26px 0;
 }
 
-/* Three-column edit layout needs room: stack under 1500px */
+/* Fixed side panels: the wrap never scrolls, so both panels stay put while
+   only the center document scrolls. */
+.admin-insert-panel,
+.admin-seo-panel {
+  position: static;
+  max-height: 100%;
+  overflow-y: auto;
+  flex-shrink: 0;
+}
+
+/* Narrow screens: back to normal page scroll, panels stack with the content */
 @media (max-width: 1500px) {
+  .admin-editor-layout {
+    height: auto;
+    overflow: visible;
+  }
   .admin-editor-canvas-wrap {
     flex-direction: column;
     align-items: center;
     gap: 32px;
+    overflow: visible;
+    padding: 32px 24px 100px;
   }
   .admin-insert-panel,
   .admin-seo-panel {
-    position: static;
     width: 100%;
     max-width: 780px;
+    max-height: none;
+    overflow: visible;
+  }
+  .admin-editor-canvas {
+    flex: none;
+    width: 100%;
+    height: auto;
+    overflow: visible;
   }
   .admin-insert-tiles {
     flex-direction: row;
