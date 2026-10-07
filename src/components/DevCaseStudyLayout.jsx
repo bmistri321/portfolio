@@ -8,9 +8,7 @@ export default function DevCaseStudyLayout({
   lead,
   heroVisual,
   sections = [],
-  onNavigate,
-  prevProject,
-  nextProject
+  onNavigate
 }) {
   const [activeSection, setActiveSection] = useState(sections[0]?.id || 'introduction');
   const [isClosing, setIsClosing] = useState(false);
@@ -294,51 +292,6 @@ export default function DevCaseStudyLayout({
                 {sec.content}
               </section>
             ))}
-
-            {/* Pagination Footer */}
-            <footer className="dev-pagination-footer dev-reveal">
-              {prevProject ? (
-                <button
-                  className="dev-pagination-btn prev"
-                  onClick={() => {
-                    playUiSound('open');
-                    onNavigate(prevProject.link);
-                  }}
-                >
-                  <span className="dev-pagination-dir">&larr; Previous</span>
-                  <span className="dev-pagination-title">{prevProject.name}</span>
-                </button>
-              ) : (
-                <button 
-                  className="dev-pagination-btn prev" 
-                  onClick={handleClose}
-                >
-                  <span className="dev-pagination-dir">&larr; Overview</span>
-                  <span className="dev-pagination-title">Back to Home</span>
-                </button>
-              )}
-
-              {nextProject ? (
-                <button
-                  className="dev-pagination-btn next"
-                  onClick={() => {
-                    playUiSound('open');
-                    onNavigate(nextProject.link);
-                  }}
-                >
-                  <span className="dev-pagination-dir">Next Project &rarr;</span>
-                  <span className="dev-pagination-title">{nextProject.name}</span>
-                </button>
-              ) : (
-                <button
-                  className="dev-pagination-btn next"
-                  onClick={handleClose}
-                >
-                  <span className="dev-pagination-dir">Overview &rarr;</span>
-                  <span className="dev-pagination-title">Back to Home</span>
-                </button>
-              )}
-            </footer>
           </article>
         </div>
       </div>

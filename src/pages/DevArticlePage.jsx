@@ -136,22 +136,8 @@ const slugId = (t) =>
 // title / metadata.year / metadata.readingTime / metadata.lead[] /
 // cover_image + metadata.heroCaption / metadata.sections[] {title, body, images[]}
 // ---------------------------------------------------------------------------
-function RichArticle({ item, siblings, onNavigate }) {
+function RichArticle({ item, onNavigate }) {
   const md = item.metadata || {};
-  const idx = siblings.findIndex((s) => s.id === item.id);
-  const hasArticle = (s) =>
-    (s.metadata?.sections && s.metadata.sections.length > 0) ||
-    (s.content && s.content.trim().length > 0);
-
-  let prev = null;
-  let next = null;
-  for (let i = idx - 1; i >= 0; i--) {
-    if (hasArticle(siblings[i])) { prev = siblings[i]; break; }
-  }
-  for (let i = idx + 1; i < siblings.length; i++) {
-    if (hasArticle(siblings[i])) { next = siblings[i]; break; }
-  }
-  const linkFor = (s) => s.metadata?.link || `/casestudy/${s.slug}`;
   const meta = [md.year, md.readingTime || '5 minutes read'].filter(Boolean).join(' · ');
 
   const useUnified = item.content && item.content.trim().length > 0;
@@ -194,8 +180,6 @@ function RichArticle({ item, siblings, onNavigate }) {
       }
       sections={sections}
       onNavigate={onNavigate}
-      prevProject={prev ? { name: prev.title, link: linkFor(prev) } : undefined}
-      nextProject={next ? { name: next.title, link: linkFor(next) } : undefined}
     />
   );
 }
@@ -336,7 +320,6 @@ function GenericArticle({ item, onNavigate }) {
 // ---------------------------------------------------------------------------
 export default function DevArticlePage({ slug, onNavigate }) {
   const [item, setItem] = useState(null);
-  const [siblings, setSiblings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [failed, setFailed] = useState(false);
 
@@ -346,13 +329,9 @@ export default function DevArticlePage({ slug, onNavigate }) {
       try {
         setLoading(true);
         setFailed(false);
-        const [data, work] = await Promise.all([
-          contentService.getBySlug(slug),
-          contentService.getAll({ type: 'work', status: 'published' }),
-        ]);
+        const data = await contentService.getBySlug(slug);
         if (!cancelled) {
           setItem(data);
-          setSiblings(work || []);
         }
       } catch (err) {
         console.error('Failed to load article:', err);
@@ -394,6 +373,6 @@ export default function DevArticlePage({ slug, onNavigate }) {
     (item.content && item.content.trim().length > 0) ||
     (item.metadata?.sections && item.metadata.sections.length > 0);
   return rich
-    ? <RichArticle item={item} siblings={siblings} onNavigate={onNavigate} />
+    ? <RichArticle item={item} onNavigate={onNavigate} />
     : <GenericArticle item={item} onNavigate={onNavigate} />;
 }
