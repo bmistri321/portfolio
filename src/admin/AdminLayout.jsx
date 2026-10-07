@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import {
   LayoutDashboard,
-  Layers,
   Briefcase,
   FlaskConical,
   PenLine,
@@ -35,7 +34,6 @@ export default function AdminLayout({
     {
       group: 'Content',
       items: [
-        { id: '/admin/content', label: 'All Content', icon: Layers, count: metrics.total },
         { id: '/admin/work', label: 'Work', icon: Briefcase, count: metrics.work },
         { id: '/admin/tinkering', label: 'Tinkering', icon: FlaskConical, count: metrics.tinkering },
         { id: '/admin/writing', label: 'Writing', icon: PenLine, count: metrics.writing },
