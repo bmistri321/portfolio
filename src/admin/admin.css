@@ -1314,7 +1314,9 @@
 .admin-quill-wrap hr.article-divider {
   border: none;
   border-top: 2px solid var(--admin-border);
-  margin: 26px 0;
+  margin: 16px 0;
+  padding: 10px 0; /* invisible hover hit-area; total rhythm unchanged */
+  cursor: default;
 }
 
 /* Fixed side panels: the wrap never scrolls, so both panels stay put while

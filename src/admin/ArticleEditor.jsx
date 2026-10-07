@@ -173,14 +173,14 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
       onChangeRef.current(isEmpty ? '' : quill.root.innerHTML);
     });
 
-    // Hovering an image/video/GIF shows the Delete / Replace bar.
+    // Hovering an image/video/GIF/divider shows the Delete / Replace bar.
     const onMediaOver = (e) => {
-      const t = e.target && e.target.closest ? e.target.closest('img, video') : null;
+      const t = e.target && e.target.closest ? e.target.closest('img, video, hr.article-divider') : null;
       if (t && quill.root.contains(t) && wrapRef.current) {
         const wrapRect = wrapRef.current.getBoundingClientRect();
         const r = t.getBoundingClientRect();
         const srcAttr = t.getAttribute('src') || '';
-        const kind = t.tagName === 'VIDEO' ? 'video' : (/\.gif(\?|$)/i.test(srcAttr) ? 'gif' : 'image');
+        const kind = t.tagName === 'HR' ? 'divider' : t.tagName === 'VIDEO' ? 'video' : (/\.gif(\?|$)/i.test(srcAttr) ? 'gif' : 'image');
         setMediaHover({
           kind,
           node: t,
@@ -192,8 +192,8 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
     const onMediaOut = (e) => {
       const rt = e.relatedTarget;
       if (rt && rt.closest && rt.closest('.admin-media-hoverbar')) return;
-      const t = e.target && e.target.closest ? e.target.closest('img, video') : null;
-      const rtt = rt && rt.closest ? rt.closest('img, video') : null;
+      const t = e.target && e.target.closest ? e.target.closest('img, video, hr.article-divider') : null;
+      const rtt = rt && rt.closest ? rt.closest('img, video, hr.article-divider') : null;
       if (t && t === rtt) return;
       setMediaHover(null);
     };
@@ -550,10 +550,12 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
             <Trash2 size={14} />
             <span>Delete</span>
           </button>
-          <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={replaceHoverMedia}>
-            <Repeat size={14} />
-            <span>Replace</span>
-          </button>
+          {mediaHover.kind !== 'divider' && (
+            <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={replaceHoverMedia}>
+              <Repeat size={14} />
+              <span>Replace</span>
+            </button>
+          )}
         </div>
       )}
 
