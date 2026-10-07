@@ -23,6 +23,7 @@ class ArticleVideoBlot extends BlockEmbed {
       node.setAttribute('muted', '');
       node.muted = true;
     }
+    if (v.loop) node.setAttribute('loop', '');
     return node;
   }
   static value(node) {
@@ -31,6 +32,7 @@ class ArticleVideoBlot extends BlockEmbed {
       controls: node.hasAttribute('controls'),
       autoplay: node.hasAttribute('autoplay'),
       muted: node.hasAttribute('muted'),
+      loop: node.hasAttribute('loop'),
     };
   }
 }
@@ -490,12 +492,14 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
     { key: 'controls', label: 'Controls', desc: 'Show the play bar' },
     { key: 'autoplay', label: 'Autoplay', desc: 'Starts automatically' },
     { key: 'muted', label: 'Muted', desc: 'Start silent' },
+    { key: 'loop', label: 'Loop', desc: 'Replay automatically' },
   ];
 
   const readVideoSettings = (node) => ({
     controls: node.hasAttribute('controls'),
     autoplay: node.hasAttribute('autoplay'),
     muted: node.hasAttribute('muted') || !!node.muted,
+    loop: node.hasAttribute('loop'),
   });
 
   const applyVideoSettings = (node, s) => {
@@ -515,6 +519,8 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
       node.removeAttribute('muted');
       node.muted = false;
     }
+    if (s.loop) node.setAttribute('loop', '');
+    else node.removeAttribute('loop');
   };
 
   const closeVideoSettings = () => {
