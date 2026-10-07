@@ -280,7 +280,7 @@ export default function DevHomePage({ onNavigate }) {
       {/* 3. NARRATIVE BIO WITH VIBRANT PINK LINKS */}
       <div className="dev-bio-section">
         <p className="dev-bio-paragraph">
-          I design end-to-end from 0-to-1, transforming messy, ambiguous, and technically challenging problems into shipped B2B solutions. Focused on craft and rapid prototyping. Currently looking for job, previously at <a href="https://tier5.us/" target="_blank" rel="noopener noreferrer" className="dev-pink-link" onClick={() => playUiSound('click')}>Tier5</a>. Google certified in Experience Design and Bachelor's in Arts.
+          I design end-to-end product experiences, turning messy requirements and complex workflows into simple, scalable B2B products. Focused on craft and rapid prototyping. Currently looking for job, previously at <a href="https://tier5.us/" target="_blank" rel="noopener noreferrer" className="dev-pink-link" onClick={() => playUiSound('click')}>Tier5</a>. Google certified in Experience Design and Bachelor's in Arts.
         </p>
 
         <p className="dev-bio-paragraph">
@@ -395,22 +395,32 @@ export default function DevHomePage({ onNavigate }) {
       {/* 6. 2-COLUMN PROJECT GRID */}
       {activeTab === 'writing' ? (
         <div className="dev-writing-list">
-          {writings.map((item) => (
-            <a
-              key={item.title}
-              href={item.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="dev-writing-row"
-              onClick={() => playUiSound('click')}
-            >
-              <div>
-                <h3 className="dev-card-title">{item.title}</h3>
-                <p className="dev-card-metric">{item.metric}</p>
-              </div>
-              <span className="dev-year-badge">{item.date}</span>
-            </a>
-          ))}
+          {getActiveList().map((item) => {
+            const isInternal = item.url && item.url.startsWith('/');
+            return (
+              <a
+                key={item.id || item.title}
+                href={item.url}
+                target={isInternal ? undefined : "_blank"}
+                rel={isInternal ? undefined : "noopener noreferrer"}
+                className="dev-writing-row"
+                onClick={(e) => {
+                  playUiSound('click');
+                  if (isInternal) {
+                    e.preventDefault();
+                    playUiSound('open');
+                    onNavigate(item.url);
+                  }
+                }}
+              >
+                <div>
+                  <h3 className="dev-card-title">{item.title}</h3>
+                  <p className="dev-card-metric">{item.metric}</p>
+                </div>
+                <span className="dev-year-badge">{item.date}</span>
+              </a>
+            );
+          })}
         </div>
       ) : (
         <div className="dev-cards-grid">

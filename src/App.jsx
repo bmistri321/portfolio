@@ -73,6 +73,7 @@ export default function App() {
     if (p.includes('friender')) return '/casestudy/friender-case-study';
     if (p.includes('wexa')) return '/casestudy/wexa';
     if (p.startsWith('/casestudy/')) return p;
+    if (p.startsWith('/writing/')) return p;
     if (p.includes('dock')) return '/dock';
     if (p.includes('travel')) return '/travel';
     if (p.includes('playground')) return '/playground';
@@ -123,7 +124,7 @@ export default function App() {
 
   // 1. DEV SUBDOMAIN (dev.bishalmistri.com -> Dev Site)
   if (isDev) {
-    const isDetailPage = currentPath.startsWith('/casestudy/');
+    const isDetailPage = currentPath.startsWith('/casestudy/') || currentPath.startsWith('/writing/');
 
     const renderDetailCaseStudy = () => {
       switch (currentPath) {
@@ -134,8 +135,8 @@ export default function App() {
         case '/casestudy':
           return <DevCaseStudyPage onNavigate={navigate} />;
         default:
-          if (currentPath.startsWith('/casestudy/')) {
-            const slug = currentPath.replace('/casestudy/', '');
+          if (currentPath.startsWith('/casestudy/') || currentPath.startsWith('/writing/')) {
+            const slug = currentPath.replace('/casestudy/', '').replace('/writing/', '');
             return <DevDynamicCaseStudyPage slug={slug} onNavigate={navigate} />;
           }
           return null;
