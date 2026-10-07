@@ -1398,17 +1398,16 @@ body {
 
 .dev-sheet-inner {
   width: 100%;
-  max-width: 1440px;
+  max-width: none;
   margin: 0 auto;
-  padding: 52px 48px 120px;
+  padding: 52px 0 120px;
   position: relative;
   display: grid;
-  grid-template-columns: 200px minmax(0, 680px) 200px;
-  justify-content: center;
-  gap: clamp(24px, 4vw, 56px);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 680px) minmax(0, 1fr);
+  gap: 0;
 }
 
-/* Sticky Left Sidebar TOC (Desktop Only) */
+/* Sticky Left Sidebar TOC (Desktop Only) — pinned to the sheet's left edge */
 .dev-detail-toc {
   width: 100%;
   max-width: 190px;
@@ -1419,6 +1418,8 @@ body {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  justify-self: start;
+  margin-left: 48px;
 }
 
 @media (max-width: 1024px) {
