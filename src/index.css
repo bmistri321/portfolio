@@ -1545,7 +1545,6 @@ body {
   border-radius: 12px;
   overflow: hidden;
   background: var(--dev-bg-subtle);
-  border: 1px solid var(--dev-border-subtle);
   box-shadow: var(--dev-card-shadow);
 }
 
