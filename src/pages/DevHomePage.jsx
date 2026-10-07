@@ -62,124 +62,6 @@ export default function DevHomePage({ onNavigate }) {
     setActiveTab(tab);
   };
 
-  const defaultWorkProjects = [
-    {
-      id: 'wexa-ai',
-      title: 'Wexa AI (Phase 1)',
-      year: '2026',
-      metric: 'Reduce support ticket by 30% and save ~$20M annually',
-      image: 'https://cdn.jsdelivr.net/gh/bmistri321/Images-web@main/Img-wexa-2.avif',
-      link: '/casestudy/wexa'
-    },
-    {
-      id: 'friender-crm',
-      title: 'Friender Toolbar & CRM',
-      year: '2025',
-      metric: '100M+ end users, higher NPS, ~$8M saved',
-      image: 'https://cdn.jsdelivr.net/gh/bmistri321/casestudy-2@main/Cover.avif',
-      link: '/casestudy/friender-case-study'
-    },
-    {
-      id: 'varcle-platform',
-      title: 'Varcle Platform Redesign',
-      year: '2024',
-      metric: '400k+ admins, less churn, more revenue',
-      image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80',
-      link: '/casestudy/wexa'
-    },
-    {
-      id: 'antigravity-workflows',
-      title: 'Antigravity Admin Workflows',
-      year: '2023-2026',
-      metric: 'Admin workflows for Cloud IDE · $20B ARR',
-      image: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1200&q=80',
-      link: '/casestudy/wexa'
-    },
-    {
-      id: 'observability',
-      title: 'Realtime Observability',
-      year: '2023-2026',
-      metric: 'Session insights for cloud admins · $20B ARR',
-      image: 'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=1200&q=80',
-      link: '/casestudy/wexa'
-    },
-    {
-      id: 'design-system',
-      title: 'Core Design System',
-      year: 'WIP',
-      metric: 'Documentation, tokens and components library',
-      image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80',
-      link: '/dock'
-    }
-  ];
-
-  const defaultTinkeringProjects = [
-    {
-      id: 'virtual-desktop',
-      title: 'Virtual Desktop Prototype',
-      year: '2026',
-      metric: 'Prototype of a Windows Virtual Desktop (made with AI)',
-      image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80',
-      link: '/playground'
-    },
-    {
-      id: 'dock-physics',
-      title: 'macOS Spring Dock',
-      year: '2025',
-      metric: 'Smooth magnification curve and bouncy dock interaction in React',
-      image: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=1200&q=80',
-      link: '/dock'
-    },
-    {
-      id: 'token-generator',
-      title: 'Figma Variables Tokenizer',
-      year: '2025',
-      metric: 'Automated 3-layer design token generator from JSON',
-      image: 'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=1200&q=80',
-      link: '/playground'
-    }
-  ];
-
-  const defaultWritings = [
-    {
-      title: 'Designing AI Agents That Don’t Hallucinate UX',
-      date: 'Feb 2026',
-      metric: 'System prompts, latency states, and conversational guardrails in B2B SaaS',
-      url: 'https://medium.com/@bishalmistri'
-    },
-    {
-      title: 'The 3-Layer Design Token Architecture for Modern Teams',
-      date: 'Dec 2025',
-      metric: 'Primitives, Semantics & Component tokens for light/dark theme scalability',
-      url: 'https://medium.com/@bishalmistri'
-    },
-    {
-      title: 'Why Micro-Interactions Make or Break SaaS Retention',
-      date: 'Oct 2025',
-      metric: 'Sub-pixel alignment, keyboard shortcuts, and perceived speed',
-      url: 'https://medium.com/@bishalmistri'
-    }
-  ];
-
-  const defaultArchives = [
-    {
-      id: 'early-works',
-      title: 'UX Design Mastery — 30 Days',
-      year: '2024',
-      metric: 'Published guide on product psychology and wireframing',
-      image: 'https://cdn.jsdelivr.net/gh/bmistri321/casestudy-2@main/Cover.avif',
-      link: '/book/ux.mastery.30.days'
-    },
-    {
-      id: 'travel-archive',
-      title: 'Visual Travel Logs & Moments',
-      year: '2023-2025',
-      metric: 'Photographs and architectural studies across Asia',
-      image: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=1200&q=80',
-      link: '/travel'
-    }
-  ];
-
   // Merge CMS published items
   const dynamicWork = cmsItems
     .filter((i) => i.type === 'work')
@@ -224,17 +106,18 @@ export default function DevHomePage({ onNavigate }) {
       link: i.metadata?.link || i.metadata?.projectUrl || `/casestudy/${i.slug}`
     }));
 
+  // CMS is the single source of truth — manage items in the admin portal.
   const getActiveList = () => {
     switch (activeTab) {
       case 'tinkering':
-        return [...dynamicTinkering, ...defaultTinkeringProjects];
+        return dynamicTinkering;
       case 'archives':
-        return [...dynamicArchives, ...defaultArchives];
+        return dynamicArchives;
       case 'writing':
-        return [...dynamicWriting, ...defaultWritings];
+        return dynamicWriting;
       case 'work':
       default:
-        return [...dynamicWork, ...defaultWorkProjects];
+        return dynamicWork;
     }
   };
 
