@@ -1041,33 +1041,8 @@ export default function EditorPage({
                 />
               </div>
 
-              {/* Slug & Tags Meta Bar */}
+              {/* Reading time meta row */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap', fontSize: '13px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--admin-text-muted)' }}>
-                  <span>slug:</span>
-                  <input
-                    type="text"
-                    value={formData.slug}
-                    onChange={(e) => {
-                      handleFieldChange('slug', e.target.value);
-                      checkSlug(e.target.value);
-                    }}
-                    style={{
-                      background: 'transparent',
-                      border: 'none',
-                      padding: '2px 0',
-                      color: 'var(--admin-text-primary)',
-                      fontFamily: 'inherit',
-                      fontSize: '12.5px'
-                    }}
-                  />
-                  {slugStatus.checked && !slugStatus.isUnique && (
-                    <span style={{ color: 'var(--admin-danger)', fontSize: '11px' }}>{slugStatus.msg}</span>
-                  )}
-                </div>
-
-                <div style={{ color: 'var(--admin-text-muted)' }}>•</div>
-
                 <div style={{ color: 'var(--admin-text-muted)', fontSize: '12.5px' }}>
                   {formData.metadata?.readingTime || calculateReadingTime(formData.content)}
                 </div>
@@ -1322,6 +1297,23 @@ export default function EditorPage({
 
         <aside className="admin-seo-panel">
           <h3 className="admin-seo-panel-title">SEO</h3>
+
+          <div className="admin-form-group">
+            <label className="admin-form-label">Slug</label>
+            <input
+              type="text"
+              className="admin-form-input"
+              placeholder="url-slug"
+              value={formData.slug}
+              onChange={(e) => {
+                handleFieldChange('slug', e.target.value);
+                checkSlug(e.target.value);
+              }}
+            />
+            {slugStatus.checked && !slugStatus.isUnique && (
+              <span style={{ color: 'var(--admin-danger)', fontSize: '11px' }}>{slugStatus.msg}</span>
+            )}
+          </div>
 
           <div className="admin-form-group">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
