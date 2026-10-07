@@ -25,7 +25,6 @@ function Shell({ headline, children }) {
       <ArtShapes />
       <div className="bm-login-left">
         <div className="bm-login-card">
-          <div className="bm-logo">B.</div>
           {children}
         </div>
       </div>
@@ -131,7 +130,6 @@ export default function AdminAuth({ onAuthenticated }) {
   return (
     <Shell headline={<>Changing the way<br />your work is seen</>}>
       <h1 className="bm-title">Login</h1>
-      <p className="bm-sub">Or sign in with email</p>
       <ErrorBox message={error} />
 
       <form onSubmit={handleLogin}>
@@ -183,8 +181,6 @@ export default function AdminAuth({ onAuthenticated }) {
           {!loading && <ArrowRight size={17} />}
         </button>
       </form>
-
-      <p className="bm-note">Bishal Mistri Publishing Studio</p>
     </Shell>
   );
 }
