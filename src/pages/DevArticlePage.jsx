@@ -91,6 +91,17 @@ const RICH_ALLOWED = {
   ALLOWED_ATTR: ['href', 'target', 'rel', 'src', 'alt', 'controls', 'preload', 'class', 'data-sentiment'],
 };
 
+// Makes repeat ids unique: foo, foo-2, foo-3… (duplicate headings otherwise
+// share one DOM id, so sidebar clicks always jump to the first of them).
+const makeUniqueId = () => {
+  const seen = {};
+  return (base) => {
+    const n = (seen[base] || 0) + 1;
+    seen[base] = n;
+    return n === 1 ? base : `${base}-${n}`;
+  };
+};
+
 // Split a unified article document at its H2s into nav-able pseudo-sections.
 // Content before the first H2 becomes an "Overview" section.
 function splitArticleHtml(html) {
@@ -98,8 +109,9 @@ function splitArticleHtml(html) {
   const root = doc.body.firstChild;
   const sections = [];
   let cur = null;
+  const uniqueId = makeUniqueId();
   const startSection = (id, label, heading) => {
-    cur = { id, label, heading, parts: [] };
+    cur = { id: uniqueId(id), label, heading, parts: [] };
     sections.push(cur);
   };
   Array.from(root.childNodes).forEach((node) => {
@@ -147,17 +159,20 @@ function RichArticle({ item, onNavigate }) {
         heading: sec.heading,
         content: renderArticleChunk(sec.html),
       }))
-    : (md.sections || []).map((sec) => ({
-        id: slugId(sec.title),
-        label: sec.title,
-        heading: sec.title,
+    : (() => {
+        const uniqueId = makeUniqueId();
+        return (md.sections || []).map((sec) => ({
+          id: uniqueId(slugId(sec.title)),
+          label: sec.title,
+          heading: sec.title,
         content: (
           <>
             {renderSectionBody(sec.body)}
             {renderImages(sec.images)}
           </>
         ),
-      }));
+        }));
+      })();
 
   return (
     <DevCaseStudyLayout
