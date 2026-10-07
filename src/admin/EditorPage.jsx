@@ -639,9 +639,8 @@ export default function EditorPage({
                     }}
                     style={{
                       background: 'transparent',
-                      border: '1px solid var(--admin-border-subtle)',
-                      borderRadius: '4px',
-                      padding: '2px 6px',
+                      border: 'none',
+                      padding: '2px 0',
                       color: 'var(--admin-text-primary)',
                       fontFamily: 'inherit',
                       fontSize: '12.5px'
@@ -1015,21 +1014,12 @@ export default function EditorPage({
               {/* Unified article — one document: text, / for image / video / GIF */}
               <div style={{ marginTop: '20px' }}>
                 <h4 style={{ fontSize: '14px', fontWeight: 600, marginBottom: '8px' }}>Article</h4>
-                <div
-                  style={{
-                    background: 'var(--admin-bg-surface)',
-                    border: '1px solid var(--admin-border)',
-                    borderRadius: 'var(--admin-radius-md)',
-                    padding: '18px 20px',
-                  }}
-                >
-                  <ArticleEditor
-                    key={`article-${formData.id}`}
-                    value={formData.content || ''}
-                    onChange={(html) => handleFieldChange('content', html)}
-                    placeholder="Write the case study… Type '/' to add an image, video or GIF."
-                  />
-                </div>
+                <ArticleEditor
+                  key={`article-${formData.id}`}
+                  value={formData.content || ''}
+                  onChange={(html) => handleFieldChange('content', html)}
+                  placeholder="Write the case study… Type '/' to add an image, video or GIF."
+                />
               </div>
             </div>
           )}

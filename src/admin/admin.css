@@ -1091,3 +1091,35 @@
 
 /* Unified article editor: a touch more presence than section bodies */
 .admin-article-editor .ql-editor { min-height: 320px; font-size: 14.5px; }
+
+/* Focus-mode paper: full white background, zero borders, zero boxes.
+   Scoped to edit routes only — list/dashboard/settings keep their design. */
+.admin-main.focus-mode .admin-editor-layout {
+  background-color: #fff;
+}
+.admin-main.focus-mode .admin-cover-dropzone {
+  border: none;
+  background: transparent;
+}
+.admin-main.focus-mode .admin-cover-dropzone:hover,
+.admin-main.focus-mode .admin-cover-dropzone.drag-over {
+  border: none;
+  background: transparent;
+}
+.admin-main.focus-mode .admin-meta-panel {
+  background: transparent;
+  border: none;
+  padding-left: 0;
+  padding-right: 0;
+}
+.admin-main.focus-mode .admin-form-input {
+  background: transparent;
+  border: none;
+  padding-left: 0;
+  padding-right: 0;
+}
+.admin-main.focus-mode .admin-form-input:focus {
+  border: none;
+  background: var(--admin-bg-canvas);
+  border-radius: var(--admin-radius-sm);
+}
