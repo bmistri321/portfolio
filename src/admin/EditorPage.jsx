@@ -27,6 +27,8 @@ import {
   Table as TableIcon,
   Smile,
   Minus,
+  Video,
+  Film,
   Info,
   ChevronDown,
   X
@@ -56,6 +58,15 @@ const COMMON_TAGS = [
 ];
 
 const EMOJIS = ['✨', '💡', '🚀', '🔥', '⚡', '🛠️', '🎨', '📐', '🧠', '🔮', '🎯', '📌', '💎', '🌱', '📦', '🔍'];
+
+// Insert panel options (Word-style): draggable into the article, files can be
+// dropped on a tile, click inserts at the cursor / opens the file picker.
+const INSERT_TILES = [
+  { kind: 'image', label: 'Image', hint: 'Upload & compress', Icon: ImageIcon },
+  { kind: 'video', label: 'Video', hint: 'Upload MP4', Icon: Video },
+  { kind: 'gif', label: 'GIF', hint: 'Upload', Icon: Film },
+  { kind: 'divider', label: 'Divider', hint: 'Horizontal line', Icon: Minus },
+];
 
 export default function EditorPage({
   contentId,
@@ -115,6 +126,7 @@ export default function EditorPage({
   const titleRef = useRef(null);
   const excerptRef = useRef(null);
   const autosaveTimerRef = useRef(null);
+  const articleRef = useRef(null); // Insert panel -> ArticleEditor imperative API
   const isInitialLoad = useRef(true);
   const formDataRef = useRef(formData);
   const persistedRef = useRef(!isNew); // true once the row exists in the DB
@@ -580,6 +592,45 @@ export default function EditorPage({
 
       {/* Canvas View Container */}
       <div className="admin-editor-canvas-wrap">
+        {formData.type === 'work' && (
+          <aside className="admin-insert-panel">
+            <h3 className="admin-insert-panel-title">Insert</h3>
+            <div className="admin-insert-tiles">
+              {INSERT_TILES.map(({ kind, label, hint, Icon }) => (
+                <div
+                  key={kind}
+                  className="admin-insert-tile"
+                  draggable
+                  onDragStart={(e) => {
+                    e.dataTransfer.setData('application/x-insert-kind', kind);
+                    e.dataTransfer.effectAllowed = 'copy';
+                  }}
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const files = Array.from(e.dataTransfer.files || []);
+                    if (files.length) articleRef.current?.insertFiles(null, files);
+                  }}
+                  onClick={() => {
+                    if (kind === 'divider') articleRef.current?.insertDivider(null);
+                    else articleRef.current?.pickFiles(kind, null);
+                  }}
+                  title={kind === 'divider' ? 'Click to insert a divider line' : 'Drag into the document, click to upload, or drop files here'}
+                >
+                  <span className="admin-insert-tile-icon">
+                    <Icon size={16} />
+                  </span>
+                  <span className="admin-insert-tile-text">
+                    <span className="admin-insert-tile-label">{label}</span>
+                    <span className="admin-insert-tile-hint">{hint}</span>
+                  </span>
+                </div>
+              ))}
+            </div>
+            <p className="admin-insert-panel-note">Drag into the document, click to insert, or drop files onto a tile.</p>
+          </aside>
+        )}
         <div className="admin-editor-canvas">
           <>
               {/* Cover Image Uploader */}
@@ -1073,6 +1124,7 @@ export default function EditorPage({
               <div style={{ marginTop: '20px' }}>
                 <h4 style={{ fontSize: '14px', fontWeight: 600, marginBottom: '8px' }}>Article</h4>
                 <ArticleEditor
+                  ref={articleRef}
                   key={`article-${formData.id}`}
                   value={formData.content || ''}
                   onChange={(html) => handleFieldChange('content', html)}

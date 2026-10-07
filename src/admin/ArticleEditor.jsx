@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, forwardRef, useImperativeHandle } from 'react';
 import Quill from 'quill';
 import 'quill/dist/quill.bubble.css';
 import { Image as ImageIcon, Video, Film } from 'lucide-react';
@@ -28,6 +28,24 @@ try {
   /* already registered */
 }
 
+// ---------------------------------------------------------------------------
+// Divider blot — a real <hr> the Insert panel can drop in
+// ---------------------------------------------------------------------------
+class DividerBlot extends BlockEmbed {
+  static create() {
+    const node = super.create();
+    node.setAttribute('class', 'article-divider');
+    return node;
+  }
+}
+DividerBlot.blotName = 'divider';
+DividerBlot.tagName = 'hr';
+try {
+  Quill.register(DividerBlot);
+} catch {
+  /* already registered */
+}
+
 // Floating contextual toolbar (select text) — no boxes anywhere.
 const TOOLBAR = [
   ['bold', 'italic', 'underline'],
@@ -37,6 +55,7 @@ const TOOLBAR = [
 ];
 
 const MAX_IMG_DIM = 1600;
+const INSERT_MIME = 'application/x-insert-kind';
 
 // Compress an image in-browser (canvas). GIFs pass through untouched to
 // preserve animation. Returns a File ready for upload.
@@ -72,11 +91,20 @@ async function uploadToSupabase(file, altText) {
   return uploaded.url;
 }
 
+function kindOfFile(file) {
+  if (!file || !file.type) return null;
+  if (file.type === 'image/gif') return 'gif';
+  if (file.type.startsWith('video/')) return 'video';
+  if (file.type.startsWith('image/')) return 'image';
+  return null;
+}
+
 // ---------------------------------------------------------------------------
 // ArticleEditor — one unified document per project.
-// Type text, select for the floating toolbar, press "/" for image/video/GIF.
+// Type text, select for the floating toolbar, press "/" for image/video/GIF,
+// or drag options in from the Insert panel.
 // ---------------------------------------------------------------------------
-export default function ArticleEditor({ value, onChange, placeholder }) {
+const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, placeholder }, ref) {
   const wrapRef = useRef(null);
   const containerRef = useRef(null);
   const quillRef = useRef(null);
@@ -147,15 +175,134 @@ export default function ArticleEditor({ value, onChange, placeholder }) {
     };
     quill.root.addEventListener('keydown', onKey);
 
+    // Never let a stray file drop navigate the browser away from the editor.
+    const killDrop = (e) => e.preventDefault();
+    document.addEventListener('dragover', killDrop);
+    document.addEventListener('drop', killDrop);
+
     quillRef.current = quill;
     const containerEl = containerRef.current;
     return () => {
       quillRef.current = null;
       quill.root.removeEventListener('keydown', onKey);
+      document.removeEventListener('dragover', killDrop);
+      document.removeEventListener('drop', killDrop);
       if (containerEl) containerEl.innerHTML = '';
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const clampIndex = (idx) => {
+    const quill = quillRef.current;
+    return Math.max(0, Math.min(idx ?? quill.getLength(), quill.getLength()));
+  };
+
+  const cursorIndex = () => {
+    const quill = quillRef.current;
+    return quill.getSelection()?.index ?? quill.getLength();
+  };
+
+  // Map drop coordinates to a document index via the DOM caret.
+  const indexFromPoint = (clientX, clientY) => {
+    const quill = quillRef.current;
+    if (!quill) return 0;
+    try {
+      let range = null;
+      if (document.caretRangeFromPoint) {
+        range = document.caretRangeFromPoint(clientX, clientY);
+      } else if (document.caretPositionFromPoint) {
+        const pos = document.caretPositionFromPoint(clientX, clientY);
+        if (pos) {
+          range = document.createRange();
+          range.setStart(pos.offsetNode, pos.offset);
+          range.collapse(true);
+        }
+      }
+      if (range && quill.root.contains(range.startContainer)) {
+        const sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+        quill.focus();
+        const qsel = quill.getSelection();
+        if (qsel) return qsel.index;
+      }
+    } catch {
+      /* fall through */
+    }
+    return quill.getLength();
+  };
+
+  const insertDividerAt = (index) => {
+    const quill = quillRef.current;
+    if (!quill) return;
+    const idx = clampIndex(index ?? cursorIndex());
+    quill.insertEmbed(idx, 'divider', true, 'user');
+    quill.setSelection(idx + 1, 'silent');
+    quill.focus();
+  };
+
+  const pickFilesAt = (kind, index) => {
+    pendingIndex.current = clampIndex(index ?? cursorIndex());
+    if (kind === 'image') imageInputRef.current?.click();
+    else if (kind === 'video') videoInputRef.current?.click();
+    else if (kind === 'gif') gifInputRef.current?.click();
+  };
+
+  const handleFile = async (kind, file, atIndex) => {
+    if (!file) return;
+    const quill = quillRef.current;
+    setUploading(kind);
+    try {
+      const processed = kind === 'image' ? await compressImage(file) : file;
+      const url = await uploadToSupabase(processed, file.name);
+      const idx = clampIndex(atIndex ?? pendingIndex.current);
+      if (kind === 'video') {
+        quill.insertEmbed(idx, 'articleVideo', url, 'user');
+      } else {
+        quill.insertEmbed(idx, 'image', url, 'user');
+      }
+      quill.setSelection(idx + 1, 'silent');
+      quill.focus();
+    } catch (err) {
+      alert(err.message || 'Upload failed.');
+    } finally {
+      setUploading(null);
+    }
+  };
+
+  const insertFilesAt = async (index, files) => {
+    let idx = clampIndex(index ?? cursorIndex());
+    for (const file of files || []) {
+      const kind = kindOfFile(file);
+      if (!kind) continue;
+      // eslint-disable-next-line no-await-in-loop
+      await handleFile(kind, file, idx);
+      idx += 1;
+    }
+  };
+
+  // API for the Insert panel (drag from panel, drop files on tiles, click).
+  useImperativeHandle(ref, () => ({
+    insertDivider: (index) => insertDividerAt(index ?? null),
+    insertFiles: (index, files) => insertFilesAt(index ?? null, files),
+    pickFiles: (kind, index) => pickFilesAt(kind, index ?? null),
+    indexFromPoint: (x, y) => indexFromPoint(x, y),
+  }));
+
+  const onDropOnEditor = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const kind = e.dataTransfer.getData(INSERT_MIME);
+    const files = Array.from(e.dataTransfer.files || []);
+    const idx = indexFromPoint(e.clientX, e.clientY);
+    if (kind === 'divider') {
+      insertDividerAt(idx);
+    } else if (kind) {
+      pickFilesAt(kind, idx);
+    } else if (files.length > 0) {
+      await insertFilesAt(idx, files);
+    }
+  };
 
   const removeSlashAndFocus = () => {
     const quill = quillRef.current;
@@ -173,35 +320,17 @@ export default function ArticleEditor({ value, onChange, placeholder }) {
 
   const chooseMedia = (kind) => {
     removeSlashAndFocus();
-    if (kind === 'image') imageInputRef.current?.click();
-    else if (kind === 'video') videoInputRef.current?.click();
-    else if (kind === 'gif') gifInputRef.current?.click();
-  };
-
-  const handleFile = async (kind, file) => {
-    if (!file) return;
-    const quill = quillRef.current;
-    setUploading(kind);
-    try {
-      const processed = kind === 'image' ? await compressImage(file) : file;
-      const url = await uploadToSupabase(processed, file.name);
-      const idx = Math.min(pendingIndex.current, quill.getLength());
-      if (kind === 'video') {
-        quill.insertEmbed(idx, 'articleVideo', url, 'user');
-      } else {
-        quill.insertEmbed(idx, 'image', url, 'user');
-      }
-      quill.setSelection(idx + 1, 'silent');
-      quill.focus();
-    } catch (err) {
-      alert(err.message || 'Upload failed.');
-    } finally {
-      setUploading(null);
-    }
+    pickFilesAt(kind, pendingIndex.current);
   };
 
   return (
-    <div ref={wrapRef} className="admin-quill-wrap admin-article-editor" style={{ position: 'relative' }}>
+    <div
+      ref={wrapRef}
+      className="admin-quill-wrap admin-article-editor"
+      style={{ position: 'relative' }}
+      onDragOver={(e) => e.preventDefault()}
+      onDrop={onDropOnEditor}
+    >
       <div ref={containerRef} />
 
       {slash && (
@@ -265,4 +394,6 @@ export default function ArticleEditor({ value, onChange, placeholder }) {
       />
     </div>
   );
-}
+});
+
+export default ArticleEditor;

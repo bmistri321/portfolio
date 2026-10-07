@@ -1171,15 +1171,107 @@
   color: var(--admin-text-primary);
   margin: 0;
 }
-@media (max-width: 1180px) {
+
+/* Insert panel (edit page): Word-style menu, sticky left column */
+.admin-insert-panel {
+  width: 240px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 96px;
+  background: #f8f8f9;
+  border-radius: var(--admin-radius-md);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.admin-insert-panel-title {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--admin-text-primary);
+  margin: 0;
+}
+.admin-insert-tiles {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.admin-insert-tile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #fff;
+  cursor: grab;
+  user-select: none;
+}
+.admin-insert-tile:hover {
+  background: var(--admin-bg-canvas);
+}
+.admin-insert-tile:active {
+  cursor: grabbing;
+}
+.admin-insert-tile-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--admin-accent-subtle);
+  color: var(--admin-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.admin-insert-tile-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.admin-insert-tile-label {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--admin-text-primary);
+}
+.admin-insert-tile-hint {
+  font-size: 11.5px;
+  color: var(--admin-text-muted);
+}
+.admin-insert-panel-note {
+  font-size: 11.5px;
+  color: var(--admin-text-muted);
+  margin: 4px 0 0;
+  line-height: 1.5;
+}
+
+/* Divider line inside the article editor */
+.admin-quill-wrap .ql-editor hr.article-divider,
+.admin-quill-wrap hr.article-divider {
+  border: none;
+  border-top: 2px solid var(--admin-border);
+  margin: 26px 0;
+}
+
+/* Three-column edit layout needs room: stack under 1500px */
+@media (max-width: 1500px) {
   .admin-editor-canvas-wrap {
     flex-direction: column;
     align-items: center;
     gap: 32px;
   }
+  .admin-insert-panel,
   .admin-seo-panel {
     position: static;
     width: 100%;
     max-width: 780px;
+  }
+  .admin-insert-tiles {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  .admin-insert-tile {
+    flex: 1 1 150px;
   }
 }

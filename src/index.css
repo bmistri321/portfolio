@@ -1733,3 +1733,8 @@ body {
   margin: 18px 0;
   display: block;
 }
+.cs-html-body hr {
+  border: none;
+  border-top: 1px solid #e2e2e6;
+  margin: 34px 0;
+}
