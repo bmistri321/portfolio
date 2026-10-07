@@ -37,22 +37,43 @@ export function saveSupabaseConfig(url, anonKey) {
 }
 
 // Session Management
-export function getStoredSession() {
-  if (typeof localStorage === 'undefined') return null;
+// Sessions live in localStorage ("keep me logged in") or sessionStorage
+// (session-only login). Readers check both; writers target one.
+function readJsonStore(store, key) {
+  if (typeof store === 'undefined' || store === null) return null;
   try {
-    const raw = localStorage.getItem(STORAGE_KEYS.SESSION);
+    const raw = store.getItem(key);
     return raw ? JSON.parse(raw) : null;
   } catch {
     return null;
   }
 }
 
-export function saveStoredSession(session) {
-  if (typeof localStorage === 'undefined') return;
-  if (session) {
-    localStorage.setItem(STORAGE_KEYS.SESSION, JSON.stringify(session));
-  } else {
-    localStorage.removeItem(STORAGE_KEYS.SESSION);
+function activeStorages() {
+  return [
+    typeof localStorage !== 'undefined' ? localStorage : null,
+    typeof sessionStorage !== 'undefined' ? sessionStorage : null,
+  ].filter(Boolean);
+}
+
+export function getStoredSession() {
+  const [persistentStore, sessionStore] = activeStorages();
+  return (
+    readJsonStore(persistentStore, STORAGE_KEYS.SESSION) ||
+    readJsonStore(sessionStore, STORAGE_KEYS.SESSION)
+  );
+}
+
+export function saveStoredSession(session, persistent = true) {
+  const [persistentStore, sessionStore] = activeStorages();
+  const target = persistent ? persistentStore : sessionStore;
+  for (const store of [persistentStore, sessionStore]) {
+    if (!store) continue;
+    if (session && store === target) {
+      store.setItem(STORAGE_KEYS.SESSION, JSON.stringify(session));
+    } else {
+      store.removeItem(STORAGE_KEYS.SESSION);
+    }
   }
 }
 

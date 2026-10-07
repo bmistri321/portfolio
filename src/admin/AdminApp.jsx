@@ -94,8 +94,8 @@ export default function AdminApp({ onNavigateLive }) {
   // so a stale/forged session never flashes the studio UI.
   if (checking) {
     return (
-      <div className="admin-root" data-admin-theme="dark" style={{ alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
-        <p style={{ color: 'var(--admin-text-secondary)', fontSize: '14px' }}>Checking session…</p>
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#ffffff' }}>
+        <p style={{ color: '#a7a7b3', fontSize: '14px', fontFamily: '"Inter", system-ui, sans-serif' }}>Checking session…</p>
       </div>
     );
   }
