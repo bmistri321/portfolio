@@ -228,6 +228,18 @@ function setLocalItems(key, items) {
   localStorage.setItem(key, JSON.stringify(items));
 }
 
+// Utility: Generate RFC4122 v4 UUID
+export function generateUUID() {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID();
+  }
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    const r = Math.random() * 16 | 0;
+    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
+
 // Utility: Generate URL-safe slug
 export function generateSlug(text) {
   return String(text || '')
@@ -352,7 +364,8 @@ export const contentService = {
   // 4. Create new content item
   async create(data) {
     const now = new Date().toISOString();
-    const id = data.id || `item_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
+    const isValidUUID = data.id && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(data.id);
+    const id = isValidUUID ? data.id : generateUUID();
     const slug = data.slug ? generateSlug(data.slug) : generateSlug(data.title || 'untitled');
 
     const newItem = {
@@ -372,6 +385,7 @@ export const contentService = {
       archived_at: null,
       featured: Boolean(data.featured),
       tags: Array.isArray(data.tags) ? data.tags : [],
+      order_index: typeof data.order_index === 'number' ? data.order_index : 0,
       metadata: data.metadata || {},
       seo_title: data.seo_title || data.title || '',
       seo_description: data.seo_description || data.excerpt || '',
@@ -602,7 +616,7 @@ export const mediaService = {
     }
 
     const newMedia = {
-      id: `media_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
+      id: generateUUID(),
       filename: file.name,
       url: finalUrl,
       type,

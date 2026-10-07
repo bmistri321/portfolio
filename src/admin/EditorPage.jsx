@@ -36,7 +36,8 @@ import {
   contentService,
   mediaService,
   generateSlug,
-  calculateReadingTime
+  calculateReadingTime,
+  generateUUID
 } from '../lib/contentService';
 
 const AVAILABLE_WORK_SECTIONS = [
@@ -79,7 +80,7 @@ export default function EditorPage({
 
   // Core Content State
   const [formData, setFormData] = useState({
-    id: isNew ? `item_${Date.now()}` : contentId,
+    id: isNew ? generateUUID() : contentId,
     title: '',
     slug: '',
     type: initialType,
