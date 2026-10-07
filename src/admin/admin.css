@@ -313,6 +313,15 @@
 .admin-btn-primary:hover {
   background-color: var(--admin-accent-hover);
   border-color: var(--admin-accent-hover);
+}
+.admin-btn-success {
+  background-color: #16a34a;
+  border-color: #16a34a;
+  color: #ffffff;
+}
+.admin-btn-success:hover {
+  background-color: #15803d;
+  border-color: #15803d;
   color: #ffffff;
 }
 

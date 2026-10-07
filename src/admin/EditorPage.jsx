@@ -107,6 +107,7 @@ export default function EditorPage({
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [slugStatus, setSlugStatus] = useState({ checked: false, isUnique: true, msg: '' });
   const [quotePopup, setQuotePopup] = useState(null); // { index } — pending quote insertion
+  const [manualSaved, setManualSaved] = useState(false); // Save button turns green after a manual save
 
   const textareaRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -190,6 +191,7 @@ export default function EditorPage({
 
   // Handle Input Changes with Autosave Trigger
   const handleFieldChange = (field, value) => {
+    setManualSaved(false);
     setFormData((prev) => {
       const next = { ...prev, [field]: value };
       
@@ -323,9 +325,11 @@ export default function EditorPage({
       lastSavedSigRef.current = autosaveSignature(formDataRef.current);
       dirtyRef.current = false;
       setSaveStatus('saved');
+      setManualSaved(true);
     } catch (err) {
       alert(`Save failed: ${err.message}`);
       setSaveStatus('unsaved');
+      setManualSaved(false);
     }
   };
 
@@ -565,7 +569,7 @@ export default function EditorPage({
 
           <button
             type="button"
-            className={`admin-btn admin-btn-sm ${formData.status === 'published' ? 'admin-btn-primary' : 'admin-btn-ghost'}`}
+            className={`admin-btn admin-btn-sm ${manualSaved ? 'admin-btn-success' : formData.status === 'published' ? 'admin-btn-primary' : 'admin-btn-ghost'}`}
             onClick={handleManualSave}
             title="Save all changes"
           >
