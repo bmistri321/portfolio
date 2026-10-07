@@ -4,7 +4,6 @@ import {
   Briefcase,
   FlaskConical,
   PenLine,
-  Archive,
   Image as ImageIcon,
   Settings,
   Menu,
@@ -37,8 +36,7 @@ export default function AdminLayout({
       items: [
         { id: '/admin/work', label: 'Work', icon: Briefcase, count: metrics.work },
         { id: '/admin/tinkering', label: 'Tinkering', icon: FlaskConical, count: metrics.tinkering },
-        { id: '/admin/writing', label: 'Writing', icon: PenLine, count: metrics.writing },
-        { id: '/admin/archives', label: 'Archives', icon: Archive, count: metrics.archived }
+        { id: '/admin/writing', label: 'Writing', icon: PenLine, count: metrics.writing }
       ]
     },
     {
@@ -61,7 +59,6 @@ export default function AdminLayout({
     if (currentPath === '/admin/work') return ['Content', 'Work'];
     if (currentPath === '/admin/tinkering') return ['Content', 'Tinkering'];
     if (currentPath === '/admin/writing') return ['Content', 'Writing'];
-    if (currentPath === '/admin/archives') return ['Content', 'Archives'];
     if (currentPath === '/admin/media') return ['Media', 'Library'];
     if (currentPath === '/admin/settings') return ['System', 'Settings'];
     if (currentPath.startsWith('/admin/content/new')) return ['Content', 'New Piece'];

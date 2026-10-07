@@ -180,18 +180,6 @@ export default function AdminApp({ onNavigateLive }) {
       );
     }
 
-    if (currentPath === '/admin/archives') {
-      return (
-        <ContentListPage
-          defaultType="archive"
-          title="Content Archives"
-          subtitle="Archived content pieces preserved with original metadata."
-          onNavigate={navigate}
-          onPreview={(item) => setPreviewItem(item)}
-        />
-      );
-    }
-
     if (currentPath.startsWith('/admin/content/new')) {
       const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : new URLSearchParams();
       const type = searchParams.get('type') || 'work';
