@@ -7,7 +7,6 @@ import {
   Briefcase, 
   Sparkles, 
   FileText, 
-  Archive, 
   Mail, 
   Globe, 
   ArrowUpRight 
@@ -95,24 +94,13 @@ export default function DevHomePage({ onNavigate }) {
       url: i.metadata?.projectUrl || i.metadata?.external_url || i.metadata?.link || `/casestudy/${i.slug}`
     }));
 
-  const dynamicArchives = cmsItems
-    .filter((i) => i.type === 'archive' || i.status === 'archived')
-    .map((i) => ({
-      id: i.id,
-      title: i.title,
-      year: i.metadata?.year || new Date(i.archived_at || i.published_at || i.created_at).getFullYear().toString(),
-      metric: i.excerpt || 'Archived portfolio piece',
-      image: i.cover_image || '',
-      link: i.metadata?.link || i.metadata?.projectUrl || `/casestudy/${i.slug}`
-    }));
+
 
   // CMS is the single source of truth — manage items in the admin portal.
   const getActiveList = () => {
     switch (activeTab) {
       case 'tinkering':
         return dynamicTinkering;
-      case 'archives':
-        return dynamicArchives;
       case 'writing':
         return dynamicWriting;
       case 'work':
@@ -266,13 +254,6 @@ export default function DevHomePage({ onNavigate }) {
           <span>Writing</span>
         </button>
 
-        <button
-          className={`dev-tab-pill ${activeTab === 'archives' ? 'active' : ''}`}
-          onClick={() => handleTabChange('archives')}
-        >
-          <Archive size={13} />
-          <span>Archives</span>
-        </button>
       </div>
 
       {/* 6. 2-COLUMN PROJECT GRID */}
