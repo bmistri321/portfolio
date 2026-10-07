@@ -126,8 +126,16 @@ export default function EditorPage({
 
   const textareaRef = useRef(null);
   const fileInputRef = useRef(null);
+  const excerptRef = useRef(null);
   const autosaveTimerRef = useRef(null);
   const isInitialLoad = useRef(true);
+
+  // Keep the excerpt textarea sized to its content (wraps like a blog editor)
+  const autoGrowTextarea = (el) => {
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = el.scrollHeight + 'px';
+  };
 
   // Load existing content if editing
   useEffect(() => {
@@ -169,6 +177,11 @@ export default function EditorPage({
     loadItem();
   }, [contentId, isNew]);
 
+  // Size the excerpt textarea to existing content once the item loads
+  useEffect(() => {
+    if (!loading) autoGrowTextarea(excerptRef.current);
+  }, [loading]);
+
   // Check Slug Uniqueness
   const checkSlug = useCallback(async (slugToCheck) => {
     if (!slugToCheck) return;
@@ -206,6 +219,17 @@ export default function EditorPage({
 
     setSaveStatus('unsaved');
     triggerAutosave();
+  };
+
+  // Changing type moves the card to a different tab on the live site —
+  // confirm deliberately so a mis-tap can't silently recategorize content.
+  const handleTypeChange = (nextType) => {
+    if (nextType === formData.type) return;
+    const label = { work: 'Work', tinkering: 'Tinkering', writing: 'Writing' }[nextType] || nextType;
+    const ok = window.confirm(
+      `Move "${formData.title || 'this item'}" to ${label}? It will appear under a different tab on the live site.`
+    );
+    if (ok) handleFieldChange('type', nextType);
   };
 
   const handleMetadataChange = (metaKey, value) => {
@@ -448,7 +472,7 @@ export default function EditorPage({
           <select
             className="admin-select"
             value={formData.type}
-            onChange={(e) => handleFieldChange('type', e.target.value)}
+            onChange={(e) => handleTypeChange(e.target.value)}
             style={{ fontWeight: 600, textTransform: 'capitalize' }}
           >
             <option value="work">Work Project</option>
@@ -685,12 +709,16 @@ export default function EditorPage({
                   value={formData.title}
                   onChange={(e) => handleFieldChange('title', e.target.value)}
                 />
-                <input
-                  type="text"
+                <textarea
+                  ref={excerptRef}
                   className="admin-subtitle-input"
                   placeholder="Short description / excerpt..."
                   value={formData.excerpt}
-                  onChange={(e) => handleFieldChange('excerpt', e.target.value)}
+                  rows={2}
+                  onChange={(e) => {
+                    handleFieldChange('excerpt', e.target.value);
+                    autoGrowTextarea(e.target);
+                  }}
                   style={{ marginTop: '8px' }}
                 />
               </div>

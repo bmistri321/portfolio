@@ -12,199 +12,16 @@ const LOCAL_STORAGE_KEYS = {
   SETTINGS: 'bm_cms_portal_settings_v2',
 };
 
-// Initial realistic seed items from Bishal's portfolio
+// NOTE: intentionally empty. Supabase is the single source of truth for content.
+// Fictional fallback seeds used to render as real cards on the live site whenever
+// a fetch failed, and shadowed real data. An empty store is honest.
 function getInitialSeedContent() {
-  const now = new Date().toISOString();
-  
-  return [
-    {
-      id: 'varcle-cloud-analytics',
-      title: 'Varcle Cloud Analytics Dashboard',
-      slug: 'varcle-cloud-analytics',
-      type: 'work',
-      status: 'published',
-      excerpt: 'A real-time data visualization platform providing live telemetry, latency tracking, and autonomous anomaly detection across multi-cloud infrastructure.',
-      content: `## Executive Overview\n\nVarcle Cloud Analytics is an enterprise observability and telemetry portal designed to eliminate diagnostic latency for distributed multi-cloud architectures.\n\n### The Problem\nModern microservice systems emit millions of metric points per minute. Engineers often struggle with alert fatigue and fragmented dashboards that take several minutes to locate the root cause of an outage.\n\n### Design & Architecture\n- Built with high-performance real-time WebSockets and Redis pub/sub streams.\n- Canvas-based chart rendering capable of sustaining 60fps at 50,000 datapoints.\n- Weightless, dark-first user interface with contextual AI anomaly drill-downs.\n\n### Impact\n- Reduced infrastructure incident diagnosis time by **45%** with sub-second streaming.\n- Adopted across critical cloud staging environments.`,
-      cover_image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1400&q=80',
-      thumbnail: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=400&q=80',
-      author: 'Bishal Mistri',
-      published_at: '2024-03-15T10:00:00Z',
-      created_at: '2024-03-10T12:00:00Z',
-      updated_at: '2024-03-15T10:00:00Z',
-      archived_at: null,
-      featured: true,
-      tags: ['React', 'TypeScript', 'Node.js', 'Redis', 'Observability'],
-      metadata: {
-        client: 'Varcle Technologies',
-        role: 'Lead Full Stack & Product Architect',
-        year: '2024',
-        duration: '4 Months',
-        team: '3 Engineers, 1 Designer',
-        tools: ['React', 'TypeScript', 'Node.js', 'Chart.js', 'Docker'],
-        projectUrl: 'https://bishalmistri.com/#projects',
-        repoUrl: 'https://github.com/bishalmistri/varcle-analytics',
-        sections: [
-          { title: 'Overview', body: 'Telemetry platform for distributed multi-cloud environments.' },
-          { title: 'Problem', body: 'High diagnostic latency and alert fatigue in traditional monitoring.' },
-          { title: 'Solution', body: 'Sub-second real-time streaming with intelligent anomaly clustering.' },
-          { title: 'Outcome', body: '45% faster incident response and high engineer satisfaction.' }
-        ]
-      },
-      seo_title: 'Varcle Cloud Analytics Dashboard — Case Study by Bishal Mistri',
-      seo_description: 'Case study on building real-time telemetry streaming and anomaly detection for multi-cloud systems.',
-      og_image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80'
-    },
-    {
-      id: 'antigravity-dev-toolkit',
-      title: 'Antigravity Cloud IDE Extension',
-      slug: 'antigravity-dev-toolkit',
-      type: 'work',
-      status: 'published',
-      excerpt: 'A developer productivity suite featuring floating AI context menus, real-time code refactoring suggestions, and zero-latency terminal commands.',
-      content: `## The Concept of Weightless Intelligence\n\nTraditional IDE extensions crowd the screen with notifications and static sidebars. Antigravity was engineered to "float"—bringing contextual intelligence forward only when relevant.\n\n### Core Capabilities\n1. **Contextual Action Toolbar**: Floating context menu triggered upon code selection.\n2. **Zero-Latency In-line Suggestions**: Ghost text auto-completion with sub-20ms rendering.\n3. **Insight Drawer**: Slide-over analysis for Big-O complexity and security heuristics.`,
-      cover_image: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1400&q=80',
-      thumbnail: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=400&q=80',
-      author: 'Bishal Mistri',
-      published_at: '2024-05-20T14:30:00Z',
-      created_at: '2024-05-01T08:00:00Z',
-      updated_at: '2024-05-20T14:30:00Z',
-      archived_at: null,
-      featured: true,
-      tags: ['TypeScript', 'AI', 'Developer Tools', 'React', 'Lucide'],
-      metadata: {
-        client: 'Open Source Studio',
-        role: 'Creator & Lead Engineer',
-        year: '2024',
-        duration: '3 Months',
-        team: 'Solo Project',
-        tools: ['TypeScript', 'React', 'WebSockets', 'Vite', 'Lucide Icons'],
-        projectUrl: 'https://bishalmistri.com/#projects',
-        repoUrl: 'https://github.com/bishalmistri/antigravity-toolkit',
-        sections: [
-          { title: 'Philosophy', body: 'Weightless intelligence with zero-friction developer flow.' },
-          { title: 'Architecture', body: 'Custom AST parsers running in background web workers.' }
-        ]
-      },
-      seo_title: 'Antigravity Cloud IDE Extension — Case Study',
-      seo_description: 'Building a frictionless AI assistant extension for modern cloud editors.',
-      og_image: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1200&q=80'
-    },
-    {
-      id: 'fluid-mesh-shader-experiment',
-      title: 'Interactive WebGL Fluid Mesh Shader',
-      slug: 'fluid-mesh-shader-experiment',
-      type: 'tinkering',
-      status: 'published',
-      excerpt: 'Exploring Navier-Stokes fluid simulation in GLSL shaders responding to cursor velocity and multi-touch gestures.',
-      content: `## Experiment Notes\n\nAn experiment exploring GPU-accelerated fluid dynamics on an HTML5 canvas.\n\n- Uses double-buffered framebuffers for velocity and pressure solving.\n- Dynamic chromatic aberration tuned to pointer acceleration.\n- Runs at a solid 60 FPS even on mobile GPUs.`,
-      cover_image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1400&q=80',
-      thumbnail: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=400&q=80',
-      author: 'Bishal Mistri',
-      published_at: '2024-08-10T09:15:00Z',
-      created_at: '2024-08-09T18:00:00Z',
-      updated_at: '2024-08-10T09:15:00Z',
-      archived_at: null,
-      featured: false,
-      tags: ['WebGL', 'GLSL', 'Shaders', 'Creative Coding', 'Physics'],
-      metadata: {
-        tools: ['Three.js', 'GLSL', 'WebGL 2.0', 'Canvas API'],
-        demoUrl: 'https://bishalmistri.com/playground',
-        date: 'August 2024'
-      },
-      seo_title: 'Interactive WebGL Fluid Mesh Shader — Tinkering by Bishal Mistri',
-      seo_description: 'GPU-accelerated interactive fluid dynamics and GLSL experiments.',
-      og_image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80'
-    },
-    {
-      id: 'principles-of-editorial-software-design',
-      title: 'The Principles of Quiet & Editorial Software Design',
-      slug: 'principles-of-editorial-software-design',
-      type: 'writing',
-      status: 'published',
-      excerpt: 'Why modern tools are suffering from notification fatigue and how designing with editorial restraint creates more mindful digital spaces.',
-      content: `## The Modern Noise Problem\n\nEvery application today wants your attention. Badges flash red, toast notifications slide in from all four corners, and progress bars shout at you to complete an onboarding checklist.\n\n### The Shift Toward Editorial Software\nEditorial software does not scream. It prioritizes:\n\n1. **Generous Whitespace**: Giving content room to breathe.\n2. **High-Contrast Typography**: Letting the written word speak first.\n3. **Elevated Surfaces**: Subtle depth rather than heavy outlines.\n\n> "Good design is as little design as possible. Great publishing tools get out of the way of the author."\n\n### Crafting Frictionless Experiences\nWhen building authoring tools, the primary metric is focus. The moment a tool demands you configure five modals before writing a sentence, the creative spark is extinguished.`,
-      cover_image: 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=1400&q=80',
-      thumbnail: 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=400&q=80',
-      author: 'Bishal Mistri',
-      published_at: '2024-09-01T11:00:00Z',
-      created_at: '2024-08-25T14:00:00Z',
-      updated_at: '2024-09-01T11:00:00Z',
-      archived_at: null,
-      featured: true,
-      tags: ['Design', 'UI/UX', 'Editorial', 'Philosophy', 'Product'],
-      metadata: {
-        subtitle: 'Crafting digital environments that respect focus and clarity.',
-        readingTime: '4 min read'
-      },
-      seo_title: 'The Principles of Quiet & Editorial Software Design — Bishal Mistri',
-      seo_description: 'An essay on designing mindful, distraction-free publishing experiences.',
-      og_image: 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=1200&q=80'
-    },
-    {
-      id: 'draft-ai-workflow-orchestrator',
-      title: 'Building Autonomous Multi-Agent Workflows in Node.js',
-      slug: 'building-autonomous-multi-agent-workflows',
-      type: 'writing',
-      status: 'draft',
-      excerpt: 'A practical deep dive into task planning, schema validation, and checkpoint protocol design for autonomous AI agents.',
-      content: `## Introduction\n\nDesigning agentic AI loops requires strict determinism around nondeterministic LLM outputs.\n\n### Key Pillars\n- JSON Schema enforcement\n- State checkpoints and atomic transaction rollbacks\n- Persistent session hygiene`,
-      cover_image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1400&q=80',
-      thumbnail: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=400&q=80',
-      author: 'Bishal Mistri',
-      published_at: null,
-      created_at: now,
-      updated_at: now,
-      archived_at: null,
-      featured: false,
-      tags: ['AI', 'Node.js', 'Architecture', 'Agents'],
-      metadata: {
-        subtitle: 'Engineering reliability and bounded autonomy into modern LLM orchestrations.',
-        readingTime: '3 min read'
-      },
-      seo_title: 'Building Autonomous Multi-Agent Workflows in Node.js',
-      seo_description: 'Practical guide to multi-agent state machines and tools.',
-      og_image: null
-    }
-  ];
+  return [];
 }
 
 // Initial realistic media library items
 function getInitialSeedMedia() {
-  return [
-    {
-      id: 'm1',
-      filename: 'varcle-dashboard-telemetry.png',
-      url: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1400&q=80',
-      type: 'image',
-      mime_type: 'image/png',
-      size_bytes: 482000,
-      alt_text: 'Varcle Cloud Analytics live data streaming interface',
-      caption: 'Real-time telemetry stream overview',
-      created_at: '2024-03-10T12:00:00Z'
-    },
-    {
-      id: 'm2',
-      filename: 'antigravity-code-intelligence.png',
-      url: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1400&q=80',
-      type: 'image',
-      mime_type: 'image/png',
-      size_bytes: 612000,
-      alt_text: 'Antigravity developer toolkit context floating menu',
-      caption: 'Floating context menu with intelligent refactoring',
-      created_at: '2024-05-01T08:00:00Z'
-    },
-    {
-      id: 'm3',
-      filename: 'editorial-desk-workspace.jpg',
-      url: 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=1400&q=80',
-      type: 'image',
-      mime_type: 'image/jpeg',
-      size_bytes: 845000,
-      alt_text: 'Clean minimal writing desk with notebook and coffee',
-      caption: 'Minimalist editorial workspace',
-      created_at: '2024-08-25T14:00:00Z'
-    }
-  ];
+  return [];
 }
 
 // Local Storage Helper Functions
@@ -274,7 +91,7 @@ export function sanitizeContent(htmlOrMarkdown) {
 export const contentService = {
   // 1. Fetch all items (with optional filters)
   async getAll(filters = {}) {
-    const { type, status, search, sort = 'updated_desc' } = filters;
+    const { type, status, search, sort = 'order_index' } = filters;
     const config = getSupabaseConfig();
 
     let items = [];
@@ -288,7 +105,7 @@ export const contentService = {
         if (status && status !== 'all') {
           query += `&status=eq.${encodeURIComponent(status)}`;
         }
-        query += '&order=updated_at.desc';
+        query += '&order=order_index.asc.nullslast,updated_at.desc';
         items = await supabaseRequest(query);
       } catch (err) {
         console.warn('Supabase fetch failed, falling back to local storage:', err.message);
@@ -319,6 +136,12 @@ export const contentService = {
 
     // Sorting
     result.sort((a, b) => {
+      if (sort === 'order_index') {
+        const ao = (typeof a.order_index === 'number' ? a.order_index : 2147483647);
+        const bo = (typeof b.order_index === 'number' ? b.order_index : 2147483647);
+        if (ao !== bo) return ao - bo;
+        return new Date(b.updated_at || b.created_at) - new Date(a.updated_at || a.created_at);
+      }
       if (sort === 'updated_desc') return new Date(b.updated_at || b.created_at) - new Date(a.updated_at || a.created_at);
       if (sort === 'published_desc') return new Date(b.published_at || 0) - new Date(a.published_at || 0);
       if (sort === 'oldest') return new Date(a.created_at) - new Date(b.created_at);
@@ -407,8 +230,12 @@ export const contentService = {
           body: JSON.stringify(newItem)
         });
         if (rows && rows.length > 0) return rows[0];
+        throw new Error('Supabase did not return the created item.');
       } catch (err) {
-        console.warn('Supabase create failed, local item saved:', err.message);
+        // The item is already kept in the local store above — but the cloud
+        // save failed, so fail loudly instead of pretending it synced.
+        // A silent failure here is how the admin and the live site diverge.
+        throw new Error(`Cloud save failed (${err.message}). Kept locally on this device only — the live site is unchanged.`);
       }
     }
 
@@ -445,8 +272,11 @@ export const contentService = {
           body: JSON.stringify(sanitizedUpdates)
         });
         if (rows && rows.length > 0) return rows[0];
+        throw new Error('Supabase did not return the updated item.');
       } catch (err) {
-        console.warn('Supabase update failed, local item updated:', err.message);
+        // Local copy is already updated above — fail loudly so the admin
+        // never shows "Saved" while the live site still has old data.
+        throw new Error(`Cloud save failed (${err.message}). Kept locally on this device only — the live site is unchanged.`);
       }
     }
 
@@ -505,7 +335,7 @@ export const contentService = {
           method: 'DELETE'
         });
       } catch (err) {
-        console.warn('Supabase delete failed:', err.message);
+        throw new Error(`Cloud delete failed (${err.message}). The item is still live on the site.`);
       }
     }
     return true;

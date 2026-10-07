@@ -672,8 +672,19 @@
   background: transparent;
   border: none;
   outline: none;
-  line-height: 1.4;
+  line-height: 1.55;
   font-family: inherit;
+  resize: none;
+  overflow: hidden;
+  min-height: 56px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  padding: 0;
+}
+
+.admin-subtitle-input::placeholder {
+  color: var(--admin-text-muted);
+  opacity: 0.6;
 }
 
 /* Cover Image Drop Zone */

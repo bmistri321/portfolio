@@ -30,7 +30,7 @@ export default function ContentListPage({
   const [typeFilter, setTypeFilter] = useState(defaultType);
   const [statusFilter, setStatusFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
-  const [sortOption, setSortOption] = useState('updated_desc');
+  const [sortOption, setSortOption] = useState('order_index');
   
   // Confirmation Modal State
   const [confirmModal, setConfirmModal] = useState({
@@ -67,30 +67,50 @@ export default function ContentListPage({
   }, [typeFilter, statusFilter, searchQuery, sortOption]);
 
   const handlePublish = async (item) => {
-    await contentService.publish(item.id);
-    loadContent();
+    try {
+        await contentService.publish(item.id);
+        loadContent();
+    } catch (err) {
+      alert(`Action failed: ${err.message}`);
+    }
   };
 
   const handleUnpublish = async (item) => {
-    await contentService.unpublish(item.id);
-    loadContent();
+    try {
+        await contentService.unpublish(item.id);
+        loadContent();
+    } catch (err) {
+      alert(`Action failed: ${err.message}`);
+    }
   };
 
   const handleArchive = async (item) => {
-    await contentService.archive(item.id);
-    setConfirmModal({ isOpen: false, action: null, item: null, title: '', message: '' });
-    loadContent();
+    try {
+        await contentService.archive(item.id);
+        setConfirmModal({ isOpen: false, action: null, item: null, title: '', message: '' });
+        loadContent();
+    } catch (err) {
+      alert(`Action failed: ${err.message}`);
+    }
   };
 
   const handleRestore = async (item) => {
-    await contentService.restore(item.id);
-    loadContent();
+    try {
+        await contentService.restore(item.id);
+        loadContent();
+    } catch (err) {
+      alert(`Action failed: ${err.message}`);
+    }
   };
 
   const handleDelete = async (item) => {
-    await contentService.delete(item.id);
-    setConfirmModal({ isOpen: false, action: null, item: null, title: '', message: '' });
-    loadContent();
+    try {
+        await contentService.delete(item.id);
+        setConfirmModal({ isOpen: false, action: null, item: null, title: '', message: '' });
+        loadContent();
+    } catch (err) {
+      alert(`Action failed: ${err.message}`);
+    }
   };
 
   const formatDate = (isoString) => {
@@ -167,6 +187,7 @@ export default function ContentListPage({
               value={sortOption}
               onChange={(e) => setSortOption(e.target.value)}
             >
+              <option value="order_index">Custom Order (as on live site)</option>
               <option value="updated_desc">Recently Updated</option>
               <option value="published_desc">Recently Published</option>
               <option value="oldest">Oldest First</option>
