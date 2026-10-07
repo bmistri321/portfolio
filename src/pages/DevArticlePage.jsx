@@ -3,6 +3,8 @@ import { ArrowLeft, ExternalLink } from 'lucide-react';
 import DevCaseStudyLayout from '../components/DevCaseStudyLayout';
 import SharedFooter from '../components/SharedFooter';
 import { contentService } from '../lib/contentService';
+import DOMPurify from 'dompurify';
+import { isHtml } from '../lib/miniFormat';
 
 // ---------------------------------------------------------------------------
 // Mini rich-text renderer for CMS article bodies.
@@ -69,6 +71,20 @@ function renderImages(images) {
   ));
 }
 
+// HTML section bodies from the WYSIWYG editor: sanitized, styled via .cs-html-body.
+function renderHtmlBody(body) {
+  const clean = DOMPurify.sanitize(String(body || ''), {
+    ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 's', 'a', 'ul', 'ol', 'li', 'blockquote', 'h2', 'h3'],
+    ALLOWED_ATTR: ['href', 'target', 'rel'],
+  });
+  return <div className="cs-html-body" dangerouslySetInnerHTML={{ __html: clean }} />;
+}
+
+// Section body: HTML (WYSIWYG) preferred, legacy mini-format as fallback.
+function renderSectionBody(body) {
+  return isHtml(body) ? renderHtmlBody(body) : renderBlocks(body);
+}
+
 const slugId = (t) =>
   String(t || 'section')
     .toLowerCase()
@@ -104,7 +120,7 @@ function RichArticle({ item, siblings, onNavigate }) {
     heading: sec.title,
     content: (
       <>
-        {renderBlocks(sec.body)}
+        {renderSectionBody(sec.body)}
         {renderImages(sec.images)}
       </>
     ),

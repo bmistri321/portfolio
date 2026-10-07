@@ -40,6 +40,7 @@ import {
   calculateReadingTime,
   generateUUID
 } from '../lib/contentService';
+import SectionBodyEditor from './SectionBodyEditor';
 
 const AVAILABLE_WORK_SECTIONS = [
   'Overview',
@@ -1184,17 +1185,12 @@ export default function EditorPage({
                           </div>
                         </div>
 
-                        <textarea
-                          rows={4}
-                          className="admin-form-input"
-                          style={{ width: '100%', resize: 'vertical', lineHeight: 1.65 }}
+                        <SectionBodyEditor
+                          key={`${formData.id}-sec-${idx}`}
+                          value={section.body || ''}
+                          onChange={(html) => handleUpdateSectionBody(idx, html)}
                           placeholder={`Write the ${(section.title || 'section').toLowerCase()} narrative...`}
-                          value={section.body}
-                          onChange={(e) => handleUpdateSectionBody(idx, e.target.value)}
                         />
-                        <div style={{ fontSize: '11px', color: 'var(--admin-text-muted)', marginTop: '4px' }}>
-                          Tip: **bold**, &gt; callout, • bullet list, blank line = new paragraph
-                        </div>
 
                         {/* Section images — WordPress-style: thumbnails, edit opens the image toolkit */}
                         <div style={{ marginTop: '10px' }}>

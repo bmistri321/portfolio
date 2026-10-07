@@ -1009,3 +1009,34 @@
     padding: 20px 16px;
   }
 }
+
+/* Blogger-style WYSIWYG section editor (Quill snow, matched to the light admin theme) */
+.admin-quill-wrap .ql-toolbar.ql-snow {
+  border: 1px solid var(--admin-border);
+  border-bottom: none;
+  border-radius: 8px 8px 0 0;
+  background: var(--admin-bg-surface);
+  padding: 6px 8px;
+}
+.admin-quill-wrap .ql-toolbar.ql-snow .ql-stroke { stroke: var(--admin-text-secondary); }
+.admin-quill-wrap .ql-toolbar.ql-snow .ql-fill { fill: var(--admin-text-secondary); }
+.admin-quill-wrap .ql-toolbar.ql-snow .ql-picker-label { color: var(--admin-text-secondary); }
+.admin-quill-wrap .ql-toolbar.ql-snow button:hover .ql-stroke,
+.admin-quill-wrap .ql-toolbar.ql-snow button.ql-active .ql-stroke { stroke: var(--admin-accent); }
+.admin-quill-wrap .ql-toolbar.ql-snow button:hover .ql-fill,
+.admin-quill-wrap .ql-toolbar.ql-snow button.ql-active .ql-fill { fill: var(--admin-accent); }
+.admin-quill-wrap .ql-container.ql-snow {
+  border: 1px solid var(--admin-border);
+  border-radius: 0 0 8px 8px;
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--admin-text-primary);
+  background: var(--admin-bg-surface);
+}
+.admin-quill-wrap .ql-editor { min-height: 130px; line-height: 1.65; }
+.admin-quill-wrap .ql-editor.ql-blank::before {
+  color: var(--admin-text-muted);
+  font-style: normal;
+}
+.admin-quill-wrap .ql-editor h2 { font-size: 17px; }
+.admin-quill-wrap .ql-editor h3 { font-size: 15px; }
