@@ -9,7 +9,7 @@
 // ---------------------------------------------------------------------------
 
 export function isHtml(str) {
-  return /<\/?[a-z][\s>]/i.test(String(str || ''));
+  return /<\/?[a-z][^>]*>/i.test(String(str || ''));
 }
 
 function escapeHtml(s) {
