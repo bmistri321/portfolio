@@ -218,16 +218,6 @@ function GenericArticle({ item, onNavigate }) {
             {item.excerpt}
           </p>
         )}
-
-        {item.tags && item.tags.length > 0 && (
-          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '16px' }}>
-            {item.tags.map((t) => (
-              <span key={t} style={{ fontSize: '11.5px', padding: '3px 10px', borderRadius: '9999px', backgroundColor: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#E5E7EB' }}>
-                {t}
-              </span>
-            ))}
-          </div>
-        )}
       </header>
 
       {item.cover_image && (

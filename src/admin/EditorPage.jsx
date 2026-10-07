@@ -9,7 +9,6 @@ import {
   Image as ImageIcon,
   UploadCloud,
   Trash2,
-  Tag,
   Check,
   AlertCircle,
   Bold,
@@ -42,21 +41,6 @@ import {
   generateUUID
 } from '../lib/contentService';
 import ArticleEditor from './ArticleEditor';
-
-const COMMON_TAGS = [
-  'UI/UX',
-  'Product Design',
-  'React',
-  'TypeScript',
-  'AI',
-  'Design Systems',
-  'WebGL',
-  'Cloud',
-  'Architecture',
-  'Philosophy',
-  'Figma',
-  'Motion'
-];
 
 const EMOJIS = ['✨', '💡', '🚀', '🔥', '⚡', '🛠️', '🎨', '📐', '🧠', '🔮', '🎯', '📌', '💎', '🌱', '📦', '🔍'];
 
@@ -119,7 +103,6 @@ export default function EditorPage({
   const [mediaPickerOpen, setMediaPickerOpen] = useState(false);
   const [mediaItems, setMediaItems] = useState([]);
   const [mediaTarget, setMediaTarget] = useState('cover'); // 'cover' or 'editor'
-  const [tagInput, setTagInput] = useState('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [slugStatus, setSlugStatus] = useState({ checked: false, isUnique: true, msg: '' });
 
@@ -453,22 +436,6 @@ export default function EditorPage({
       el.focus();
       el.setSelectionRange(start + snippet.length, start + snippet.length);
     }, 50);
-  };
-
-  // Tag Management
-  const handleAddTag = (tagToAdd) => {
-    const clean = tagToAdd.trim();
-    if (!clean) return;
-    if (!formData.tags.includes(clean)) {
-      const nextTags = [...formData.tags, clean];
-      handleFieldChange('tags', nextTags);
-    }
-    setTagInput('');
-  };
-
-  const handleRemoveTag = (tagToRemove) => {
-    const nextTags = formData.tags.filter((t) => t !== tagToRemove);
-    handleFieldChange('tags', nextTags);
   };
 
   // Lead paragraphs: textarea with blank-line-separated paragraphs <-> metadata.lead[]
@@ -823,57 +790,6 @@ export default function EditorPage({
                 <div style={{ color: 'var(--admin-text-muted)', fontSize: '12.5px' }}>
                   {formData.metadata?.readingTime || calculateReadingTime(formData.content)}
                 </div>
-              </div>
-
-              {/* Tag Pill Picker */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                <Tag size={14} style={{ color: 'var(--admin-text-muted)' }} />
-                {formData.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="admin-pill"
-                    style={{ backgroundColor: 'var(--admin-bg-surface-elevated)', color: 'var(--admin-text-primary)', cursor: 'pointer' }}
-                    onClick={() => handleRemoveTag(tag)}
-                    title="Click to remove"
-                  >
-                    {tag} &times;
-                  </span>
-                ))}
-                <input
-                  type="text"
-                  placeholder="+ Add tag..."
-                  value={tagInput}
-                  onChange={(e) => setTagInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ',') {
-                      e.preventDefault();
-                      handleAddTag(tagInput);
-                    }
-                  }}
-                  style={{
-                    background: 'transparent',
-                    border: 'none',
-                    outline: 'none',
-                    fontSize: '12.5px',
-                    color: 'var(--admin-text-primary)',
-                    minWidth: '90px'
-                  }}
-                />
-              </div>
-
-              {/* Quick Tag Recommendations */}
-              <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '-12px' }}>
-                {COMMON_TAGS.filter((t) => !formData.tags.includes(t)).slice(0, 5).map((t) => (
-                  <button
-                    key={t}
-                    type="button"
-                    onClick={() => handleAddTag(t)}
-                    className="admin-btn admin-btn-ghost admin-btn-sm"
-                    style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '9999px', border: '1px solid var(--admin-border-subtle)' }}
-                  >
-                    + {t}
-                  </button>
-                ))}
               </div>
 
               {formData.type === 'work' ? null : (
