@@ -222,6 +222,11 @@
   transition: var(--admin-transition);
 }
 
+/* Focus/edit mode: sidebar + top bar hidden, content takes the full width */
+.admin-main.focus-mode {
+  margin-left: 0;
+}
+
 .admin-main.sidebar-collapsed {
   margin-left: var(--admin-sidebar-collapsed);
 }

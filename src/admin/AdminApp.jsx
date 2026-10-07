@@ -206,12 +206,17 @@ export default function AdminApp({ onNavigateLive }) {
     return <DashboardPage onNavigate={navigate} />;
   };
 
+  // Focus mode: editing an item hides the sidebar + top bar for distraction-free editing
+  const isEditMode =
+    currentPath.startsWith('/admin/content/') && currentPath !== '/admin/content';
+
   return (
     <AdminLayout
       currentPath={currentPath}
       onNavigate={navigate}
       onLogout={handleLogout}
       metrics={metrics}
+      hideChrome={isEditMode}
     >
       {renderCurrentView()}
 

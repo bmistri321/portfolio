@@ -20,7 +20,8 @@ export default function AdminLayout({
   onNavigate,
   onLogout,
   children,
-  metrics = {}
+  metrics = {},
+  hideChrome = false
 }) {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
@@ -91,7 +92,8 @@ export default function AdminLayout({
   return (
     <div className="admin-root" data-admin-theme="light">
       <div className="admin-shell">
-        {/* Sidebar */}
+        {/* Sidebar (hidden in focus/edit mode) */}
+        {!hideChrome && (
         <aside className={`admin-sidebar ${isMobileOpen ? 'open-mobile' : ''}`}>
           <div className="admin-sidebar-header">
             <div className="admin-brand" onClick={() => onNavigate('/admin')} style={{ cursor: 'pointer' }}>
@@ -161,9 +163,12 @@ export default function AdminLayout({
           </div>
         </aside>
 
+        )}
+
         {/* Main Content */}
-        <div className="admin-main">
-          {/* Top Bar */}
+        <div className={`admin-main${hideChrome ? ' focus-mode' : ''}`}>
+          {/* Top Bar (hidden in focus/edit mode) */}
+          {!hideChrome && (
           <header className="admin-topbar">
             <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
               <button
@@ -220,6 +225,7 @@ export default function AdminLayout({
               </button>
             </div>
           </header>
+          )}
 
           {/* Render Active View */}
           <main style={{ flex: 1 }}>
