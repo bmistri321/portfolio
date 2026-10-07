@@ -1307,3 +1307,11 @@
     flex: 1 1 150px;
   }
 }
+
+/* Every textarea behaves like flowing text: no resize handle, no inner
+   scrollbar — it grows with its content like the description does. */
+textarea.admin-form-input {
+  resize: none;
+  overflow: hidden;
+  width: 100%;
+}

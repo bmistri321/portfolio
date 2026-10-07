@@ -125,6 +125,8 @@ export default function EditorPage({
   const fileInputRef = useRef(null);
   const titleRef = useRef(null);
   const excerptRef = useRef(null);
+  const leadRef = useRef(null);
+  const seoDescRef = useRef(null);
   const autosaveTimerRef = useRef(null);
   const articleRef = useRef(null); // Insert panel -> ArticleEditor imperative API
   const isInitialLoad = useRef(true);
@@ -185,6 +187,9 @@ export default function EditorPage({
     if (!loading) {
       autoGrowTextarea(titleRef.current);
       autoGrowTextarea(excerptRef.current);
+      autoGrowTextarea(leadRef.current);
+      autoGrowTextarea(seoDescRef.current);
+      autoGrowTextarea(textareaRef.current);
     }
   }, [loading]);
 
@@ -1014,9 +1019,12 @@ export default function EditorPage({
                 className="admin-editor-content-area"
                 placeholder="Start writing your thoughts, case study narrative, or code experiments... (Drag & drop images directly here)"
                 value={formData.content}
-                onChange={(e) => handleFieldChange('content', e.target.value)}
+                onChange={(e) => {
+                  handleFieldChange('content', e.target.value);
+                  autoGrowTextarea(e.target);
+                }}
                 onDrop={handleDropOnEditor}
-                rows={16}
+                rows={8}
               />
               </>
               )}
@@ -1111,12 +1119,16 @@ export default function EditorPage({
               <div className="admin-form-group" style={{ marginTop: '16px' }}>
                 <label className="admin-form-label">Lead Paragraphs (intro under the title — blank line between paragraphs)</label>
                 <textarea
-                  rows={4}
+                  ref={leadRef}
+                  rows={1}
                   className="admin-form-input"
-                  style={{ width: '100%', resize: 'vertical', lineHeight: 1.6 }}
+                  style={{ lineHeight: 1.6 }}
                   placeholder="Opening paragraphs of the case study..."
                   value={(formData.metadata.lead || []).join('\n\n')}
-                  onChange={(e) => handleLeadChange(e.target.value)}
+                  onChange={(e) => {
+                    handleLeadChange(e.target.value);
+                    autoGrowTextarea(e.target);
+                  }}
                 />
               </div>
 
@@ -1164,12 +1176,16 @@ export default function EditorPage({
               </span>
             </div>
             <textarea
-              rows={3}
+              ref={seoDescRef}
+              rows={1}
               className="admin-form-input"
-              style={{ width: '100%', resize: 'vertical', lineHeight: 1.55 }}
+              style={{ lineHeight: 1.55 }}
               placeholder="1–2 sentence description for search and social cards"
               value={formData.seo_description}
-              onChange={(e) => handleFieldChange('seo_description', e.target.value)}
+              onChange={(e) => {
+                handleFieldChange('seo_description', e.target.value);
+                autoGrowTextarea(e.target);
+              }}
             />
           </div>
 
