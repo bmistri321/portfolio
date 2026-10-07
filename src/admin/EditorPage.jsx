@@ -126,6 +126,7 @@ export default function EditorPage({
 
   const textareaRef = useRef(null);
   const fileInputRef = useRef(null);
+  const titleRef = useRef(null);
   const excerptRef = useRef(null);
   const autosaveTimerRef = useRef(null);
   const isInitialLoad = useRef(true);
@@ -177,9 +178,12 @@ export default function EditorPage({
     loadItem();
   }, [contentId, isNew]);
 
-  // Size the excerpt textarea to existing content once the item loads
+  // Size the title + excerpt textareas to existing content once the item loads
   useEffect(() => {
-    if (!loading) autoGrowTextarea(excerptRef.current);
+    if (!loading) {
+      autoGrowTextarea(titleRef.current);
+      autoGrowTextarea(excerptRef.current);
+    }
   }, [loading]);
 
   // Check Slug Uniqueness
@@ -702,12 +706,16 @@ export default function EditorPage({
 
               {/* Title & Subtitle */}
               <div>
-                <input
-                  type="text"
+                <textarea
+                  ref={titleRef}
                   className="admin-title-input"
                   placeholder="Enter title..."
                   value={formData.title}
-                  onChange={(e) => handleFieldChange('title', e.target.value)}
+                  rows={1}
+                  onChange={(e) => {
+                    handleFieldChange('title', e.target.value);
+                    autoGrowTextarea(e.target);
+                  }}
                 />
                 <textarea
                   ref={excerptRef}
