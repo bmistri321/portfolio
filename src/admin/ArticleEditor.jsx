@@ -475,6 +475,7 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
   });
 
   const applyVideoSettings = (node, s) => {
+    node.removeAttribute('c'); // remnant of controls mangled by the old save sanitizer
     if (s.controls) node.setAttribute('controls', '');
     else node.removeAttribute('controls');
     if (s.autoplay) {

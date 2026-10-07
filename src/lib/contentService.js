@@ -84,7 +84,8 @@ export function sanitizeContent(htmlOrMarkdown) {
   if (!htmlOrMarkdown) return '';
   return String(htmlOrMarkdown)
     .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-    .replace(/on\w+="[^"]*"/gi, '')
+    .replace(/(\s)on\w+="[^"]*"/gi, '$1')
+    .replace(/(\s)on\w+='[^']*'/gi, '$1')
     .replace(/javascript:[^"']*/gi, '#');
 }
 
