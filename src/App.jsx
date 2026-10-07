@@ -68,8 +68,6 @@ export default function App() {
     let p = (path || '/').toLowerCase().replace('.html', '').replace(/^\/p\//, '/');
     if (!p.startsWith('/')) p = '/' + p;
     if (p.startsWith('/admin')) return p;
-    if (p.includes('friender')) return '/casestudy/friender-case-study';
-    if (p.includes('wexa')) return '/casestudy/wexa';
     if (p.startsWith('/casestudy/')) return p;
     if (p.startsWith('/writing/')) return p;
     if (p.includes('dock')) return '/dock';
@@ -126,10 +124,9 @@ export default function App() {
 
     const renderDetailCaseStudy = () => {
       switch (currentPath) {
-        case '/casestudy/wexa':
-          return <DevArticlePage slug="wexa-ai-phase-1" onNavigate={navigate} />;
-        case '/casestudy/friender-case-study':
-          return <DevArticlePage slug="friender-toolbar-crm" onNavigate={navigate} />;
+        // NOTE: no hardcoded slugs here — the slug always resolves
+        // dynamically from the URL, so renaming a slug in the admin
+        // never breaks the page again.
         case '/casestudy':
           return <DevCaseStudyPage onNavigate={navigate} />;
         default:
