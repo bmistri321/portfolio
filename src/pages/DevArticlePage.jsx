@@ -3,6 +3,7 @@ import { ArrowLeft } from 'lucide-react';
 import DevCaseStudyLayout from '../components/DevCaseStudyLayout';
 import SharedFooter from '../components/SharedFooter';
 import { contentService, calculateReadingTime } from '../lib/contentService';
+import { applyPageMeta } from '../lib/pageMeta';
 import DOMPurify from 'dompurify';
 import { isHtml } from '../lib/miniFormat';
 
@@ -263,6 +264,16 @@ export default function DevArticlePage({ slug, onNavigate }) {
     load();
     return () => { cancelled = true; };
   }, [slug]);
+
+  // Refine SEO meta from the loaded CMS item (title / SEO description)
+  useEffect(() => {
+    if (item) {
+      applyPageMeta({
+        title: item.seo_title || (item.title ? `${item.title} — Bishal Mistri` : undefined),
+        description: item.seo_description || item.excerpt || undefined
+      });
+    }
+  }, [item]);
 
   if (loading) {
     return (

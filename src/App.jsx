@@ -9,6 +9,7 @@ import FrienderCaseStudyPage from './pages/FrienderCaseStudyPage';
 import WexaCaseStudyPage from './pages/WexaCaseStudyPage';
 import BookPage from './pages/BookPage';
 import FloatingNav from './components/FloatingNav';
+import { applyPageMeta } from './lib/pageMeta';
 
 // Dev Site Pages & Components (for dev.bishalmistri.com)
 import DevHomePage from './pages/DevHomePage';
@@ -93,20 +94,41 @@ export default function App() {
     '/book/ux.mastery.30.days': 'UX Design Mastery 30 Days — Bishal Mistri'
   };
 
+  const descriptionMap = {
+    '/': isBooks
+      ? 'UX Design Mastery in 30 Days — a guided book by Bishal Mistri.'
+      : 'Bishal Mistri is a Product Designer contributing to a better future by solving one problem at a time.',
+    '/dock': 'The tools, apps and gear Bishal Mistri uses every day — his digital dock.',
+    '/travel': 'Travel stories and photography by Bishal Mistri.',
+    '/casestudy': 'Case studies by Bishal Mistri — end-to-end product design across AI tools, B2B SaaS and design systems.',
+    '/about': 'About Bishal Mistri — product designer focused on craft, systems thinking and rapid prototyping.',
+    '/playground': 'Design experiments and playful interactions by Bishal Mistri.',
+    '/casestudy/friender-case-study': 'Friender case study by Bishal Mistri — designing a toolbar CRM for recruiters.',
+    '/casestudy/wexa': 'Wexa AI case study by Bishal Mistri — redesigning developer onboarding for an AI coding tool.',
+    '/book/ux.mastery.30.days': 'UX Design Mastery in 30 Days — a guided book by Bishal Mistri.'
+  };
+
+  const applyRouteMeta = (path) => {
+    applyPageMeta({
+      title: titleMap[path] || 'Bishal Mistri — Product Designer',
+      description: descriptionMap[path]
+    });
+  };
+
   const navigate = (path) => {
     const clean = getCleanPath(path);
     setCurrentPath(clean);
-    const newTitle = titleMap[clean] || 'Bishal Mistri — Product Designer';
-    document.title = newTitle;
-    window.history.pushState(null, newTitle, clean);
+    applyRouteMeta(clean);
+    window.history.pushState(null, document.title, clean);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   useEffect(() => {
+    applyRouteMeta(getCleanPath(window.location.pathname));
     const handlePopState = () => {
       const path = getCleanPath(window.location.pathname);
       setCurrentPath(path);
-      document.title = titleMap[path] || 'Bishal Mistri — Product Designer';
+      applyRouteMeta(path);
     };
 
     window.addEventListener('popstate', handlePopState);
