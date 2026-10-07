@@ -70,7 +70,7 @@ export default function DevHomePage({ onNavigate }) {
       title: i.title,
       year: i.metadata?.year || new Date(i.published_at || i.created_at).getFullYear().toString(),
       metric: i.excerpt || i.metadata?.client || 'Interactive product design & systems architecture',
-      image: i.cover_image || 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80',
+      image: i.cover_image || '',
       link: i.metadata?.link || i.metadata?.projectUrl || `/casestudy/${i.slug}`
     }));
 
@@ -81,7 +81,7 @@ export default function DevHomePage({ onNavigate }) {
       title: i.title,
       year: i.metadata?.date || i.metadata?.year || new Date(i.published_at || i.created_at).getFullYear().toString(),
       metric: i.excerpt || 'Interactive code exploration & prototype',
-      image: i.cover_image || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80',
+      image: i.cover_image || '',
       link: i.metadata?.link || i.metadata?.demoUrl || i.metadata?.projectUrl || `/casestudy/${i.slug}`
     }));
 
@@ -102,7 +102,7 @@ export default function DevHomePage({ onNavigate }) {
       title: i.title,
       year: i.metadata?.year || new Date(i.archived_at || i.published_at || i.created_at).getFullYear().toString(),
       metric: i.excerpt || 'Archived portfolio piece',
-      image: i.cover_image || 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=1200&q=80',
+      image: i.cover_image || '',
       link: i.metadata?.link || i.metadata?.projectUrl || `/casestudy/${i.slug}`
     }));
 
@@ -320,15 +320,17 @@ export default function DevHomePage({ onNavigate }) {
               }}
               className="dev-project-card"
             >
-              <div className="dev-card-img-box">
-                <img
-                  src={project.image}
-                  alt={project.title}
-                  loading="lazy"
-                  decoding="async"
-                  className="dev-card-img"
-                />
-              </div>
+              {project.image ? (
+                <div className="dev-card-img-box">
+                  <img
+                    src={project.image}
+                    alt={project.title}
+                    loading="lazy"
+                    decoding="async"
+                    className="dev-card-img"
+                  />
+                </div>
+              ) : null}
 
               <div className="dev-card-info">
                 <div className="dev-card-title-row">
