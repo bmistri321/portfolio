@@ -8,10 +8,9 @@ import {
   Sparkles, 
   FileText, 
   Mail, 
-  Globe, 
   ArrowUpRight 
 } from 'lucide-react';
-import { Github, Linkedin, Twitter } from '../components/Icons';
+import { Linkedin, Behance } from '../components/Icons';
 import InteractiveGlobe from '../components/InteractiveGlobe';
 import { playUiSound, isSoundEnabled, setSoundEnabled } from '../utils/sound';
 import { contentService } from '../lib/contentService';
@@ -210,20 +209,14 @@ export default function DevHomePage({ onNavigate }) {
 
       {/* 4. SOCIAL ICONS ROW */}
       <div className="dev-social-row">
-        <a href="https://twitter.com/bishalmistri" target="_blank" rel="noopener noreferrer" className="dev-social-icon" aria-label="Twitter" onClick={() => playUiSound('click')}>
-          <Twitter size={16} />
-        </a>
         <a href="mailto:contact@bishalmistri.com" className="dev-social-icon" aria-label="Email" onClick={() => playUiSound('click')}>
           <Mail size={16} />
         </a>
         <a href="https://linkedin.com/in/bishalmistri" target="_blank" rel="noopener noreferrer" className="dev-social-icon" aria-label="LinkedIn" onClick={() => playUiSound('click')}>
           <Linkedin size={16} />
         </a>
-        <a href="https://github.com/bishalmistri" target="_blank" rel="noopener noreferrer" className="dev-social-icon" aria-label="GitHub" onClick={() => playUiSound('click')}>
-          <Github size={16} />
-        </a>
-        <a href="https://bishalmistri.com" target="_blank" rel="noopener noreferrer" className="dev-social-icon" aria-label="Website" onClick={() => playUiSound('click')}>
-          <Globe size={16} />
+        <a href="https://behance.net/bishalmistri" target="_blank" rel="noopener noreferrer" className="dev-social-icon" aria-label="Behance" onClick={() => playUiSound('click')}>
+          <Behance size={16} />
         </a>
       </div>
 
