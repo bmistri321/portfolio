@@ -116,6 +116,10 @@ export default function EditorPage({
   const excerptRef = useRef(null);
   const autosaveTimerRef = useRef(null);
   const isInitialLoad = useRef(true);
+  const formDataRef = useRef(formData);
+  const persistedRef = useRef(!isNew); // true once the row exists in the DB
+  const lastSavedSigRef = useRef(null);
+  const dirtyRef = useRef(false);
 
   // Keep the excerpt textarea sized to its content (wraps like a blog editor)
   const autoGrowTextarea = (el) => {
@@ -176,13 +180,13 @@ export default function EditorPage({
   const checkSlug = useCallback(async (slugToCheck) => {
     if (!slugToCheck) return;
     const clean = generateSlug(slugToCheck);
-    const isUnique = await contentService.isSlugUnique(clean, isNew ? null : formData.id);
+    const isUnique = await contentService.isSlugUnique(clean, formData.id);
     setSlugStatus({
       checked: true,
       isUnique,
       msg: isUnique ? 'Slug available' : 'Slug already in use by another item'
     });
-  }, [isNew, formData.id]);
+  }, [formData.id]);
 
   // Handle Input Changes with Autosave Trigger
   const handleFieldChange = (field, value) => {
@@ -207,8 +211,7 @@ export default function EditorPage({
       return next;
     });
 
-    setSaveStatus('unsaved');
-    triggerAutosave();
+    scheduleAutosave();
   };
 
   // Changing type moves the card to a different tab on the live site —
@@ -230,43 +233,96 @@ export default function EditorPage({
         [metaKey]: value
       }
     }));
-    setSaveStatus('unsaved');
-    triggerAutosave();
+    scheduleAutosave();
   };
 
-  // Debounced Autosave
-  const triggerAutosave = useCallback(() => {
-    if (isInitialLoad.current) return;
-    if (autosaveTimerRef.current) clearTimeout(autosaveTimerRef.current);
+  // ---------- Autosave ----------
+  // formDataRef always holds the latest form, so the debounced saver never
+  // writes stale data (setState is async; a debounced closure would lag a keystroke).
+  useEffect(() => {
+    formDataRef.current = formData;
+  });
 
-    autosaveTimerRef.current = setTimeout(async () => {
-      setSaveStatus('saving');
-      try {
-        if (isNew) {
-          await contentService.create(formData);
-        } else {
-          await contentService.update(formData.id, formData);
-        }
-        setSaveStatus('saved');
-      } catch (err) {
-        console.warn('Autosave error:', err);
-        setSaveStatus('unsaved');
-      }
-    }, 1200);
-  }, [formData, isNew]);
+  const autosaveSignature = (d) =>
+    JSON.stringify([
+      d.title, d.slug, d.excerpt, d.content, d.cover_image, d.thumbnail,
+      d.status, d.featured, d.tags, d.metadata,
+      d.seo_title, d.seo_description, d.og_image,
+    ]);
 
-  // Explicit Save Draft
-  const handleManualSave = async () => {
+  const doAutosave = useCallback(async () => {
+    const data = formDataRef.current;
+    if (autosaveSignature(data) === lastSavedSigRef.current) return; // nothing new to save
     setSaveStatus('saving');
     try {
-      if (isNew) {
-        const created = await contentService.create(formData);
-        setSaveStatus('saved');
-        onNavigate(`/admin/content/${created.id}`);
+      if (!persistedRef.current) {
+        const created = await contentService.create(data);
+        persistedRef.current = true;
+        // Point the URL at the real item without remounting the editor.
+        if (typeof window !== 'undefined') {
+          window.history.replaceState(null, 'Bishal Mistri Studio', `/admin/content/${created.id}`);
+        }
       } else {
-        await contentService.update(formData.id, formData);
-        setSaveStatus('saved');
+        await contentService.update(data.id, data);
       }
+      lastSavedSigRef.current = autosaveSignature(formDataRef.current);
+      dirtyRef.current = false;
+      setSaveStatus('saved');
+    } catch (err) {
+      console.warn('Autosave error:', err);
+      setSaveStatus('unsaved');
+    }
+  }, []);
+
+  const scheduleAutosave = useCallback(() => {
+    if (isInitialLoad.current) return;
+    if (autosaveTimerRef.current) clearTimeout(autosaveTimerRef.current);
+    dirtyRef.current = true;
+    setSaveStatus('unsaved');
+    autosaveTimerRef.current = setTimeout(doAutosave, 1500);
+  }, [doAutosave]);
+
+  // Best-effort flush when leaving the editor.
+  useEffect(() => {
+    return () => {
+      if (autosaveTimerRef.current) {
+        clearTimeout(autosaveTimerRef.current);
+        autosaveTimerRef.current = null;
+        doAutosave();
+      }
+    };
+  }, [doAutosave]);
+
+  // Warn before closing the tab with unsaved changes.
+  useEffect(() => {
+    const onBeforeUnload = (e) => {
+      if (dirtyRef.current) e.preventDefault();
+    };
+    window.addEventListener('beforeunload', onBeforeUnload);
+    return () => window.removeEventListener('beforeunload', onBeforeUnload);
+  }, []);
+
+  // Explicit Save
+  const handleManualSave = async () => {
+    if (autosaveTimerRef.current) {
+      clearTimeout(autosaveTimerRef.current);
+      autosaveTimerRef.current = null;
+    }
+    setSaveStatus('saving');
+    try {
+      const data = formDataRef.current;
+      if (!persistedRef.current) {
+        const created = await contentService.create(data);
+        persistedRef.current = true;
+        if (typeof window !== 'undefined') {
+          window.history.replaceState(null, 'Bishal Mistri Studio', `/admin/content/${created.id}`);
+        }
+      } else {
+        await contentService.update(data.id, data);
+      }
+      lastSavedSigRef.current = autosaveSignature(formDataRef.current);
+      dirtyRef.current = false;
+      setSaveStatus('saved');
     } catch (err) {
       alert(`Save failed: ${err.message}`);
       setSaveStatus('unsaved');
@@ -284,10 +340,13 @@ export default function EditorPage({
         published_at: pubDate
       };
 
-      if (isNew) {
+      if (!persistedRef.current) {
         const created = await contentService.create(updatedData);
+        persistedRef.current = true;
         setFormData(created);
-        onNavigate(`/admin/content/${created.id}`);
+        if (typeof window !== 'undefined') {
+          window.history.replaceState(null, 'Bishal Mistri Studio', `/admin/content/${created.id}`);
+        }
       } else {
         const updated = await contentService.publish(formData.id, pubDate);
         setFormData(updated);
@@ -345,8 +404,7 @@ export default function EditorPage({
         thumbnail: prev.thumbnail || item.url,
         og_image: prev.og_image || item.url
       }));
-      setSaveStatus('unsaved');
-      triggerAutosave();
+      scheduleAutosave();
     } else if (mediaTarget === 'editor') {
       insertIntoContent(`\n\n![${item.alt_text || item.filename}](${item.url})\n\n`);
     }
@@ -1024,67 +1082,74 @@ export default function EditorPage({
             </div>
           )}
 
-          {/* SEO & Social Metadata — collapsed by default */}
-          <details className="admin-meta-panel" style={{ marginTop: '4px' }}>
-            <summary style={{ fontSize: '16px', fontWeight: 600, marginBottom: '6px', cursor: 'pointer' }}>
-              Search Engine &amp; Social Optimization
-            </summary>
 
-              <div className="admin-form-group">
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <label className="admin-form-label">SEO Title</label>
-                  <span style={{ fontSize: '11px', color: (formData.seo_title || '').length > 60 ? 'var(--admin-danger)' : 'var(--admin-text-muted)' }}>
-                    {(formData.seo_title || '').length} / 60
-                  </span>
-                </div>
-                <input
-                  type="text"
-                  className="admin-form-input"
-                  placeholder="Page title displayed in Google search results"
-                  value={formData.seo_title}
-                  onChange={(e) => handleFieldChange('seo_title', e.target.value)}
-                />
-              </div>
-
-              <div className="admin-form-group">
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <label className="admin-form-label">Meta Description</label>
-                  <span style={{ fontSize: '11px', color: (formData.seo_description || '').length > 160 ? 'var(--admin-danger)' : 'var(--admin-text-muted)' }}>
-                    {(formData.seo_description || '').length} / 160
-                  </span>
-                </div>
-                <textarea
-                  rows={3}
-                  className="admin-form-input"
-                  placeholder="Compelling 1-2 sentence description for search engines and social cards"
-                  value={formData.seo_description}
-                  onChange={(e) => handleFieldChange('seo_description', e.target.value)}
-                />
-              </div>
-
-              <div className="admin-form-group">
-                <label className="admin-form-label">Open Graph (Social Card) Image</label>
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  <input
-                    type="text"
-                    className="admin-form-input"
-                    placeholder="https://..."
-                    value={formData.og_image}
-                    onChange={(e) => handleFieldChange('og_image', e.target.value)}
-                    style={{ flex: 1 }}
-                  />
-                  <button
-                    type="button"
-                    className="admin-btn admin-btn-ghost admin-btn-sm"
-                    onClick={() => openMediaLibrary('cover')}
-                  >
-                    <ImageIcon size={14} />
-                    <span>Select</span>
-                  </button>
-                </div>
-              </div>
-          </details>
         </div>
+
+        <aside className="admin-seo-panel">
+          <h3 className="admin-seo-panel-title">SEO</h3>
+
+          <div className="admin-form-group">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+              <label className="admin-form-label">SEO Title</label>
+              <span style={{ fontSize: '11px', color: (formData.seo_title || '').length > 60 ? 'var(--admin-danger)' : 'var(--admin-text-muted)' }}>
+                {(formData.seo_title || '').length} / 60
+              </span>
+            </div>
+            <input
+              type="text"
+              className="admin-form-input"
+              placeholder="Page title in Google search results"
+              value={formData.seo_title}
+              onChange={(e) => handleFieldChange('seo_title', e.target.value)}
+            />
+          </div>
+
+          <div className="admin-form-group">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+              <label className="admin-form-label">Meta Description</label>
+              <span style={{ fontSize: '11px', color: (formData.seo_description || '').length > 160 ? 'var(--admin-danger)' : 'var(--admin-text-muted)' }}>
+                {(formData.seo_description || '').length} / 160
+              </span>
+            </div>
+            <textarea
+              rows={3}
+              className="admin-form-input"
+              style={{ width: '100%', resize: 'vertical', lineHeight: 1.55 }}
+              placeholder="1–2 sentence description for search and social cards"
+              value={formData.seo_description}
+              onChange={(e) => handleFieldChange('seo_description', e.target.value)}
+            />
+          </div>
+
+          <div className="admin-form-group">
+            <label className="admin-form-label">Social Card Image</label>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <input
+                type="text"
+                className="admin-form-input"
+                placeholder="https://..."
+                value={formData.og_image}
+                onChange={(e) => handleFieldChange('og_image', e.target.value)}
+                style={{ flex: 1, minWidth: 0 }}
+              />
+              <button
+                type="button"
+                className="admin-btn admin-btn-ghost admin-btn-sm"
+                onClick={() => openMediaLibrary('cover')}
+              >
+                <ImageIcon size={14} />
+                <span>Select</span>
+              </button>
+            </div>
+            {formData.og_image && (
+              <img
+                src={formData.og_image}
+                alt="Social card preview"
+                style={{ width: '100%', borderRadius: '8px', marginTop: '8px', display: 'block' }}
+              />
+            )}
+          </div>
+        </aside>
       </div>
 
       {/* Media Library Selection Modal */}
