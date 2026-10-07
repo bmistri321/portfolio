@@ -1221,6 +1221,7 @@ body {
 .dev-footer-name {
   color: var(--dev-text-1);
   font-weight: 500;
+  text-decoration: none;
 }
 
 /* Custom Sleek Scrollbar */

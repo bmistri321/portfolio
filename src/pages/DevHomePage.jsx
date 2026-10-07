@@ -209,7 +209,7 @@ export default function DevHomePage({ onNavigate }) {
 
       {/* 4. SOCIAL ICONS ROW */}
       <div className="dev-social-row">
-        <a href="mailto:contact@bishalmistri.com" className="dev-social-icon" aria-label="Email" onClick={() => playUiSound('click')}>
+        <a href="mailto:hello@bishalmistri.com" className="dev-social-icon" aria-label="Email" onClick={() => playUiSound('click')}>
           <Mail size={16} />
         </a>
         <a href="https://linkedin.com/in/bishalmistri" target="_blank" rel="noopener noreferrer" className="dev-social-icon" aria-label="LinkedIn" onClick={() => playUiSound('click')}>
@@ -322,7 +322,7 @@ export default function DevHomePage({ onNavigate }) {
         <div className="dev-footer-text">
           Built with <span className="dev-footer-bold">Next.js</span> and <span className="dev-footer-bold">Antigravity</span>
         </div>
-        <div className="dev-footer-name">Bishal</div>
+        <a href="mailto:hello@bishalmistri.com" className="dev-footer-name" onClick={() => playUiSound('click')}>hello@bishalmistri.com</a>
       </footer>
     </div>
   );
