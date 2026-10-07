@@ -70,6 +70,47 @@ const COMMON_TAGS = [
 
 const EMOJIS = ['✨', '💡', '🚀', '🔥', '⚡', '🛠️', '🎨', '📐', '🧠', '🔮', '🎯', '📌', '💎', '🌱', '📦', '🔍'];
 
+// Renders the section mini-format (**bold**, "> " callout, "• " bullets,
+// blank-line paragraphs) as a readable preview inside the editor.
+function renderAdminRichPreview(text) {
+  const inline = (t, kp) =>
+    String(t || '')
+      .split(/(\*\*[^*]+\*\*)/g)
+      .map((p, i) => {
+        const m = p.match(/^\*\*(.+)\*\*$/s);
+        const key = `${kp}-${i}`;
+        return m ? <strong key={key}>{m[1]}</strong> : <React.Fragment key={key}>{p}</React.Fragment>;
+      });
+  const blocks = String(text || '')
+    .split(/\n\s*\n/)
+    .map((b) => b.trim())
+    .filter(Boolean);
+  return blocks.map((block, bi) => {
+    const lines = block.split('\n').map((l) => l.trim()).filter(Boolean);
+    if (block.startsWith('> ')) {
+      return (
+        <div key={bi} style={{ borderLeft: '3px solid var(--admin-accent)', background: 'var(--admin-accent-subtle)', padding: '10px 14px', borderRadius: '0 8px 8px 0', margin: '10px 0', fontSize: '14px', lineHeight: 1.65 }}>
+          {inline(block.replace(/^> /, ''), `c${bi}`)}
+        </div>
+      );
+    }
+    if (lines.length > 0 && lines.every((l) => l.startsWith('• ') || l.startsWith('- '))) {
+      return (
+        <ul key={bi} style={{ margin: '10px 0', paddingLeft: '20px', fontSize: '14px', lineHeight: 1.7 }}>
+          {lines.map((l, li) => (
+            <li key={li} style={{ marginBottom: '4px' }}>{inline(l.replace(/^[•-] /, ''), `b${bi}-${li}`)}</li>
+          ))}
+        </ul>
+      );
+    }
+    return (
+      <p key={bi} style={{ fontSize: '14px', lineHeight: 1.75, color: 'var(--admin-text-secondary)', margin: '10px 0' }}>
+        {inline(block, `p${bi}`)}
+      </p>
+    );
+  });
+}
+
 export default function EditorPage({
   contentId,
   initialType = 'work',
@@ -843,6 +884,60 @@ export default function EditorPage({
                 ))}
               </div>
 
+              {(formData.metadata.sections || []).length > 0 ? (
+                <>
+                  {/* Structured article preview — this is what the live site renders */}
+                  <div style={{ background: 'var(--admin-accent-subtle)', border: '1px solid var(--admin-border)', borderRadius: 'var(--admin-radius-md)', padding: '12px 16px', marginBottom: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
+                    <div style={{ fontSize: '13px', color: 'var(--admin-text-secondary)', lineHeight: 1.5 }}>
+                      <strong style={{ color: 'var(--admin-text-primary)' }}>Structured case study.</strong> This article is built from the sections below — exactly what the live site shows. Edit them in the Project Information tab.
+                    </div>
+                    <button
+                      type="button"
+                      className="admin-btn admin-btn-sm"
+                      onClick={() => setActiveTab('project_details')}
+                      style={{ flexShrink: 0 }}
+                    >
+                      Edit sections
+                    </button>
+                  </div>
+
+                  {(formData.metadata.lead || []).length > 0 && (
+                    <div style={{ marginBottom: '20px' }}>
+                      <div style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--admin-text-muted)', marginBottom: '4px' }}>Lead</div>
+                      {renderAdminRichPreview((formData.metadata.lead || []).join('\n\n'))}
+                    </div>
+                  )}
+
+                  {(formData.metadata.sections || []).map((sec, sIdx) => (
+                    <div key={sIdx} style={{ border: '1px solid var(--admin-border)', borderRadius: 'var(--admin-radius-md)', padding: '16px', marginBottom: '12px', background: 'var(--admin-bg-surface)' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+                        <h4 style={{ fontSize: '15px', fontWeight: 700, margin: 0 }}>{sec.title}</h4>
+                        <button
+                          type="button"
+                          className="admin-btn admin-btn-ghost admin-btn-sm"
+                          onClick={() => setActiveTab('project_details')}
+                        >
+                          Edit
+                        </button>
+                      </div>
+                      {renderAdminRichPreview(sec.body)}
+                      {(sec.images || []).map((img, imgIdx) => (
+                        <figure key={imgIdx} style={{ margin: '12px 0 0' }}>
+                          <img
+                            src={img.url}
+                            alt={img.caption || ''}
+                            style={{ width: '100%', maxHeight: '240px', objectFit: 'cover', borderRadius: '8px', border: '1px solid var(--admin-border)' }}
+                          />
+                          {img.caption && (
+                            <figcaption style={{ fontSize: '12px', color: 'var(--admin-text-muted)', marginTop: '6px' }}>{img.caption}</figcaption>
+                          )}
+                        </figure>
+                      ))}
+                    </div>
+                  ))}
+                </>
+              ) : (
+              <>
               {/* Editor Formatting Toolbar */}
               <div className="admin-editor-toolbar">
                 <button
@@ -1041,6 +1136,8 @@ export default function EditorPage({
                 onDrop={handleDropOnEditor}
                 rows={16}
               />
+              </>
+              )}
             </>
           )}
 
