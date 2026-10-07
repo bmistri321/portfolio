@@ -59,7 +59,7 @@ function renderImages(images) {
     <div key={`img-${i}`} className="dev-hero-mockup-frame">
       <img
         src={img.url}
-        alt={img.caption || ''}
+        alt={img.alt || img.caption || ''}
         className="dev-hero-mockup-img"
         loading="lazy"
         decoding="async"

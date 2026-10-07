@@ -27,6 +27,7 @@ import {
   Table as TableIcon,
   Smile,
   Minus,
+  Pencil,
   Info,
   ChevronDown,
   ChevronUp,
@@ -119,6 +120,8 @@ export default function EditorPage({
   const [mediaPickerOpen, setMediaPickerOpen] = useState(false);
   const [mediaItems, setMediaItems] = useState([]);
   const [mediaTarget, setMediaTarget] = useState('cover'); // 'cover' or 'editor'
+  const [imageToolkit, setImageToolkit] = useState(null); // { sectionIdx, imageIdx|null, url, caption, alt }
+  const toolkitFileRef = useRef(null);
   const [tagInput, setTagInput] = useState('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [slugStatus, setSlugStatus] = useState({ checked: false, isUnique: true, msg: '' });
@@ -362,6 +365,8 @@ export default function EditorPage({
       triggerAutosave();
     } else if (mediaTarget === 'editor') {
       insertIntoContent(`\n\n![${item.alt_text || item.filename}](${item.url})\n\n`);
+    } else if (mediaTarget === 'toolkit') {
+      setImageToolkit((prev) => (prev ? { ...prev, url: item.url, alt: prev.alt || item.alt_text || '' } : prev));
     }
     setMediaPickerOpen(false);
   };
@@ -434,19 +439,45 @@ export default function EditorPage({
     handleMetadataChange('lead', paras);
   };
 
-  const handleAddSectionImage = (index) => {
-    const nextSections = [...(formData.metadata.sections || [])];
-    const images = [...(nextSections[index].images || []), { url: '', caption: '' }];
-    nextSections[index] = { ...nextSections[index], images };
-    handleMetadataChange('sections', nextSections);
+  // Image toolkit (WordPress-style): add / edit a section image with full details
+  const openImageToolkit = (sectionIdx, imageIdx = null) => {
+    const sections = formData.metadata.sections || [];
+    const existing = imageIdx !== null ? (sections[sectionIdx]?.images || [])[imageIdx] : null;
+    setImageToolkit({
+      sectionIdx,
+      imageIdx,
+      url: existing?.url || '',
+      caption: existing?.caption || '',
+      alt: existing?.alt || ''
+    });
   };
 
-  const handleUpdateSectionImage = (secIndex, imgIndex, field, value) => {
+  const closeImageToolkit = () => setImageToolkit(null);
+
+  const saveImageToolkit = () => {
+    if (!imageToolkit || !imageToolkit.url.trim()) return;
+    const { sectionIdx, imageIdx, url, caption, alt } = imageToolkit;
     const nextSections = [...(formData.metadata.sections || [])];
-    const images = [...(nextSections[secIndex].images || [])];
-    images[imgIndex] = { ...images[imgIndex], [field]: value };
-    nextSections[secIndex] = { ...nextSections[secIndex], images };
+    const images = [...(nextSections[sectionIdx].images || [])];
+    const record = { url: url.trim(), caption: caption.trim(), alt: alt.trim() };
+    if (imageIdx === null) images.push(record);
+    else images[imageIdx] = { ...images[imageIdx], ...record };
+    nextSections[sectionIdx] = { ...nextSections[sectionIdx], images };
     handleMetadataChange('sections', nextSections);
+    setImageToolkit(null);
+  };
+
+  const handleToolkitUpload = async (file) => {
+    if (!file) return;
+    try {
+      setSaveStatus('saving');
+      const uploaded = await mediaService.upload(file, { alt_text: imageToolkit?.alt || 'Section image' });
+      setImageToolkit((prev) => (prev ? { ...prev, url: uploaded.url } : prev));
+      setSaveStatus('saved');
+    } catch (err) {
+      alert(`Image upload failed: ${err.message}`);
+      setSaveStatus('unsaved');
+    }
   };
 
   const handleRemoveSectionImage = (secIndex, imgIndex) => {
@@ -1086,21 +1117,19 @@ export default function EditorPage({
 
               {/* Flexible Case Study Sections */}
               <div style={{ marginTop: '20px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-                  <h4 style={{ fontSize: '14px', fontWeight: 600 }}>Structured Case Study Sections</h4>
-                  <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                    {AVAILABLE_WORK_SECTIONS.map((sec) => (
-                      <button
-                        key={sec}
-                        type="button"
-                        className="admin-btn admin-btn-ghost admin-btn-sm"
-                        style={{ fontSize: '11px', padding: '2px 8px' }}
-                        onClick={() => handleAddSection(sec)}
-                      >
-                        + {sec}
-                      </button>
-                    ))}
-                  </div>
+                <h4 style={{ fontSize: '14px', fontWeight: 600, marginBottom: '8px' }}>Sections</h4>
+                <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '12px' }}>
+                  {AVAILABLE_WORK_SECTIONS.filter((sec) => !(formData.metadata.sections || []).some((s) => s.title === sec)).map((sec) => (
+                    <button
+                      key={sec}
+                      type="button"
+                      className="admin-btn admin-btn-ghost admin-btn-sm"
+                      style={{ fontSize: '11px', padding: '2px 8px' }}
+                      onClick={() => handleAddSection(sec)}
+                    >
+                      + {sec}
+                    </button>
+                  ))}
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
@@ -1158,13 +1187,16 @@ export default function EditorPage({
                         <textarea
                           rows={4}
                           className="admin-form-input"
-                          style={{ width: '100%', resize: 'vertical' }}
-                          placeholder={`Write the ${section.title.toLowerCase()} narrative...`}
+                          style={{ width: '100%', resize: 'vertical', lineHeight: 1.65 }}
+                          placeholder={`Write the ${(section.title || 'section').toLowerCase()} narrative...`}
                           value={section.body}
                           onChange={(e) => handleUpdateSectionBody(idx, e.target.value)}
                         />
+                        <div style={{ fontSize: '11px', color: 'var(--admin-text-muted)', marginTop: '4px' }}>
+                          Tip: **bold**, &gt; callout, • bullet list, blank line = new paragraph
+                        </div>
 
-                        {/* Section images */}
+                        {/* Section images — WordPress-style: thumbnails, edit opens the image toolkit */}
                         <div style={{ marginTop: '10px' }}>
                           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
                             <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--admin-text-secondary)' }}>
@@ -1174,47 +1206,64 @@ export default function EditorPage({
                               type="button"
                               className="admin-btn admin-btn-ghost admin-btn-sm"
                               style={{ fontSize: '11px', padding: '2px 8px' }}
-                              onClick={() => handleAddSectionImage(idx)}
+                              onClick={() => openImageToolkit(idx)}
                             >
                               + Add image
                             </button>
                           </div>
-                          {(section.images || []).map((img, imgIdx) => (
-                            <div key={imgIdx} style={{ display: 'flex', gap: '8px', marginBottom: '8px', alignItems: 'center' }}>
-                              {img.url && (
-                                <img
-                                  src={img.url}
-                                  alt=""
-                                  style={{ width: '56px', height: '40px', objectFit: 'cover', borderRadius: '6px', border: '1px solid var(--admin-border)', flexShrink: 0 }}
-                                />
-                              )}
-                              <input
-                                type="url"
-                                className="admin-form-input"
-                                style={{ flex: 2, fontSize: '12px' }}
-                                placeholder="Image URL"
-                                value={img.url || ''}
-                                onChange={(e) => handleUpdateSectionImage(idx, imgIdx, 'url', e.target.value)}
-                              />
-                              <input
-                                type="text"
-                                className="admin-form-input"
-                                style={{ flex: 2, fontSize: '12px' }}
-                                placeholder="Caption"
-                                value={img.caption || ''}
-                                onChange={(e) => handleUpdateSectionImage(idx, imgIdx, 'caption', e.target.value)}
-                              />
-                              <button
-                                type="button"
-                                className="admin-btn-ghost admin-btn-sm"
-                                style={{ color: 'var(--admin-danger)', flexShrink: 0 }}
-                                onClick={() => handleRemoveSectionImage(idx, imgIdx)}
-                                title="Remove image"
-                              >
-                                <X size={14} />
-                              </button>
+                          {(section.images || []).length > 0 && (
+                            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                              {(section.images || []).map((img, imgIdx) => (
+                                <div
+                                  key={imgIdx}
+                                  style={{
+                                    width: '132px',
+                                    border: '1px solid var(--admin-border)',
+                                    borderRadius: '8px',
+                                    overflow: 'hidden',
+                                    background: 'var(--admin-bg-surface)'
+                                  }}
+                                >
+                                  {img.url ? (
+                                    <img
+                                      src={img.url}
+                                      alt={img.alt || img.caption || ''}
+                                      style={{ width: '100%', height: '76px', objectFit: 'cover', display: 'block' }}
+                                    />
+                                  ) : (
+                                    <div style={{ width: '100%', height: '76px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--admin-text-muted)', fontSize: '11px' }}>
+                                      No image
+                                    </div>
+                                  )}
+                                  <div style={{ padding: '6px 8px' }}>
+                                    <div style={{ fontSize: '11px', color: 'var(--admin-text-secondary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={img.caption || ''}>
+                                      {img.caption || <span style={{ color: 'var(--admin-text-muted)', fontStyle: 'italic' }}>No caption</span>}
+                                    </div>
+                                    <div style={{ display: 'flex', gap: '4px', marginTop: '6px' }}>
+                                      <button
+                                        type="button"
+                                        className="admin-btn admin-btn-ghost admin-btn-sm"
+                                        style={{ fontSize: '11px', padding: '2px 8px', flex: 1 }}
+                                        onClick={() => openImageToolkit(idx, imgIdx)}
+                                      >
+                                        <Pencil size={12} />
+                                        <span>Edit</span>
+                                      </button>
+                                      <button
+                                        type="button"
+                                        className="admin-btn-ghost admin-btn-sm"
+                                        style={{ color: 'var(--admin-danger)' }}
+                                        onClick={() => handleRemoveSectionImage(idx, imgIdx)}
+                                        title="Remove image"
+                                      >
+                                        <X size={14} />
+                                      </button>
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
                             </div>
-                          ))}
+                          )}
                         </div>
                       </div>
                     ))
@@ -1286,6 +1335,115 @@ export default function EditorPage({
           </details>
         </div>
       </div>
+
+      {/* Image Toolkit Modal — WordPress-style image details for section images */}
+      {imageToolkit && (
+        <div className="admin-modal-backdrop" onClick={closeImageToolkit}>
+          <div className="admin-modal-card" style={{ maxWidth: '520px' }} onClick={(e) => e.stopPropagation()}>
+            <div className="admin-modal-header">
+              <h3 style={{ fontSize: '16px', fontWeight: 600 }}>
+                {imageToolkit.imageIdx === null ? 'Add image' : 'Edit image'}
+              </h3>
+              <button
+                type="button"
+                className="admin-btn-ghost admin-btn-icon"
+                onClick={closeImageToolkit}
+              >
+                <X size={16} />
+              </button>
+            </div>
+            <div className="admin-modal-body">
+              {imageToolkit.url && (
+                <div style={{ marginBottom: '14px' }}>
+                  <img
+                    src={imageToolkit.url}
+                    alt=""
+                    style={{ width: '100%', maxHeight: '220px', objectFit: 'cover', borderRadius: '8px', border: '1px solid var(--admin-border)' }}
+                  />
+                </div>
+              )}
+              <div className="admin-form-group">
+                <label className="admin-form-label">Image URL</label>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <input
+                    type="url"
+                    className="admin-form-input"
+                    placeholder="https://..."
+                    value={imageToolkit.url}
+                    onChange={(e) => setImageToolkit((prev) => (prev ? { ...prev, url: e.target.value } : prev))}
+                    style={{ flex: 1 }}
+                  />
+                  <button
+                    type="button"
+                    className="admin-btn admin-btn-ghost admin-btn-sm"
+                    onClick={() => toolkitFileRef.current?.click()}
+                    title="Upload an image"
+                  >
+                    <UploadCloud size={14} />
+                    <span>Upload</span>
+                  </button>
+                  <button
+                    type="button"
+                    className="admin-btn admin-btn-ghost admin-btn-sm"
+                    onClick={() => openMediaLibrary('toolkit')}
+                    title="Choose from Media Library"
+                  >
+                    <ImageIcon size={14} />
+                    <span>Library</span>
+                  </button>
+                </div>
+                <input
+                  ref={toolkitFileRef}
+                  type="file"
+                  accept="image/*"
+                  style={{ display: 'none' }}
+                  onChange={(e) => {
+                    handleToolkitUpload(e.target.files[0]);
+                    e.target.value = '';
+                  }}
+                />
+              </div>
+              <div className="admin-form-group">
+                <label className="admin-form-label">Caption</label>
+                <input
+                  type="text"
+                  className="admin-form-input"
+                  placeholder="Shown under the image on the article page"
+                  value={imageToolkit.caption}
+                  onChange={(e) => setImageToolkit((prev) => (prev ? { ...prev, caption: e.target.value } : prev))}
+                />
+              </div>
+              <div className="admin-form-group">
+                <label className="admin-form-label">Alt text</label>
+                <input
+                  type="text"
+                  className="admin-form-input"
+                  placeholder="Describe the image for screen readers and SEO"
+                  value={imageToolkit.alt}
+                  onChange={(e) => setImageToolkit((prev) => (prev ? { ...prev, alt: e.target.value } : prev))}
+                />
+              </div>
+            </div>
+            <div className="admin-modal-footer">
+              <button
+                type="button"
+                className="admin-btn admin-btn-ghost"
+                onClick={closeImageToolkit}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="admin-btn admin-btn-primary"
+                onClick={saveImageToolkit}
+                disabled={!imageToolkit.url.trim()}
+              >
+                {imageToolkit.imageIdx === null ? 'Add image' : 'Save changes'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Media Library Selection Modal */}
       {mediaPickerOpen && (
