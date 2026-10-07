@@ -134,6 +134,35 @@ export const supabaseAuth = {
     return session;
   },
 
+  async signUp(email, password) {
+    const { url, anonKey } = getSupabaseConfig();
+    const res = await fetch(`${url}/auth/v1/signup`, {
+      method: 'POST',
+      headers: {
+        'apikey': anonKey,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ email, password })
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.error_description || data.message || 'Sign up failed');
+    }
+
+    if (data.access_token) {
+      const session = {
+        access_token: data.access_token,
+        refresh_token: data.refresh_token,
+        expires_at: Date.now() + (data.expires_in * 1000),
+        user: data.user
+      };
+      saveStoredSession(session);
+      return session;
+    }
+    return data;
+  },
+
   async signOut() {
     try {
       const { url, anonKey } = getSupabaseConfig();

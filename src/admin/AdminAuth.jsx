@@ -3,22 +3,35 @@ import { supabaseAuth, getSupabaseConfig, saveSupabaseConfig } from '../lib/supa
 import { Compass, ArrowRight, AlertCircle } from 'lucide-react';
 
 export default function AdminAuth({ onAuthenticated }) {
+  const [mode, setMode] = useState('signin'); // 'signin' or 'signup'
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [successMsg, setSuccessMsg] = useState(null);
   const [config, setConfig] = useState(() => getSupabaseConfig());
   const [setupUrl, setSetupUrl] = useState('');
   const [setupKey, setSetupKey] = useState('');
 
-  const handleLogin = async (e) => {
+  const handleAuth = async (e) => {
     e.preventDefault();
     setError(null);
+    setSuccessMsg(null);
     setLoading(true);
 
     try {
-      await supabaseAuth.signInWithPassword(email, password);
-      onAuthenticated();
+      if (mode === 'signin') {
+        await supabaseAuth.signInWithPassword(email, password);
+        onAuthenticated();
+      } else {
+        const res = await supabaseAuth.signUp(email, password);
+        if (res.access_token) {
+          onAuthenticated();
+        } else {
+          setSuccessMsg('Account created! If confirmation is required, please check your email or proceed to sign in.');
+          setMode('signin');
+        }
+      }
     } catch (err) {
       setError(err.message || 'Failed to authenticate');
     } finally {
@@ -57,7 +70,7 @@ export default function AdminAuth({ onAuthenticated }) {
         Publishing Studio
       </h1>
       <p style={{ fontSize: '13.5px', color: 'var(--admin-text-secondary)' }}>
-        Bishal Mistri Personal Content Management
+        Bishal Mistri Portfolio Control Center
       </p>
     </div>
   );
@@ -79,7 +92,23 @@ export default function AdminAuth({ onAuthenticated }) {
     </div>
   );
 
-  // Supabase not connected yet — show the one-time setup form (no fake login).
+  const successBox = successMsg && (
+    <div style={{
+      padding: '10px 14px',
+      borderRadius: 'var(--admin-radius-sm)',
+      backgroundColor: 'var(--admin-success-subtle)',
+      color: 'var(--admin-success)',
+      fontSize: '13px',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '8px',
+      marginBottom: '20px'
+    }}>
+      <span>{successMsg}</span>
+    </div>
+  );
+
+  // Supabase not connected yet — show the one-time setup form.
   if (!config.isConfigured) {
     return (
       <div className="admin-root" data-admin-theme="dark" style={{ alignItems: 'center', justifyContent: 'center', minHeight: '100vh', padding: '24px' }}>
@@ -132,8 +161,50 @@ export default function AdminAuth({ onAuthenticated }) {
       <div className="admin-card" style={{ maxWidth: '420px', width: '100%', padding: '36px 32px' }}>
         {header}
         {errorBox}
+        {successBox}
 
-        <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div style={{ display: 'flex', background: 'var(--admin-bg-surface-elevated)', borderRadius: '8px', padding: '3px', marginBottom: '20px' }}>
+          <button
+            type="button"
+            onClick={() => { setMode('signin'); setError(null); }}
+            style={{
+              flex: 1,
+              padding: '8px 12px',
+              fontSize: '13px',
+              fontWeight: 500,
+              borderRadius: '6px',
+              border: 'none',
+              cursor: 'pointer',
+              background: mode === 'signin' ? 'var(--admin-bg-surface)' : 'transparent',
+              color: mode === 'signin' ? 'var(--admin-text-primary)' : 'var(--admin-text-secondary)',
+              boxShadow: mode === 'signin' ? '0 1px 3px rgba(0,0,0,0.2)' : 'none',
+              transition: 'all 0.15s ease'
+            }}
+          >
+            Sign In
+          </button>
+          <button
+            type="button"
+            onClick={() => { setMode('signup'); setError(null); }}
+            style={{
+              flex: 1,
+              padding: '8px 12px',
+              fontSize: '13px',
+              fontWeight: 500,
+              borderRadius: '6px',
+              border: 'none',
+              cursor: 'pointer',
+              background: mode === 'signup' ? 'var(--admin-bg-surface)' : 'transparent',
+              color: mode === 'signup' ? 'var(--admin-text-primary)' : 'var(--admin-text-secondary)',
+              boxShadow: mode === 'signup' ? '0 1px 3px rgba(0,0,0,0.2)' : 'none',
+              transition: 'all 0.15s ease'
+            }}
+          >
+            Create Admin
+          </button>
+        </div>
+
+        <form onSubmit={handleAuth} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div className="admin-form-group">
             <label className="admin-form-label">Email Address</label>
             <input
@@ -164,7 +235,7 @@ export default function AdminAuth({ onAuthenticated }) {
             disabled={loading}
             style={{ width: '100%', padding: '10px', marginTop: '6px' }}
           >
-            {loading ? 'Authenticating...' : 'Enter Studio'}
+            {loading ? (mode === 'signin' ? 'Authenticating...' : 'Creating Account...') : (mode === 'signin' ? 'Enter Studio' : 'Create Admin Account')}
             <ArrowRight size={16} />
           </button>
         </form>

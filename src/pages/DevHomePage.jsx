@@ -189,7 +189,7 @@ export default function DevHomePage({ onNavigate }) {
       year: i.metadata?.year || new Date(i.published_at || i.created_at).getFullYear().toString(),
       metric: i.excerpt || i.metadata?.client || 'Interactive product design & systems architecture',
       image: i.cover_image || 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80',
-      link: `/casestudy/${i.slug}`
+      link: i.metadata?.link || i.metadata?.projectUrl || `/casestudy/${i.slug}`
     }));
 
   const dynamicTinkering = cmsItems
@@ -197,10 +197,10 @@ export default function DevHomePage({ onNavigate }) {
     .map((i) => ({
       id: i.id,
       title: i.title,
-      year: i.metadata?.date || new Date(i.published_at || i.created_at).getFullYear().toString(),
+      year: i.metadata?.date || i.metadata?.year || new Date(i.published_at || i.created_at).getFullYear().toString(),
       metric: i.excerpt || 'Interactive code exploration & prototype',
       image: i.cover_image || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80',
-      link: `/casestudy/${i.slug}`
+      link: i.metadata?.link || i.metadata?.demoUrl || i.metadata?.projectUrl || `/casestudy/${i.slug}`
     }));
 
   const dynamicWriting = cmsItems
@@ -208,9 +208,9 @@ export default function DevHomePage({ onNavigate }) {
     .map((i) => ({
       id: i.id,
       title: i.title,
-      date: new Date(i.published_at || i.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
+      date: i.metadata?.date || new Date(i.published_at || i.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
       metric: i.excerpt || i.metadata?.subtitle || 'Long-form editorial essay',
-      url: `/casestudy/${i.slug}`
+      url: i.metadata?.projectUrl || i.metadata?.external_url || i.metadata?.link || `/casestudy/${i.slug}`
     }));
 
   const dynamicArchives = cmsItems
@@ -218,10 +218,10 @@ export default function DevHomePage({ onNavigate }) {
     .map((i) => ({
       id: i.id,
       title: i.title,
-      year: new Date(i.archived_at || i.published_at || i.created_at).getFullYear().toString(),
+      year: i.metadata?.year || new Date(i.archived_at || i.published_at || i.created_at).getFullYear().toString(),
       metric: i.excerpt || 'Archived portfolio piece',
       image: i.cover_image || 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=1200&q=80',
-      link: `/casestudy/${i.slug}`
+      link: i.metadata?.link || i.metadata?.projectUrl || `/casestudy/${i.slug}`
     }));
 
   const getActiveList = () => {
