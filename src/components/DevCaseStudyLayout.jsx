@@ -4,8 +4,6 @@ import { playUiSound } from '../utils/sound';
 
 export default function DevCaseStudyLayout({
   title,
-  meta,
-  lead,
   heroVisual,
   sections = [],
   onNavigate
@@ -261,8 +259,6 @@ export default function DevCaseStudyLayout({
           <article className="dev-detail-content">
             <header className="dev-reveal" style={{ marginBottom: '32px' }}>
               <h1 className="dev-detail-title">{title}</h1>
-              {meta && <div className="dev-detail-meta">{meta}</div>}
-              {lead}
             </header>
 
             {/* Hero Visual Mockup */}
@@ -275,9 +271,6 @@ export default function DevCaseStudyLayout({
                   loading="eager"
                   decoding="async"
                 />
-                {heroVisual.caption && (
-                  <div className="dev-mockup-caption">{heroVisual.caption}</div>
-                )}
               </div>
             )}
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ArrowLeft, ExternalLink } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import DevCaseStudyLayout from '../components/DevCaseStudyLayout';
 import SharedFooter from '../components/SharedFooter';
 import { contentService } from '../lib/contentService';
@@ -138,7 +138,6 @@ const slugId = (t) =>
 // ---------------------------------------------------------------------------
 function RichArticle({ item, onNavigate }) {
   const md = item.metadata || {};
-  const meta = [md.year, md.readingTime || '5 minutes read'].filter(Boolean).join(' · ');
 
   const useUnified = item.content && item.content.trim().length > 0;
   const sections = useUnified
@@ -163,19 +162,9 @@ function RichArticle({ item, onNavigate }) {
   return (
     <DevCaseStudyLayout
       title={item.title}
-      meta={meta}
-      lead={
-        <>
-          {(md.lead || []).map((p, i) => (
-            <p key={i} className="dev-detail-p">
-              {renderInline(p, `lead-${i}`)}
-            </p>
-          ))}
-        </>
-      }
       heroVisual={
         item.cover_image
-          ? { image: item.cover_image, caption: md.heroCaption || '', alt: item.title }
+          ? { image: item.cover_image, alt: item.title }
           : null
       }
       sections={sections}
@@ -203,21 +192,11 @@ function GenericArticle({ item, onNavigate }) {
           <span style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#ec4899', fontWeight: 600 }}>
             {item.type}
           </span>
-          <span style={{ color: '#6B7280' }}>•</span>
-          <span style={{ fontSize: '12px', color: '#9CA3AF' }}>
-            {item.metadata?.readingTime || '2 min read'}
-          </span>
         </div>
 
         <h1 className="cs-title" style={{ fontSize: '32px', lineHeight: 1.25 }}>
           {item.title}
         </h1>
-
-        {item.excerpt && (
-          <p className="cs-summary-text" style={{ fontSize: '16px', lineHeight: 1.6, marginTop: '12px' }}>
-            {item.excerpt}
-          </p>
-        )}
       </header>
 
       {item.cover_image && (
@@ -226,76 +205,9 @@ function GenericArticle({ item, onNavigate }) {
         </div>
       )}
 
-      {(item.metadata?.client || item.metadata?.role || item.metadata?.year || item.metadata?.duration) && (
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
-          gap: '16px',
-          padding: '20px',
-          borderRadius: '12px',
-          backgroundColor: 'rgba(255,255,255,0.03)',
-          border: '1px solid rgba(255,255,255,0.08)',
-          marginBottom: '36px'
-        }}>
-          {item.metadata.client && (
-            <div>
-              <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#9CA3AF', marginBottom: '4px' }}>Client / Company</div>
-              <div style={{ fontSize: '14px', fontWeight: 500, color: '#F3F4F6' }}>{item.metadata.client}</div>
-            </div>
-          )}
-          {item.metadata.role && (
-            <div>
-              <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#9CA3AF', marginBottom: '4px' }}>Role</div>
-              <div style={{ fontSize: '14px', fontWeight: 500, color: '#F3F4F6' }}>{item.metadata.role}</div>
-            </div>
-          )}
-          {item.metadata.year && (
-            <div>
-              <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#9CA3AF', marginBottom: '4px' }}>Year</div>
-              <div style={{ fontSize: '14px', fontWeight: 500, color: '#F3F4F6' }}>{item.metadata.year}</div>
-            </div>
-          )}
-          {item.metadata.duration && (
-            <div>
-              <div style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#9CA3AF', marginBottom: '4px' }}>Duration</div>
-              <div style={{ fontSize: '14px', fontWeight: 500, color: '#F3F4F6' }}>{item.metadata.duration}</div>
-            </div>
-          )}
-        </div>
-      )}
-
       {item.content && (
         <div style={{ fontSize: '16px', lineHeight: 1.8, color: '#E5E7EB', whiteSpace: 'pre-line', marginBottom: '40px' }}>
           {item.content}
-        </div>
-      )}
-
-      {(item.metadata?.projectUrl || item.metadata?.repoUrl || item.metadata?.demoUrl) && (
-        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '48px' }}>
-          {item.metadata.projectUrl && (
-            <a
-              href={item.metadata.projectUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="dev-pink-link"
-              style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '14px' }}
-            >
-              <span>View Live Project</span>
-              <ExternalLink size={14} />
-            </a>
-          )}
-          {item.metadata.repoUrl && (
-            <a
-              href={item.metadata.repoUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="dev-pink-link"
-              style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '14px' }}
-            >
-              <span>GitHub Repository</span>
-              <ExternalLink size={14} />
-            </a>
-          )}
         </div>
       )}
 

@@ -109,8 +109,6 @@ export default function EditorPage({
   const textareaRef = useRef(null);
   const fileInputRef = useRef(null);
   const titleRef = useRef(null);
-  const excerptRef = useRef(null);
-  const leadRef = useRef(null);
   const seoDescRef = useRef(null);
   const autosaveTimerRef = useRef(null);
   const articleRef = useRef(null); // Insert panel -> ArticleEditor imperative API
@@ -171,8 +169,6 @@ export default function EditorPage({
   useEffect(() => {
     if (!loading) {
       autoGrowTextarea(titleRef.current);
-      autoGrowTextarea(excerptRef.current);
-      autoGrowTextarea(leadRef.current);
       autoGrowTextarea(seoDescRef.current);
       autoGrowTextarea(textareaRef.current);
     }
@@ -201,10 +197,6 @@ export default function EditorPage({
         if (!next.seo_title) next.seo_title = value;
       }
 
-      if (field === 'excerpt' && !next.seo_description) {
-        next.seo_description = value;
-      }
-
       if (field === 'content') {
         const time = calculateReadingTime(value);
         next.metadata = { ...next.metadata, readingTime: time };
@@ -225,17 +217,6 @@ export default function EditorPage({
       `Move "${formData.title || 'this item'}" to ${label}? It will appear under a different tab on the live site.`
     );
     if (ok) handleFieldChange('type', nextType);
-  };
-
-  const handleMetadataChange = (metaKey, value) => {
-    setFormData((prev) => ({
-      ...prev,
-      metadata: {
-        ...prev.metadata,
-        [metaKey]: value
-      }
-    }));
-    scheduleAutosave();
   };
 
   // ---------- Autosave ----------
@@ -436,12 +417,6 @@ export default function EditorPage({
       el.focus();
       el.setSelectionRange(start + snippet.length, start + snippet.length);
     }, 50);
-  };
-
-  // Lead paragraphs: textarea with blank-line-separated paragraphs <-> metadata.lead[]
-  const handleLeadChange = (text) => {
-    const paras = text.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean);
-    handleMetadataChange('lead', paras);
   };
 
   // Drag and Drop Images inside writing area
@@ -746,23 +721,11 @@ export default function EditorPage({
                     autoGrowTextarea(e.target);
                   }}
                 />
-                <textarea
-                  ref={excerptRef}
-                  className="admin-subtitle-input"
-                  placeholder="Short description / excerpt..."
-                  value={formData.excerpt}
-                  rows={2}
-                  onChange={(e) => {
-                    handleFieldChange('excerpt', e.target.value);
-                    autoGrowTextarea(e.target);
-                  }}
-                  style={{ marginTop: '8px' }}
-                />
               </div>
 
               {/* Slug & Tags Meta Bar */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap', fontSize: '13px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--admin-text-muted)', fontFamily: 'var(--admin-font-mono)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--admin-text-muted)' }}>
                   <span>slug:</span>
                   <input
                     type="text"
@@ -999,108 +962,8 @@ export default function EditorPage({
               )}
             </>
 
-          {/* Project details + sections (work items) — inline in the single-page flow */}
           {formData.type === 'work' && (
             <div className="admin-meta-panel" style={{ marginTop: '4px' }}>
-              <h3 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '6px' }}>
-                Case Study & Project Meta
-              </h3>
-
-              <div className="admin-meta-rows">
-                <div className="admin-form-group">
-                  <label className="admin-form-label">Client / Company</label>
-                  <input
-                    type="text"
-                    className="admin-form-input"
-                    placeholder="e.g. Varcle Technologies"
-                    value={formData.metadata.client || ''}
-                    onChange={(e) => handleMetadataChange('client', e.target.value)}
-                  />
-                </div>
-
-                <div className="admin-form-group">
-                  <label className="admin-form-label">Your Role</label>
-                  <input
-                    type="text"
-                    className="admin-form-input"
-                    placeholder="e.g. Lead Full Stack & Product Architect"
-                    value={formData.metadata.role || ''}
-                    onChange={(e) => handleMetadataChange('role', e.target.value)}
-                  />
-                </div>
-
-                <div className="admin-form-group">
-                  <label className="admin-form-label">Year / Timeline</label>
-                  <input
-                    type="text"
-                    className="admin-form-input"
-                    placeholder="e.g. 2024"
-                    value={formData.metadata.year || ''}
-                    onChange={(e) => handleMetadataChange('year', e.target.value)}
-                  />
-                </div>
-
-                <div className="admin-form-group">
-                  <label className="admin-form-label">Duration</label>
-                  <input
-                    type="text"
-                    className="admin-form-input"
-                    placeholder="e.g. 3 Months"
-                    value={formData.metadata.duration || ''}
-                    onChange={(e) => handleMetadataChange('duration', e.target.value)}
-                  />
-                </div>
-
-                <div className="admin-form-group">
-                  <label className="admin-form-label">Project URL</label>
-                  <input
-                    type="url"
-                    className="admin-form-input"
-                    placeholder="https://..."
-                    value={formData.metadata.projectUrl || ''}
-                    onChange={(e) => handleMetadataChange('projectUrl', e.target.value)}
-                  />
-                </div>
-
-                <div className="admin-form-group">
-                  <label className="admin-form-label">Repository URL</label>
-                  <input
-                    type="url"
-                    className="admin-form-input"
-                    placeholder="https://github.com/..."
-                    value={formData.metadata.repoUrl || ''}
-                    onChange={(e) => handleMetadataChange('repoUrl', e.target.value)}
-                  />
-                </div>
-
-                <div className="admin-form-group">
-                  <label className="admin-form-label">Cover Caption</label>
-                  <input
-                    type="text"
-                    className="admin-form-input"
-                    placeholder="Caption shown under the cover image on the article page"
-                    value={formData.metadata.heroCaption || ''}
-                    onChange={(e) => handleMetadataChange('heroCaption', e.target.value)}
-                  />
-                </div>
-              </div>
-
-              <div className="admin-form-group" style={{ marginTop: '16px' }}>
-                <label className="admin-form-label">Lead Paragraphs (intro under the title — blank line between paragraphs)</label>
-                <textarea
-                  ref={leadRef}
-                  rows={1}
-                  className="admin-form-input"
-                  style={{ lineHeight: 1.6 }}
-                  placeholder="Opening paragraphs of the case study..."
-                  value={(formData.metadata.lead || []).join('\n\n')}
-                  onChange={(e) => {
-                    handleLeadChange(e.target.value);
-                    autoGrowTextarea(e.target);
-                  }}
-                />
-              </div>
-
               {/* Unified article — one document: text, / for image / video / GIF */}
               <div style={{ marginTop: '20px' }}>
                 <h4 style={{ fontSize: '14px', fontWeight: 600, marginBottom: '8px' }}>Article</h4>
