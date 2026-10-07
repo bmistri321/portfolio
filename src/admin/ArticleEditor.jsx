@@ -173,8 +173,29 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
     document.addEventListener('dragover', killDrop);
     document.addEventListener('drop', killDrop);
 
-    quillRef.current = quill;
+    // Keep the floating bubble toolbar fully visible: Quill centers it on the
+    // selection, which can push its outer options past the document edge where
+    // the scroll container clips them.
     const containerEl = containerRef.current;
+    const clampBubbleToolbar = () => {
+      const tooltip = containerEl.querySelector('.ql-tooltip');
+      if (!tooltip || tooltip.classList.contains('ql-editing')) return;
+      const canvas = wrapRef.current ? wrapRef.current.closest('.admin-editor-canvas') : null;
+      const bounds = (canvas || wrapRef.current || containerEl).getBoundingClientRect();
+      const r = tooltip.getBoundingClientRect();
+      let dx = 0;
+      if (r.right > bounds.right) dx = bounds.right - r.right - 8;
+      else if (r.left < bounds.left) dx = bounds.left - r.left + 8;
+      if (dx) {
+        const cur = parseFloat(tooltip.style.left) || 0;
+        tooltip.style.left = `${cur + dx}px`;
+      }
+    };
+    quill.on('selection-change', () => {
+      requestAnimationFrame(clampBubbleToolbar);
+    });
+
+    quillRef.current = quill;
     return () => {
       quillRef.current = null;
       quill.root.removeEventListener('mouseover', onMediaOver);
