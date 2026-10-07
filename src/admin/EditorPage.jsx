@@ -423,6 +423,34 @@ export default function EditorPage({
     handleMetadataChange('sections', nextSections);
   };
 
+  // Lead paragraphs: textarea with blank-line-separated paragraphs <-> metadata.lead[]
+  const handleLeadChange = (text) => {
+    const paras = text.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean);
+    handleMetadataChange('lead', paras);
+  };
+
+  const handleAddSectionImage = (index) => {
+    const nextSections = [...(formData.metadata.sections || [])];
+    const images = [...(nextSections[index].images || []), { url: '', caption: '' }];
+    nextSections[index] = { ...nextSections[index], images };
+    handleMetadataChange('sections', nextSections);
+  };
+
+  const handleUpdateSectionImage = (secIndex, imgIndex, field, value) => {
+    const nextSections = [...(formData.metadata.sections || [])];
+    const images = [...(nextSections[secIndex].images || [])];
+    images[imgIndex] = { ...images[imgIndex], [field]: value };
+    nextSections[secIndex] = { ...nextSections[secIndex], images };
+    handleMetadataChange('sections', nextSections);
+  };
+
+  const handleRemoveSectionImage = (secIndex, imgIndex) => {
+    const nextSections = [...(formData.metadata.sections || [])];
+    const images = (nextSections[secIndex].images || []).filter((_, i) => i !== imgIndex);
+    nextSections[secIndex] = { ...nextSections[secIndex], images };
+    handleMetadataChange('sections', nextSections);
+  };
+
   const handleRemoveSection = (index) => {
     const nextSections = (formData.metadata.sections || []).filter((_, idx) => idx !== index);
     handleMetadataChange('sections', nextSections);
@@ -1089,6 +1117,29 @@ export default function EditorPage({
                     onChange={(e) => handleMetadataChange('repoUrl', e.target.value)}
                   />
                 </div>
+
+                <div className="admin-form-group">
+                  <label className="admin-form-label">Cover Caption</label>
+                  <input
+                    type="text"
+                    className="admin-form-input"
+                    placeholder="Caption shown under the cover image on the article page"
+                    value={formData.metadata.heroCaption || ''}
+                    onChange={(e) => handleMetadataChange('heroCaption', e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="admin-form-group" style={{ marginTop: '16px' }}>
+                <label className="admin-form-label">Lead Paragraphs (intro under the title — blank line between paragraphs)</label>
+                <textarea
+                  rows={4}
+                  className="admin-form-input"
+                  style={{ width: '100%', resize: 'vertical', lineHeight: 1.6 }}
+                  placeholder="Opening paragraphs of the case study..."
+                  value={(formData.metadata.lead || []).join('\n\n')}
+                  onChange={(e) => handleLeadChange(e.target.value)}
+                />
               </div>
 
               {/* Flexible Case Study Sections */}
@@ -1164,6 +1215,59 @@ export default function EditorPage({
                           value={section.body}
                           onChange={(e) => handleUpdateSectionBody(idx, e.target.value)}
                         />
+
+                        {/* Section images */}
+                        <div style={{ marginTop: '10px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                            <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--admin-text-secondary)' }}>
+                              Images ({(section.images || []).length})
+                            </span>
+                            <button
+                              type="button"
+                              className="admin-btn admin-btn-ghost admin-btn-sm"
+                              style={{ fontSize: '11px', padding: '2px 8px' }}
+                              onClick={() => handleAddSectionImage(idx)}
+                            >
+                              + Add image
+                            </button>
+                          </div>
+                          {(section.images || []).map((img, imgIdx) => (
+                            <div key={imgIdx} style={{ display: 'flex', gap: '8px', marginBottom: '8px', alignItems: 'center' }}>
+                              {img.url && (
+                                <img
+                                  src={img.url}
+                                  alt=""
+                                  style={{ width: '56px', height: '40px', objectFit: 'cover', borderRadius: '6px', border: '1px solid var(--admin-border)', flexShrink: 0 }}
+                                />
+                              )}
+                              <input
+                                type="url"
+                                className="admin-form-input"
+                                style={{ flex: 2, fontSize: '12px' }}
+                                placeholder="Image URL"
+                                value={img.url || ''}
+                                onChange={(e) => handleUpdateSectionImage(idx, imgIdx, 'url', e.target.value)}
+                              />
+                              <input
+                                type="text"
+                                className="admin-form-input"
+                                style={{ flex: 2, fontSize: '12px' }}
+                                placeholder="Caption"
+                                value={img.caption || ''}
+                                onChange={(e) => handleUpdateSectionImage(idx, imgIdx, 'caption', e.target.value)}
+                              />
+                              <button
+                                type="button"
+                                className="admin-btn-ghost admin-btn-sm"
+                                style={{ color: 'var(--admin-danger)', flexShrink: 0 }}
+                                onClick={() => handleRemoveSectionImage(idx, imgIdx)}
+                                title="Remove image"
+                              >
+                                <X size={14} />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     ))
                   )}

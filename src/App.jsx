@@ -13,9 +13,7 @@ import FloatingNav from './components/FloatingNav';
 // Dev Site Pages & Components (for dev.bishalmistri.com)
 import DevHomePage from './pages/DevHomePage';
 import DevCaseStudyPage from './pages/DevCaseStudyPage';
-import DevDynamicCaseStudyPage from './pages/DevDynamicCaseStudyPage';
-import DevWexaPage from './pages/DevWexaPage';
-import DevFrienderPage from './pages/DevFrienderPage';
+import DevArticlePage from './pages/DevArticlePage';
 import DockPage from './pages/DockPage';
 import TravelPage from './pages/TravelPage';
 
@@ -129,15 +127,15 @@ export default function App() {
     const renderDetailCaseStudy = () => {
       switch (currentPath) {
         case '/casestudy/wexa':
-          return <DevWexaPage onNavigate={navigate} />;
+          return <DevArticlePage slug="wexa-ai-phase-1" onNavigate={navigate} />;
         case '/casestudy/friender-case-study':
-          return <DevFrienderPage onNavigate={navigate} />;
+          return <DevArticlePage slug="friender-toolbar-crm" onNavigate={navigate} />;
         case '/casestudy':
           return <DevCaseStudyPage onNavigate={navigate} />;
         default:
           if (currentPath.startsWith('/casestudy/') || currentPath.startsWith('/writing/')) {
             const slug = currentPath.replace('/casestudy/', '').replace('/writing/', '');
-            return <DevDynamicCaseStudyPage slug={slug} onNavigate={navigate} />;
+            return <DevArticlePage slug={slug} onNavigate={navigate} />;
           }
           return null;
       }
