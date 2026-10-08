@@ -179,7 +179,7 @@
   left: 6%;
   top: 84%;
   opacity: 0;
-  transform-origin: 12% 12%;
+  transform-origin: 24% 13%;
   transition: left 2.4s cubic-bezier(0.45, 0, 0.2, 1),
               top 2.4s cubic-bezier(0.45, 0, 0.2, 1),
               opacity 0.5s ease,
@@ -198,7 +198,11 @@
 .fri-cursor-hand { opacity: 0; }
 /* hand takes over exactly at the click moment */
 .fri-root[data-phase="click"] .fri-cursor-arrow { opacity: 0; }
-.fri-root[data-phase="click"] .fri-cursor-hand { opacity: 1; }
+.fri-root[data-phase="click"] .fri-cursor-hand {
+  opacity: 1;
+  /* align the hand's fingertip with the arrow tip (native aspect SVGs) */
+  transform: translate(-0.3cqw, 0.73cqw);
+}
 .fri-root[data-phase="click"] .fri-cursor { transform: scale(0.8); }
 .fri-root[data-phase="hold"] .fri-cursor {
   transition: left 2.2s ease-in-out, top 2.2s ease-in-out, opacity 0.8s ease;
