@@ -67,7 +67,7 @@ export default function MacDock() {
     {
       id: 'claude',
       name: 'Claude',
-      iconUrl: 'https://cdn.jsdelivr.net/gh/bmistri321/Images-web@main/soft-img-claude.svg',
+      iconUrl: '/images/dock-claude.png',
       fallbackIcon: Sparkles
     },
     {
