@@ -15,6 +15,11 @@ export default function DevCaseStudyLayout({
   const [showScrollTop, setShowScrollTop] = useState(false);
   const sheetRef = useRef(null);
   const articleRef = useRef(null);
+  // While a TOC click is smooth-scrolling, the scroll-spy must not override
+  // the clicked item (the sensor band sits below the landing position, so it
+  // would otherwise highlight the *next* section).
+  const spyLockRef = useRef(false);
+  const spyUnlockTimerRef = useRef(null);
 
   // Swap native video controls for the designed player on article videos.
   useEffect(() => {
@@ -123,16 +128,26 @@ export default function DevCaseStudyLayout({
     };
   }, [isClosing]);
 
-  // 4. Active Section Detection via IntersectionObserver
+  // 4. Active Section Detection via IntersectionObserver.
+  // Geometric scroll-spy: the active item is the last section whose top has
+  // reached the sensor band. This stays correct for short sections, where the
+  // following section would otherwise steal the highlight.
   useEffect(() => {
     if (!sections.length || !sheetRef.current) return;
 
-    const observerCallback = (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          setActiveSection(entry.target.id);
+    const observerCallback = () => {
+      if (spyLockRef.current) return;
+      const rootEl = sheetRef.current;
+      if (!rootEl) return;
+      const bandTop = rootEl.getBoundingClientRect().top + rootEl.clientHeight * 0.1;
+      let current = sections[0].id;
+      sections.forEach((sec) => {
+        const el = document.getElementById(sec.id);
+        if (el && el.getBoundingClientRect().top <= bandTop + 1) {
+          current = sec.id;
         }
       });
+      setActiveSection(current);
     };
 
     const observerOptions = {
@@ -197,6 +212,21 @@ export default function DevCaseStudyLayout({
   const scrollToSection = (id) => {
     playUiSound('tab');
     setActiveSection(id);
+    // Lock the scroll-spy until the smooth scroll settles, so intermediate
+    // sections passing through the sensor band can't steal the highlight.
+    spyLockRef.current = true;
+    if (spyUnlockTimerRef.current) clearTimeout(spyUnlockTimerRef.current);
+    const sheet = sheetRef.current;
+    const unlockSpy = () => {
+      spyLockRef.current = false;
+      if (sheet) sheet.removeEventListener('scrollend', unlockSpy);
+      if (spyUnlockTimerRef.current) {
+        clearTimeout(spyUnlockTimerRef.current);
+        spyUnlockTimerRef.current = null;
+      }
+    };
+    if (sheet) sheet.addEventListener('scrollend', unlockSpy, { once: true });
+    spyUnlockTimerRef.current = setTimeout(unlockSpy, 1000);
     const el = document.getElementById(id);
     if (el) {
       const isReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -204,6 +234,8 @@ export default function DevCaseStudyLayout({
         behavior: isReduced ? 'auto' : 'smooth',
         block: 'start'
       });
+    } else {
+      unlockSpy();
     }
   };
 
