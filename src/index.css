@@ -910,8 +910,8 @@ body {
   top: 0;
   left: 0;
   right: 0;
-  height: 40vh;
-  background: linear-gradient(to bottom, rgba(255, 255, 255, 1) 20%, rgba(255, 255, 255, 0));
+  height: 4.5rem;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 1) 12%, rgba(255, 255, 255, 0));
   pointer-events: none;
   z-index: 60;
   /* Invisible at page top, fades in as you scroll — like the reference */
@@ -921,7 +921,7 @@ body {
 
 @keyframes dev-edge-fade-top {
   0%, 4% { opacity: 0; }
-  10%, 100% { opacity: 1; }
+  10%, 100% { opacity: 0.58; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -947,7 +947,7 @@ body {
 }
 
 [data-theme="dark"] .dev-edge-fade-top {
-  background: linear-gradient(to bottom, rgba(9, 9, 11, 1) 20%, rgba(9, 9, 11, 0));
+  background: linear-gradient(to bottom, rgba(9, 9, 11, 1) 12%, rgba(9, 9, 11, 0));
 }
 
 @keyframes devFadeIn {
