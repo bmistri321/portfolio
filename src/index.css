@@ -888,7 +888,7 @@ body {
 
 .dev-main-container {
   width: 100%;
-  max-width: 678px;
+  max-width: 720px;
   margin: 0 auto;
   padding: 40px 24px 80px;
 }
@@ -1090,7 +1090,7 @@ body {
   display: flex;
   align-items: center;
   gap: 14px;
-  margin-bottom: 28px;
+  margin-bottom: 32px;
 }
 
 .dev-social-icon {
@@ -1112,7 +1112,7 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 4px;
+  padding: 2px;
   background: var(--dev-tab-bg);
   border-radius: 9999px;
   margin-bottom: 14px;
@@ -1129,9 +1129,9 @@ body {
    ease-in-out instead of two pills cross-fading. */
 .dev-tab-indicator {
   position: absolute;
-  top: 4px;
+  top: 2px;
   left: 0;
-  height: 32px;
+  height: 30px;
   border-radius: 9999px;
   background: var(--dev-pink);
   transition: transform 0.35s ease-in-out, width 0.35s ease-in-out;
@@ -1154,7 +1154,7 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  height: 32px;
+  height: 30px;
   padding: 0 14px;
   border-radius: 9999px;
   font-size: 14px;
@@ -1203,7 +1203,7 @@ body {
 
 .dev-card-img-box {
   width: 100%;
-  aspect-ratio: 16 / 10;
+  aspect-ratio: 16 / 9;
   border-radius: 8px;
   overflow: hidden;
   background: var(--dev-bg-subtle);
@@ -1478,7 +1478,7 @@ body {
 
 /* 7. FOOTER */
 .dev-footer-row {
-  margin-top: 32px;
+  margin-top: 15px;
   padding-top: 24px;
   border-top: 1px solid var(--dev-border-subtle);
   display: flex;
