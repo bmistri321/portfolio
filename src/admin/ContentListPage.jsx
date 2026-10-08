@@ -236,7 +236,7 @@ export default function ContentListPage({
 
       {/* Medium quick-import (Writing list only) */}
       {isWriting && (
-        <div className="admin-card" style={{ marginBottom: '16px' }}>
+        <div className="admin-card" style={{ marginBottom: '16px', padding: '14px 20px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
             <Link2 size={15} style={{ color: 'var(--admin-text-muted)' }} />
             <span style={{ fontSize: '13.5px', fontWeight: 600 }}>Import from Medium</span>
