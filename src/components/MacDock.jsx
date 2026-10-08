@@ -31,7 +31,7 @@ export default function MacDock() {
     {
       id: 'chrome',
       name: 'Chrome',
-      iconUrl: 'https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/svg/chrome.svg',
+      iconUrl: '/images/dock-chrome.png',
       fallbackIcon: Globe
     },
     {
