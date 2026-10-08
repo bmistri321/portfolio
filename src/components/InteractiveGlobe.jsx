@@ -47,9 +47,9 @@ function project(x, y, z, cx, cy, fov) {
 export default function InteractiveGlobe({
   className = '',
   size = 38,
-  dotColor = "rgba(103, 51, 154, ALPHA)",
-  arcColor = "rgba(103, 51, 154, 0.55)",
-  markerColor = "rgba(179, 133, 214, 1)",
+  dotColor = "rgba(203, 83, 162, ALPHA)",
+  arcColor = "rgba(203, 83, 162, 0.55)",
+  markerColor = "rgba(223, 144, 199, 1)",
   autoRotateSpeed = 0.008,
   connections = DEFAULT_CONNECTIONS,
   markers = DEFAULT_MARKERS,
