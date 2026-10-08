@@ -1251,7 +1251,7 @@ body {
 .dev-writing-title {
   flex: 1;
   min-width: 0;
-  font-size: 15px;
+  font-size: 14px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
