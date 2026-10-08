@@ -433,7 +433,6 @@ export default function ContentListPage({
                           >
                             {item.title}
                           </a>
-                          <span className="admin-item-slug">/{item.slug}</span>
                         </div>
                       </div>
                     </td>
