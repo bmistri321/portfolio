@@ -320,7 +320,7 @@ export default function DevHomePage({ onNavigate }) {
       {/* 7. MINIMAL FOOTER */}
       <footer className="dev-footer-row">
         <div className="dev-footer-text">
-          Built with <span className="dev-footer-bold">Next.js</span> and <span className="dev-footer-bold">Antigravity</span>
+          Built with <span className="dev-footer-bold">React</span> and <span className="dev-footer-bold">Antigravity</span>
         </div>
         <a href="mailto:hello@bishalmistri.com" className="dev-footer-name" onClick={() => playUiSound('click')}>hello@bishalmistri.com</a>
       </footer>

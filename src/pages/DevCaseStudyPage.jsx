@@ -95,7 +95,7 @@ export default function DevCaseStudyPage({ onNavigate }) {
 
       <footer className="dev-footer-row" style={{ marginTop: '48px' }}>
         <div>
-          Built with <span className="dev-footer-bold">Next.js</span> and <span className="dev-footer-bold">Antigravity</span>
+          Built with <span className="dev-footer-bold">React</span> and <span className="dev-footer-bold">Antigravity</span>
         </div>
         <div className="dev-footer-name">Bishal</div>
       </footer>
