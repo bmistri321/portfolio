@@ -130,17 +130,6 @@ export default function FrienderCoverAnim() {
   return (
     <div ref={rootRef} className="fri-root" data-phase={phase} aria-hidden="true">
       <div ref={stageRef} className="fri-stage">
-        {/* top mini bar */}
-        <div className="fri-topbar">
-          <span className="fri-cmd">⌘K</span>
-          <span className="fri-top-spark">
-            <svg viewBox="0 0 24 24" width="100%" height="100%" fill="currentColor">
-              <path d="M12 2l1.9 6.1L20 10l-6.1 1.9L12 18l-1.9-6.1L4 10l6.1-1.9L12 2z" />
-              <path d="M19 15l.9 2.6 2.6.9-2.6.9-.9 2.6-.9-2.6-2.6-.9 2.6-.9.9-2.6z" opacity=".7" />
-            </svg>
-          </span>
-        </div>
-
         <div className="fri-main">
           {/* editor */}
           <div className="fri-editor">
@@ -173,28 +162,6 @@ export default function FrienderCoverAnim() {
             </div>
           </div>
 
-          {/* post settings — minimal grey boxes */}
-          <div className="fri-side">
-            <p className="fri-side-title">Post settings</p>
-            <div className="fri-side-box">
-              <span>Choose Post Type</span>
-              <div className="fri-chips">
-                <i className="chip-blue">Suggestion</i>
-                <i>Offer Post</i>
-              </div>
-            </div>
-            <div className="fri-side-box">
-              <span>Tag this Post</span>
-              <div className="fri-chips">
-                <i className="chip-lav">dashboard</i>
-                <i className="chip-peach">form</i>
-              </div>
-            </div>
-            <div className="fri-side-box">
-              <span>Schedule Post Time</span>
-              <div className="fri-bar" />
-            </div>
-          </div>
         </div>
 
         {/* cursor */}

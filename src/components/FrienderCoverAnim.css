@@ -19,37 +19,12 @@
 }
 .fri-root[data-phase="reset"] .fri-stage { opacity: 0; }
 
-/* ---------- top mini bar ---------- */
-.fri-topbar {
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 11%;
-  background: #fff;
-  border-bottom: 1px solid #ececf0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 4%;
-}
-.fri-cmd {
-  font-size: 4.6cqw;
-  color: #b9b9c1;
-  letter-spacing: 0.06em;
-}
-.fri-top-spark {
-  width: 6.4cqw;
-  height: 6.4cqw;
-  color: #2f7cf6;
-  display: block;
-}
-
-/* ---------- main split ---------- */
+/* ---------- main ---------- */
 .fri-main {
   position: absolute;
-  top: 11%; left: 0; right: 0; bottom: 0;
+  top: 0; left: 0; right: 0; bottom: 0;
   display: flex;
-  padding: 3.4%;
-  gap: 3.4%;
+  padding: 4.5%;
 }
 
 /* ---------- editor ---------- */
@@ -187,51 +162,6 @@
 .fri-root[data-phase="hold"] .fri-doc-typed,
 .fri-root[data-phase="static"] .fri-doc-typed { opacity: 1; }
 .fri-root[data-phase="static"] .fri-caret { display: none; }
-
-/* ---------- settings side panel (minimal grey boxes) ---------- */
-.fri-side {
-  width: 31%;
-  flex: none;
-  min-width: 0;
-}
-.fri-side-title {
-  margin: 0 0 2.2cqw;
-  font-size: 3.9cqw;
-  font-weight: 700;
-  color: #1c1c22;
-}
-.fri-side-box {
-  background: #f1f2f5;
-  border-radius: 1.5cqw;
-  padding: 2.1cqw 2.2cqw;
-  margin-bottom: 1.9cqw;
-}
-.fri-side-box > span {
-  display: block;
-  font-size: 2.9cqw;
-  font-weight: 600;
-  color: #55555e;
-  margin-bottom: 1.4cqw;
-}
-.fri-chips { display: flex; gap: 1.2cqw; }
-.fri-chips i {
-  font-style: normal;
-  font-size: 2.6cqw;
-  font-weight: 500;
-  color: #77777f;
-  background: #e4e5ea;
-  border-radius: 1.6cqw;
-  padding: 0.9cqw 1.8cqw;
-}
-.fri-chips .chip-blue { background: #dbeafe; color: #2f7cf6; }
-.fri-chips .chip-lav { background: #e3dff7; color: #6d64c8; }
-.fri-chips .chip-peach { background: #fbe3d3; color: #b26a35; }
-.fri-bar {
-  height: 2.4cqw;
-  border-radius: 1.2cqw;
-  background: #e4e5ea;
-  width: 72%;
-}
 
 /* ---------- cursor ---------- */
 .fri-cursor {
