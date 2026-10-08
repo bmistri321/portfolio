@@ -848,6 +848,7 @@ body {
   --dev-tab-text: #4b5563;
   --dev-pink: #cb53a2;
   --dev-pink-hover: #ac468a;
+  --dev-bio-text: #65636D;
   --dev-row-hover: #f4f4f6;
   --dev-card-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
 }
@@ -866,6 +867,7 @@ body {
   --dev-pink: #df90c7;
   --dev-row-hover: #17171b;
   --dev-pink-hover: #eab4d8;
+  --dev-bio-text: #a1a1aa;
   --dev-card-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1), 0 2px 4px rgba(0, 0, 0, 0.4);
 }
 
@@ -1072,8 +1074,9 @@ body {
 
 .dev-bio-paragraph {
   font-size: 16px;
-  line-height: 1.65;
-  color: var(--dev-text-2);
+  line-height: 28px;
+  letter-spacing: 0.3px;
+  color: var(--dev-bio-text);
   margin: 0;
 }
 
