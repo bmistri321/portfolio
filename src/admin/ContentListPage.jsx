@@ -137,7 +137,7 @@ export default function ContentListPage({
   };
 
   // Paste a Medium link here to add the article straight to the Writing list
-  // (created as a draft — click its title to review and publish).
+  // Import a Medium article straight into the Writing list, published immediately.
   const handleMediumImport = async () => {
     const url = mediumUrl.trim();
     if (!url) {
@@ -157,7 +157,7 @@ export default function ContentListPage({
       const now = new Date().toISOString();
       await contentService.create({
         type: 'writing',
-        status: 'draft',
+        status: 'published',
         title: data.title || 'Untitled Piece',
         excerpt: data.excerpt || '',
         content: data.html,
@@ -176,7 +176,7 @@ export default function ContentListPage({
         }
       });
       setMediumUrl('');
-      setMediumMsg({ ok: true, text: `Imported \u201C${data.title}\u201D as a draft \u2014 click its title to review and publish.` });
+      setMediumMsg({ ok: true, text: `Imported \u201C${data.title}\u201D and published.` });
       loadContent();
     } catch (err) {
       setMediumMsg({ ok: false, text: err.message });
