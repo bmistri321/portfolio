@@ -54,8 +54,8 @@ export default function FrienderCoverAnim() {
     const b = btn.getBoundingClientRect();
     // Offset so the cursor's TIP (not its box corner) lands on the button center:
     // tip sits ~25% x / ~15% y inside the 7.5cqw-wide cursor box.
-    const x = ((b.left + b.width / 2 - s.left) / s.width) * 100 - 1.9;
-    const y = ((b.top + b.height / 2 - s.top) / s.height) * 100 - 1.1;
+    const x = ((b.left + b.width / 2 - s.left) / s.width) * 100 - 2.0;
+    const y = ((b.top + b.height / 2 - s.top) / s.height) * 100 - 1.7;
     c.style.left = `${x}%`;
     c.style.top = `${y}%`;
     c.style.opacity = '1';
