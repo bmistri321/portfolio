@@ -358,11 +358,11 @@ export default function DevHomePage({ onNavigate }) {
               }}
               className="dev-project-card"
             >
-              {project.slug === 'friender' ? (
+              {project.slug && project.slug.startsWith('friender') ? (
                 <div className="dev-card-img-box">
                   <FrienderCoverAnim />
                 </div>
-              ) : project.slug === 'wexa' ? (
+              ) : project.slug && project.slug.startsWith('wexa') ? (
                 <div className="dev-card-img-box">
                   <img
                     src="/images/wexa-cover.svg"
