@@ -1,12 +1,3 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
-  <defs>
-    <linearGradient id="fav-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#3B82F6"/>
-      <stop offset="100%" stop-color="#8B5CF6"/>
-    </linearGradient>
-  </defs>
-  <rect width="64" height="64" rx="16" fill="#09090B"/>
-  <rect x="2" y="2" width="60" height="60" rx="14" fill="none" stroke="url(#fav-grad)" stroke-width="2.5" opacity="0.8"/>
-  <text x="32" y="42" text-anchor="middle" fill="#FFFFFF" font-family="-apple-system, BlinkMacSystemFont, 'Inter', 'Geist', sans-serif" font-size="28" font-weight="900" letter-spacing="-1">BM</text>
-  <circle cx="50" cy="16" r="4" fill="#10B981" />
+<svg width="391" height="391" viewBox="0 0 391 391" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M356 195.5C356 284.142 284.142 356 195.5 356C106.858 356 35 284.142 35 195.5C35 106.858 106.858 35 195.5 35C284.142 35 356 106.858 356 195.5Z" stroke-width="70" stroke="#FA3ED2"/>
 </svg>
