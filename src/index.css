@@ -1305,9 +1305,13 @@ body {
   line-height: 1.5;
 }
 
-/* macOS Dock — interactive magnification shelf */
+/* macOS Dock — interactive magnification shelf.
+   Breaks out of the narrow content column to a wide display area. */
 .mac-dock-shelf-wrapper {
   position: relative;
+  width: min(1240px, 94vw);
+  margin-left: 50%;
+  transform: translateX(-50%);
   border-radius: 16px;
   overflow: hidden;
   background-image: url('/images/dock-wallpaper.jpg');
