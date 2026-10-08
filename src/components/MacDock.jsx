@@ -13,16 +13,15 @@ import {
 
 // macOS-style magnification tuning — kept subtle like the reference:
 // a gentle nudge with the tooltip as the main hover feedback.
-const MAGNIFY_PEAK = 1.12;   // max icon scale right under the cursor
+const MAGNIFY_PEAK = 1.7;    // max icon scale right under the cursor
 const MAGNIFY_RANGE = 2.2;   // falloff range, measured in icon pitches
-const MAGNIFY_LIFT = 3;      // px the icon rises at peak scale
+const MAGNIFY_LIFT = 6;      // px the icon rises at peak scale
 
 export default function MacDock() {
   const shelfRef = useRef(null);
   const magRefs = useRef([]);
   const rafRef = useRef(0);
   const centersRef = useRef([]);
-  const [bouncingIndex, setBouncingIndex] = useState(null);
   const [failedIcons, setFailedIcons] = useState({});
 
   const dockApps = [
@@ -166,11 +165,6 @@ export default function MacDock() {
     });
   };
 
-  const handleIconClick = (idx) => {
-    setBouncingIndex(idx);
-    setTimeout(() => setBouncingIndex(null), 900);
-  };
-
   return (
     <div className="mac-dock-shelf-wrapper">
       {/* Interactive macOS Dock Shelf */}
@@ -181,14 +175,12 @@ export default function MacDock() {
           onMouseLeave={handleMouseLeave}
         >
           {dockApps.map((app, index) => {
-            const isBouncing = bouncingIndex === index;
             const isFailed = failedIcons[app.id];
             const FallbackIcon = app.fallbackIcon;
             return (
               <div
                 key={app.id}
                 className="mac-dock-icon"
-                onClick={() => handleIconClick(index)}
               >
                 <div
                   className="mac-dock-icon-mag"
@@ -203,7 +195,6 @@ export default function MacDock() {
                       src={app.iconUrl}
                       alt={app.name}
                       draggable={false}
-                      className={isBouncing ? 'mac-dock-bouncing' : ''}
                       onError={() => setFailedIcons((p) => ({ ...p, [app.id]: true }))}
                     />
                   )}
