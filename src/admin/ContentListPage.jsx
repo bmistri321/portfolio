@@ -97,6 +97,23 @@ export default function ContentListPage({
     }
   };
 
+  // Inline Year label for writing rows (takes the Featured column's place) —
+  // saved to metadata.year and shown on the live site as the row's year.
+  const handleYearLabelChange = async (item, value) => {
+    const newYear = (value || '').trim();
+    const current = item.metadata?.year || '';
+    if (newYear === current) return;
+    const prevMetadata = item.metadata;
+    const nextMetadata = { ...(prevMetadata || {}), year: newYear };
+    setItems((prev) => prev.map((it) => (it.id === item.id ? { ...it, metadata: nextMetadata } : it)));
+    try {
+      await contentService.update(item.id, { metadata: nextMetadata });
+    } catch (err) {
+      setItems((prev) => prev.map((it) => (it.id === item.id ? { ...it, metadata: prevMetadata } : it)));
+      alert(`Could not save the year label: ${err.message}`);
+    }
+  };
+
   const handleArchive = async (item) => {
     try {
         await contentService.archive(item.id);
@@ -349,7 +366,7 @@ export default function ContentListPage({
                 <th>Title</th>
                 <th>Type</th>
                 <th>Status</th>
-                <th>Featured</th>
+                <th>{isWriting ? 'Year' : 'Featured'}</th>
                 <th>Published</th>
                 <th>Updated</th>
                 <th style={{ textAlign: 'right' }}>Actions</th>
@@ -445,7 +462,18 @@ export default function ContentListPage({
                       </span>
                     </td>
                     <td>
-                      {item.featured ? (
+                      {item.type === 'writing' ? (
+                        <input
+                          key={`${item.id}-${item.metadata?.year || 'empty'}`}
+                          type="text"
+                          className="admin-form-input admin-year-inline-input"
+                          placeholder={new Date(item.published_at || item.created_at).getFullYear().toString()}
+                          defaultValue={item.metadata?.year || ''}
+                          title="Year label shown on the live site — e.g. 2026 or WIP"
+                          onBlur={(e) => handleYearLabelChange(item, e.target.value)}
+                          onKeyDown={(e) => { if (e.key === 'Enter') e.currentTarget.blur(); }}
+                        />
+                      ) : item.featured ? (
                         <Star size={15} style={{ color: 'var(--admin-warning)', fill: 'var(--admin-warning)' }} />
                       ) : (
                         <span style={{ color: 'var(--admin-text-muted)' }}>—</span>

@@ -11,10 +11,11 @@ import {
   Music
 } from 'lucide-react';
 
-// macOS-style magnification tuning
-const MAGNIFY_PEAK = 1.8;   // max icon scale right under the cursor
-const MAGNIFY_RANGE = 2.6;  // falloff range, measured in icon pitches
-const MAGNIFY_LIFT = 12;    // px the icon rises at peak scale
+// macOS-style magnification tuning — kept subtle like the reference:
+// a gentle nudge with the tooltip as the main hover feedback.
+const MAGNIFY_PEAK = 1.12;   // max icon scale right under the cursor
+const MAGNIFY_RANGE = 2.2;   // falloff range, measured in icon pitches
+const MAGNIFY_LIFT = 3;      // px the icon rises at peak scale
 
 export default function MacDock() {
   const shelfRef = useRef(null);

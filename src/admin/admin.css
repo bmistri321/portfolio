@@ -863,6 +863,13 @@
   border-color: var(--admin-accent);
 }
 
+/* Inline Year label input in the content list (writing rows) */
+.admin-year-inline-input {
+  width: 92px;
+  padding: 6px 8px;
+  font-size: 13px;
+}
+
 /* Media Library Grid */
 .admin-media-grid {
   display: grid;
