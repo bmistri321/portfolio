@@ -16,7 +16,7 @@ export default function DockPage({ onNavigate }) {
 
         <h1 className="dock-page-title">My Dock</h1>
         <p className="dock-page-subtitle">
-          Apps and daily workflows exported directly from my macOS workstation. Click on any dock icon to trigger a bounce, or explore the curated stack below.
+          Apps and daily workflows exported directly from my macOS workstation.
         </p>
       </header>
 
