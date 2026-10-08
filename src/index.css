@@ -846,6 +846,7 @@ body {
   --dev-card-border: #e5e7eb;
   --dev-tab-bg: #f3f4f6;
   --dev-tab-text: #4b5563;
+  --dev-tab-inactive: #211F26;
   --dev-pink: #cb53a2;
   --dev-pink-hover: #ac468a;
   --dev-bio-text: #65636D;
@@ -864,6 +865,7 @@ body {
   --dev-card-border: #27272a;
   --dev-tab-bg: #1c1c20;
   --dev-tab-text: #a1a1aa;
+  --dev-tab-inactive: #a1a1aa;
   --dev-pink: #df90c7;
   --dev-row-hover: #17171b;
   --dev-pink-hover: #eab4d8;
@@ -1173,9 +1175,11 @@ body {
   padding: 0 14px;
   border-radius: 9999px;
   font-size: 14px;
+  line-height: 14px;
+  letter-spacing: 0.3px;
   font-weight: 500;
   background: transparent;
-  color: var(--dev-tab-text);
+  color: var(--dev-tab-inactive);
   border: none;
   cursor: pointer;
   white-space: nowrap;
