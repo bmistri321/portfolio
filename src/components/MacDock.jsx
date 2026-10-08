@@ -108,45 +108,6 @@ export default function MacDock() {
     }
   ];
 
-  const gearCategories = [
-    {
-      title: 'Design & Prototyping',
-      items: [
-        { name: 'Figma', desc: 'Design tokens, auto-layout, interactive component prototypes.' },
-        { name: 'Framer', desc: 'React-based production landing pages and micro-interactions.' },
-        { name: 'Principle & Rive', desc: 'State-machine vector animation and physics prototyping.' },
-        { name: 'CleanShot X', desc: 'Pixel-perfect annotation, scrolling screen capture & screen recordings.' }
-      ]
-    },
-    {
-      title: 'Engineering & Code',
-      items: [
-        { name: 'Cursor & VS Code', desc: 'TypeScript, React 19, Tailwind CSS, Node.js, and Python.' },
-        { name: 'Ghostty & Zsh', desc: 'Pure Zsh shell, fast git workflows, homebrew, and docker CLI.' },
-        { name: 'Chrome Canary & Arc', desc: 'DevTools, performance profiling, responsive viewport testing.' },
-        { name: 'Postman & Insomnia', desc: 'API testing, schema validation, WebSocket debugging.' }
-      ]
-    },
-    {
-      title: 'AI & Copilots',
-      items: [
-        { name: 'Claude 3.7 Sonnet', desc: 'Deep technical reasoning, design critique, and code generation.' },
-        { name: 'Gemini 2.5 / 3.0', desc: 'Multimodal vision, large context document parsing & summaries.' },
-        { name: 'Midjourney & SDXL', desc: 'Visual moodboards, asset concepting, and texture generation.' }
-      ]
-    },
-    {
-      title: 'Hardware & Desk Setup',
-      items: [
-        { name: 'MacBook Pro 16" (M3 Max)', desc: '64GB Unified Memory, Space Black — my primary portable powerhouse.' },
-        { name: 'Apple Studio Display 27"', desc: '5K Retina display for sub-pixel design verification and color calibration.' },
-        { name: 'Keychron Q1 Pro Mechanical', desc: 'Custom tactile switches with custom PBT keycaps.' },
-        { name: 'Logitech MX Master 3S', desc: 'Ergonomic precision mouse with infinite electromagnetic scroll.' },
-        { name: 'Sony WH-1000XM5', desc: 'Industry-leading noise cancellation for deep focus sessions.' }
-      ]
-    }
-  ];
-
   // Icon centers are measured from layout (offsetLeft), so the live
   // magnification transforms can never feed back into the measurement.
   const measureCenters = useCallback(() => {
@@ -211,9 +172,8 @@ export default function MacDock() {
   };
 
   return (
-    <div>
+    <div className="mac-dock-shelf-wrapper">
       {/* Interactive macOS Dock Shelf */}
-      <div className="mac-dock-shelf-wrapper">
         <div
           ref={shelfRef}
           className="mac-dock-shelf"
@@ -255,25 +215,5 @@ export default function MacDock() {
           })}
         </div>
       </div>
-
-      {/* Categorized Gear & Stack */}
-      <h2 className="dev-section-heading">Workspace &amp; Toolkit</h2>
-
-      <div className="gear-category-grid">
-        {gearCategories.map((cat) => (
-          <div key={cat.title} className="gear-card">
-            <h3 className="gear-info-title">{cat.title}</h3>
-            <div className="gear-items">
-              {cat.items.map((item) => (
-                <div key={item.name} className="gear-item">
-                  <div className="gear-item-name">{item.name}</div>
-                  <div className="gear-item-desc">{item.desc}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
   );
 }
