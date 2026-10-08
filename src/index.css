@@ -1251,7 +1251,7 @@ body {
 .dev-writing-title {
   flex: 1;
   min-width: 0;
-  font-size: 17px;
+  font-size: 15px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1259,7 +1259,7 @@ body {
 
 .dev-writing-year {
   flex-shrink: 0;
-  font-size: 15px;
+  font-size: 13px;
   color: var(--dev-text-3);
 }
 
