@@ -85,7 +85,7 @@ export default function MacDock() {
     {
       id: 'gemini',
       name: 'Gemini',
-      iconUrl: 'https://cdn.jsdelivr.net/gh/bmistri321/Images-web@main/soft-img-gemini.svg',
+      iconUrl: '/images/dock-gemini.png',
       fallbackIcon: Sparkles
     }
   ];
