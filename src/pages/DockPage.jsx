@@ -21,13 +21,6 @@ export default function DockPage({ onNavigate }) {
       </header>
 
       <MacDock />
-
-      <footer className="site-footer" style={{ marginTop: '48px' }}>
-        <div>
-          Built with <span className="footer-stamp">React</span> &amp; <span className="footer-stamp">Vite</span>
-        </div>
-        <div className="footer-stamp">Bishal</div>
-      </footer>
     </div>
   );
 }
