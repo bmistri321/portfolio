@@ -1,12 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 
 // Original Live Portfolio Pages & Components
-import HomePage from './pages/HomePage';
-import CaseStudyPage from './pages/CaseStudyPage';
+// Main-site-only pages are code-split: they load on demand instead of
+// weighing down the workbench and admin bundles.
+const HomePage = lazy(() => import('./pages/HomePage'));
+const CaseStudyPage = lazy(() => import('./pages/CaseStudyPage'));
+const AboutPage = lazy(() => import('./pages/AboutPage'));
+const FrienderCaseStudyPage = lazy(() => import('./pages/FrienderCaseStudyPage'));
+const WexaCaseStudyPage = lazy(() => import('./pages/WexaCaseStudyPage'));
 import PlaygroundPage from './pages/PlaygroundPage';
-import AboutPage from './pages/AboutPage';
-import FrienderCaseStudyPage from './pages/FrienderCaseStudyPage';
-import WexaCaseStudyPage from './pages/WexaCaseStudyPage';
 import BookPage from './pages/BookPage';
 import FloatingNav from './components/FloatingNav';
 import { applyPageMeta } from './lib/pageMeta';
@@ -19,7 +21,11 @@ import DockPage from './pages/DockPage';
 import TravelPage from './pages/TravelPage';
 
 // Admin CMS Application (for admin.bishalmistri.com & /admin)
-import AdminApp from './admin/AdminApp';
+// Code-split: the admin editor (Quill etc.) only downloads when the admin loads.
+const AdminApp = lazy(() => import('./admin/AdminApp'));
+
+// Minimal loading state shown while a code-split chunk loads.
+const ChunkFallback = () => <div className="app-loading-fallback" aria-hidden="true" />;
 
 export const isAdminSubdomain = () => {
   if (typeof window === 'undefined') return false;
@@ -137,7 +143,11 @@ export default function App() {
 
   // 0. ADMIN PORTAL (admin.bishalmistri.com OR /admin)
   if (isAdmin || currentPath.startsWith('/admin')) {
-    return <AdminApp onNavigateLive={navigate} />;
+    return (
+      <Suspense fallback={<ChunkFallback />}>
+        <AdminApp onNavigateLive={navigate} />
+      </Suspense>
+    );
   }
 
   // 1. DEV SUBDOMAIN (dev.bishalmistri.com -> Dev Site)
@@ -220,7 +230,9 @@ export default function App() {
   return (
     <div className="pm-app-container">
       <main id="pm-content-wrap">
-        {renderMainPage()}
+        <Suspense fallback={<ChunkFallback />}>
+          {renderMainPage()}
+        </Suspense>
       </main>
       <FloatingNav currentPath={currentPath} onNavigate={navigate} />
     </div>

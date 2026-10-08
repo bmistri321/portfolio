@@ -13,7 +13,7 @@ import {
 import { Linkedin, Behance } from '../components/Icons';
 import InteractiveGlobe from '../components/InteractiveGlobe';
 import { playUiSound, isSoundEnabled, setSoundEnabled } from '../utils/sound';
-import { contentService } from '../lib/contentService';
+import { contentService, CONTENT_LIST_SELECT } from '../lib/contentService';
 
 export default function DevHomePage({ onNavigate }) {
   const [activeTab, setActiveTab] = useState('work');
@@ -29,7 +29,7 @@ export default function DevHomePage({ onNavigate }) {
   useEffect(() => {
     async function loadPublished() {
       try {
-        const items = await contentService.getAll({ status: 'published' });
+        const items = await contentService.getAll({ status: 'published', select: CONTENT_LIST_SELECT });
         setCmsItems(items);
       } catch (err) {
         console.warn('Could not load CMS items:', err);

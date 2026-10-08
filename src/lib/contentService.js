@@ -89,18 +89,23 @@ export function sanitizeContent(htmlOrMarkdown) {
     .replace(/javascript:[^"']*/gi, '#');
 }
 
+// Lightweight column set for public list views (home, case-study index).
+// Skips the heavy `content` HTML column the lists never render.
+export const CONTENT_LIST_SELECT =
+  'id,title,slug,type,status,excerpt,cover_image,metadata,published_at,created_at,order_index,updated_at';
+
 // Content Service API
 export const contentService = {
   // 1. Fetch all items (with optional filters)
   async getAll(filters = {}) {
-    const { type, status, search, sort = 'order_index' } = filters;
+    const { type, status, search, sort = 'order_index', select = '*' } = filters;
     const config = getSupabaseConfig();
 
     let items = [];
 
     if (config.isConfigured) {
       try {
-        let query = '/rest/v1/content?select=*';
+        let query = `/rest/v1/content?select=${select}`;
         if (type && type !== 'all') {
           query += `&type=eq.${encodeURIComponent(type)}`;
         }

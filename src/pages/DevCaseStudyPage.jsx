@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
-import { contentService } from '../lib/contentService';
+import { contentService, CONTENT_LIST_SELECT } from '../lib/contentService';
 
 // Case-study index: rendered from the CMS so it always matches the admin panel.
 export default function DevCaseStudyPage({ onNavigate }) {
@@ -11,7 +11,7 @@ export default function DevCaseStudyPage({ onNavigate }) {
     let cancelled = false;
     async function load() {
       try {
-        const items = await contentService.getAll({ type: 'work', status: 'published' });
+        const items = await contentService.getAll({ type: 'work', status: 'published', select: CONTENT_LIST_SELECT });
         if (cancelled) return;
         setProjects(
           items.map((i) => ({

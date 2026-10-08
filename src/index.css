@@ -826,6 +826,11 @@ body {
   .pm-book-action-row { gap: 16px; }
 }
 
+/* Blank placeholder while a code-split route chunk loads. */
+.app-loading-fallback {
+  min-height: 100vh;
+}
+
 /* ==========================================================================
    DEV SITE DESIGN SYSTEM (FOR dev.bishalmistri.com)
    ========================================================================== */
