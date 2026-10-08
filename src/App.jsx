@@ -15,6 +15,7 @@ import { applyPageMeta } from './lib/pageMeta';
 
 // Dev Site Pages & Components (for dev.bishalmistri.com)
 import DevHomePage from './pages/DevHomePage';
+import ChatFab from './components/ChatFab';
 import DevCaseStudyPage from './pages/DevCaseStudyPage';
 import DevArticlePage from './pages/DevArticlePage';
 import DockPage from './pages/DockPage';
@@ -190,6 +191,7 @@ export default function App() {
         </main>
 
         {isDetailPage && renderDetailCaseStudy()}
+        <ChatFab />
       </div>
     );
   }
@@ -202,6 +204,7 @@ export default function App() {
           <BookPage onNavigate={navigate} />
         </main>
         <FloatingNav currentPath={currentPath} onNavigate={navigate} />
+        <ChatFab />
       </div>
     );
   }
@@ -235,6 +238,7 @@ export default function App() {
         </Suspense>
       </main>
       <FloatingNav currentPath={currentPath} onNavigate={navigate} />
+      <ChatFab />
     </div>
   );
 }
