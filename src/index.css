@@ -843,6 +843,7 @@ body {
   --dev-tab-text: #4b5563;
   --dev-pink: #e11d48;
   --dev-pink-hover: #be123c;
+  --dev-row-hover: #f4f4f6;
   --dev-card-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
 }
 
@@ -858,6 +859,7 @@ body {
   --dev-tab-bg: #1c1c20;
   --dev-tab-text: #a1a1aa;
   --dev-pink: #fb7185;
+  --dev-row-hover: #17171b;
   --dev-pink-hover: #f43f5e;
   --dev-card-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1), 0 2px 4px rgba(0, 0, 0, 0.4);
 }
@@ -1221,21 +1223,44 @@ body {
 .dev-writing-list {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 2px;
 }
 
 .dev-writing-row {
   display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  padding: 12px 0;
-  border-bottom: 1px solid var(--dev-border-subtle);
+  align-items: center;
+  gap: 12px;
+  padding: 13px 16px;
+  border-radius: 10px;
   text-decoration: none;
   color: inherit;
+  transition: background-color 0.2s ease;
 }
 
-.dev-writing-row:hover .dev-card-title {
-  color: var(--dev-pink);
+.dev-writing-row:hover {
+  background-color: var(--dev-row-hover);
+}
+
+.dev-writing-icon {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  color: var(--dev-text-3);
+}
+
+.dev-writing-title {
+  flex: 1;
+  min-width: 0;
+  font-size: 17px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dev-writing-year {
+  flex-shrink: 0;
+  font-size: 15px;
+  color: var(--dev-text-3);
 }
 
 /* 7. FOOTER */

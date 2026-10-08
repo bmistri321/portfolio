@@ -107,6 +107,7 @@ export default function DevHomePage({ onNavigate }) {
     .map((i) => ({
       id: i.id,
       title: i.title,
+      year: new Date(i.published_at || i.created_at).getFullYear().toString(),
       date: i.metadata?.date || new Date(i.published_at || i.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
       metric: i.excerpt || i.metadata?.subtitle || 'Long-form editorial essay',
       url: i.metadata?.projectUrl || i.metadata?.external_url || i.metadata?.link || `/casestudy/${i.slug}`
@@ -305,7 +306,9 @@ export default function DevHomePage({ onNavigate }) {
                   }
                 }}
               >
-                <h3 className="dev-card-title">{item.title}</h3>
+                <span className="dev-writing-icon"><FileText size={18} /></span>
+                <h3 className="dev-card-title dev-writing-title">{item.title}</h3>
+                <span className="dev-writing-year">{item.year}</span>
               </a>
             );
           })}
