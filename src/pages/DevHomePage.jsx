@@ -60,23 +60,77 @@ export default function DevHomePage({ onNavigate }) {
     setActiveTab(tab);
   };
 
-  // Sliding active-tab indicator: measures the active pill and glides the
-  // pink background to it with ease-in-out (no cross-fade jerk).
+  // Sliding + squeezing active-tab indicator. The pink pill glides to the
+  // active tab and stretches toward it mid-flight (liquid squeeze), the
+  // radius staying a perfect capsule throughout.
   const tabsRef = useRef(null);
-  const [tabIndicator, setTabIndicator] = useState(null);
+  const indicatorRef = useRef(null);
+  const indicatorAnim = useRef(null);
+  const [indicatorInit, setIndicatorInit] = useState(null);
+
+  const readIndicatorPos = () => {
+    const el = indicatorRef.current;
+    const cs = window.getComputedStyle(el);
+    const m = /matrix\((.+)\)/.exec(cs.transform);
+    let x = 0;
+    if (m) {
+      const parts = m[1].split(',').map((s) => parseFloat(s.trim()));
+      if (parts.length === 6 && isFinite(parts[4])) x = parts[4];
+    }
+    const w = parseFloat(cs.width);
+    return { x, w: isFinite(w) ? w : 0 };
+  };
+
+  const moveIndicator = (animate) => {
+    const root = tabsRef.current;
+    const el = indicatorRef.current;
+    if (!root || !el) return;
+    const btn = root.querySelector('.dev-tab-pill.active');
+    if (!btn) return;
+    const newX = btn.offsetLeft;
+    const newW = btn.offsetWidth;
+    // Current visual position (accounts for an interrupted animation).
+    const from = readIndicatorPos();
+    if (indicatorAnim.current) {
+      indicatorAnim.current.cancel();
+      indicatorAnim.current = null;
+    }
+    // Pin exactly where it is so there's no flash, then animate from there.
+    el.style.transform = `translateX(${from.x}px)`;
+    el.style.width = `${from.w}px`;
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!animate || reduceMotion || (from.x === newX && from.w === newW)) return;
+    // Squeeze: stretch toward the target first (trailing edge lingers),
+    // then the trailing edge catches up and the pill settles.
+    const movingRight = newX >= from.x;
+    const midX = movingRight ? from.x : newX;
+    const midW = movingRight ? newX + newW - from.x : from.x + from.w - newX;
+    const anim = el.animate(
+      [
+        { transform: `translateX(${from.x}px)`, width: `${from.w}px` },
+        { transform: `translateX(${midX}px)`, width: `${midW}px`, offset: 0.45 },
+        { transform: `translateX(${newX}px)`, width: `${newW}px` }
+      ],
+      { duration: 480, easing: 'cubic-bezier(0.65, 0, 0.35, 1)', fill: 'forwards' }
+    );
+    indicatorAnim.current = anim;
+  };
+
+  // Initial placement (no animation) + re-place on resize / font load.
   useEffect(() => {
-    const place = () => {
-      const root = tabsRef.current;
-      if (!root) return;
-      const btn = root.querySelector('.dev-tab-pill.active');
-      if (!btn) return;
-      setTabIndicator({ x: btn.offsetLeft, w: btn.offsetWidth });
-    };
-    place();
-    window.addEventListener('resize', place);
+    const root = tabsRef.current;
+    const btn = root?.querySelector('.dev-tab-pill.active');
+    if (btn) setIndicatorInit({ x: btn.offsetLeft, w: btn.offsetWidth });
+    const onResize = () => moveIndicator(false);
+    window.addEventListener('resize', onResize);
     const fonts = document.fonts;
-    if (fonts && fonts.ready) fonts.ready.then(place).catch(() => {});
-    return () => window.removeEventListener('resize', place);
+    if (fonts && fonts.ready) fonts.ready.then(() => moveIndicator(false)).catch(() => {});
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
+  // Squeeze-glide on every tab switch.
+  useEffect(() => {
+    moveIndicator(true);
   }, [activeTab]);
 
   // Merge CMS published items
@@ -251,11 +305,12 @@ export default function DevHomePage({ onNavigate }) {
 
       {/* 5. SEGMENTED FILTER PILL TABS */}
       <div id="home-tabs-anchor" className="dev-tabs-container" ref={tabsRef}>
-        {tabIndicator && (
+        {indicatorInit && (
           <span
             aria-hidden="true"
+            ref={indicatorRef}
             className="dev-tab-indicator"
-            style={{ width: tabIndicator.w, transform: `translateX(${tabIndicator.x}px)` }}
+            style={{ width: indicatorInit.w, transform: `translateX(${indicatorInit.x}px)` }}
           />
         )}
         <button
