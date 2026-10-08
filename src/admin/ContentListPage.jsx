@@ -55,6 +55,7 @@ export default function ContentListPage({
   const [linkBusy, setLinkBusy] = useState(false);
 
   const isWriting = typeFilter === 'writing';
+  const showYearColumn = isWriting || typeFilter === 'work';
   const showOrder = (isWriting || typeFilter === 'work') && sortOption === 'order_index';
 
   const loadContent = async () => {
@@ -115,7 +116,7 @@ export default function ContentListPage({
     }
   };
 
-  // Inline Year label for writing rows (takes the Featured column's place) —
+  // Inline Year label for writing/work rows (takes the Featured column's place) —
   // saved to metadata.year and shown on the live site as the row's year.
   const handleYearLabelChange = async (item, value) => {
     const newYear = (value || '').trim();
@@ -474,7 +475,7 @@ export default function ContentListPage({
                 <th>Title</th>
                 <th>Type</th>
                 <th>Status</th>
-                <th>{isWriting ? 'Year' : 'Featured'}</th>
+                <th>{showYearColumn ? 'Year' : 'Featured'}</th>
                 <th>Published</th>
                 <th>Updated</th>
                 <th style={{ textAlign: 'right' }}>Actions</th>
@@ -584,7 +585,7 @@ export default function ContentListPage({
                       </span>
                     </td>
                     <td>
-                      {item.type === 'writing' ? (
+                      {item.type === 'writing' || item.type === 'work' ? (
                         <input
                           key={`${item.id}-${item.metadata?.year || 'empty'}`}
                           type="text"
