@@ -111,6 +111,46 @@ function splitArticleHtml(html) {
   const sections = [];
   let cur = null;
   const uniqueId = makeUniqueId();
+
+  // A line break hugging a divider must not add space: "text <br> [divider]
+  // text" should render the same gap as "text [divider] text". Strip <br>s
+  // and empty paragraphs directly adjacent to an <hr>.
+  const isBlankPara = (el) =>
+    el && el.nodeName === 'P' && !el.textContent.trim();
+  const stripBreaksAround = (hr) => {
+    let prev = hr.previousElementSibling;
+    while (prev && (prev.nodeName === 'BR' || isBlankPara(prev))) {
+      const node = prev;
+      prev = node.previousElementSibling;
+      node.remove();
+    }
+    prev = hr.previousElementSibling;
+    if (prev) {
+      let last = prev.lastChild;
+      while (last && last.nodeName === 'BR') {
+        const node = last;
+        last = node.previousSibling;
+        node.remove();
+      }
+    }
+    let next = hr.nextElementSibling;
+    while (next && (next.nodeName === 'BR' || isBlankPara(next))) {
+      const node = next;
+      next = node.nextElementSibling;
+      node.remove();
+    }
+    next = hr.nextElementSibling;
+    if (next) {
+      let first = next.firstChild;
+      while (first && first.nodeName === 'BR') {
+        const node = first;
+        first = node.nextSibling;
+        node.remove();
+      }
+    }
+  };
+  Array.from(root.querySelectorAll('hr')).forEach(stripBreaksAround);
+
   const startSection = (id, label, heading) => {
     cur = { id: uniqueId(id), label, heading, parts: [] };
     sections.push(cur);

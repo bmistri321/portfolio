@@ -20,6 +20,12 @@ export default function DevCaseStudyLayout({
   // re-derives the active section from the settled geometry.
   const pendingClickRef = useRef(false);
   const settleTimerRef = useRef(null);
+  // Which TOC item was clicked (ground truth for where a click-scroll ends).
+  const clickedIdRef = useRef(null);
+  // Brief shield after a click settles: { id, until }. A trailing observer
+  // callback firing right after the scroll stopped must not steal the
+  // clicked highlight back (e.g. the bottom guard at max scroll).
+  const shieldRef = useRef(null);
 
   const clearSettleTimer = () => {
     if (settleTimerRef.current) {
@@ -164,6 +170,12 @@ export default function DevCaseStudyLayout({
 
     const observerCallback = () => {
       if (pendingClickRef.current) return;
+      const shield = shieldRef.current;
+      if (shield && Date.now() < shield.until) {
+        setActiveSection(shield.id);
+        return;
+      }
+      if (shield) shieldRef.current = null;
       const id = computeActiveSection();
       if (id) setActiveSection(id);
     };
@@ -236,6 +248,8 @@ export default function DevCaseStudyLayout({
     // Hold the clicked item until the sheet stops scrolling: the scroll-spy
     // ignores everything while pending, then the settled geometry decides.
     pendingClickRef.current = true;
+    clickedIdRef.current = id;
+    shieldRef.current = null;
     clearSettleTimer();
     const sheet = sheetRef.current;
     const el = document.getElementById(id);
@@ -258,8 +272,29 @@ export default function DevCaseStudyLayout({
       if (stableTicks >= 2) {
         clearSettleTimer();
         pendingClickRef.current = false;
-        const finalId = computeActiveSection();
-        if (finalId) setActiveSection(finalId);
+        const clickedId = clickedIdRef.current;
+        clickedIdRef.current = null;
+        let finalId = null;
+        if (clickedId && sheet) {
+          const el = document.getElementById(clickedId);
+          const sheetRect = sheet.getBoundingClientRect();
+          if (el) {
+            const r = el.getBoundingClientRect();
+            // The click is ground truth when its heading is on screen: keep
+            // it even if the sheet sits at max scroll (short final section
+            // below it) — the bottom guard must not steal it.
+            if (r.top <= sheetRect.bottom && r.bottom >= sheetRect.top) {
+              finalId = clickedId;
+            }
+          }
+        }
+        if (!finalId) finalId = computeActiveSection();
+        if (finalId) {
+          setActiveSection(finalId);
+          if (clickedId && finalId === clickedId) {
+            shieldRef.current = { id: clickedId, until: Date.now() + 800 };
+          }
+        }
       }
     }, 120);
   };
