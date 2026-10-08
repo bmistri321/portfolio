@@ -92,7 +92,7 @@ export function sanitizeContent(htmlOrMarkdown) {
 // Lightweight column set for public list views (home, case-study index).
 // Skips the heavy `content` HTML column the lists never render.
 export const CONTENT_LIST_SELECT =
-  'id,title,slug,type,status,excerpt,cover_image,metadata,published_at,created_at,order_index,updated_at';
+  'id,title,slug,type,status,excerpt,seo_description,cover_image,metadata,published_at,created_at,order_index,updated_at';
 
 // Content Service API
 export const contentService = {

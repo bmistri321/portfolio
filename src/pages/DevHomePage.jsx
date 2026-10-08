@@ -93,7 +93,7 @@ export default function DevHomePage({ onNavigate }) {
       id: i.id,
       title: i.title,
       year: i.metadata?.year || new Date(i.published_at || i.created_at).getFullYear().toString(),
-      metric: i.excerpt || i.metadata?.client || 'Interactive product design & systems architecture',
+      metric: i.seo_description || i.excerpt || i.metadata?.client || 'Interactive product design & systems architecture',
       image: i.cover_image || '',
       link: i.metadata?.link || i.metadata?.projectUrl || `/casestudy/${i.slug}`
     }));
