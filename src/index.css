@@ -1268,20 +1268,58 @@ body {
   color: var(--dev-text-3);
 }
 
+/* Dock page header */
+.dock-page-header {
+  margin-bottom: 20px;
+}
+
+.dock-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--dev-text-3);
+  font-size: 13px;
+  cursor: pointer;
+  margin-bottom: 12px;
+}
+
+.dock-back-link:hover {
+  color: var(--dev-text-1);
+}
+
+.dock-page-title {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--dev-text-1);
+  margin: 0 0 6px;
+  letter-spacing: -0.01em;
+}
+
+.dock-page-subtitle {
+  font-size: 13px;
+  color: var(--dev-text-3);
+  margin: 0;
+  line-height: 1.5;
+}
+
 /* macOS Dock — interactive magnification shelf */
 .mac-dock-shelf-wrapper {
   position: relative;
-  border-radius: 20px;
+  border-radius: 16px;
   overflow: hidden;
   background-image: url('/images/dock-wallpaper.jpg');
   background-size: cover;
   background-position: center 62%;
-  min-height: 380px;
+  aspect-ratio: 21 / 9;
+  min-height: 300px;
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  padding: 110px 20px 26px;
-  margin: 8px 0;
+  padding: 90px 20px 24px;
+  margin: 4px 0 8px;
   box-shadow: 0 20px 48px rgba(30, 27, 60, 0.22);
 }
 
@@ -1289,20 +1327,20 @@ body {
   position: relative;
   display: flex;
   align-items: flex-end;
-  gap: 10px;
-  padding: 10px 12px 16px;
+  gap: 8px;
+  padding: 8px 10px 14px;
   background: rgba(255, 255, 255, 0.28);
   -webkit-backdrop-filter: blur(24px) saturate(1.6);
   backdrop-filter: blur(24px) saturate(1.6);
   border: 1px solid rgba(255, 255, 255, 0.45);
-  border-radius: 22px;
+  border-radius: 20px;
   box-shadow: 0 12px 32px rgba(20, 16, 50, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.5);
 }
 
 .mac-dock-icon {
   position: relative;
-  width: 48px;
-  height: 48px;
+  width: 40px;
+  height: 40px;
   flex-shrink: 0;
   cursor: pointer;
 }
@@ -1350,7 +1388,7 @@ body {
 
 .dock-tooltip {
   position: absolute;
-  bottom: calc(100% + 54px);
+  bottom: calc(100% + 48px);
   left: 50%;
   transform: translateX(-50%) translateY(6px);
   background: rgba(28, 28, 34, 0.88);
@@ -1394,16 +1432,16 @@ body {
 
 @media (max-width: 640px) {
   .mac-dock-shelf-wrapper {
-    min-height: 320px;
-    padding: 88px 12px 20px;
+    min-height: 260px;
+    padding: 72px 12px 18px;
   }
   .mac-dock-shelf {
-    gap: 6px;
-    padding: 8px 8px 14px;
+    gap: 5px;
+    padding: 7px 7px 12px;
   }
   .mac-dock-icon {
-    width: 38px;
-    height: 38px;
+    width: 34px;
+    height: 34px;
   }
 }
 
