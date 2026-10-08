@@ -24,16 +24,16 @@
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
   display: flex;
-  padding: 4.5%;
+  padding: 0;
 }
 
 /* ---------- editor ---------- */
 .fri-editor {
   flex: 1 1 0;
   background: #fff;
-  border: 1px solid #e7e7ec;
-  border-radius: 1.8cqw;
-  padding: 2.8cqw;
+  border: 0;
+  border-radius: 0;
+  padding: 4cqw;
   display: flex;
   flex-direction: column;
   min-width: 0;
