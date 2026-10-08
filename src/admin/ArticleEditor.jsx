@@ -590,6 +590,7 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
     insertCallout: (index, sentiment) => insertCalloutAt(index ?? null, sentiment),
     requestQuote: (index) => requestQuoteAt(index ?? null),
     insertFiles: (index, files) => insertFilesAt(index ?? null, files),
+    insertImageFile: (file, index) => handleFile('image', file, index ?? null),
     pickFiles: (kind, index) => pickFilesAt(kind, index ?? null),
     indexFromPoint: (x, y) => indexFromPoint(x, y),
   }));

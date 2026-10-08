@@ -48,7 +48,7 @@ const EMOJIS = ['✨', '💡', '🚀', '🔥', '⚡', '🛠️', '🎨', '📐',
 // Insert panel options (Word-style): draggable into the article, files can be
 // dropped on a tile, click inserts at the cursor / opens the file picker.
 const INSERT_TILES = [
-  { kind: 'image', label: 'Image', hint: 'Upload & compress', Icon: ImageIcon },
+  { kind: 'image', label: 'Image', hint: 'Upload or paste link', Icon: ImageIcon },
   { kind: 'video', label: 'Video', hint: 'Upload MP4', Icon: Video },
   { kind: 'gif', label: 'GIF', hint: 'Upload', Icon: Film },
   { kind: 'divider', label: 'Divider', hint: 'Horizontal line', Icon: Minus },
@@ -102,6 +102,10 @@ export default function EditorPage({
   const [mediaPickerOpen, setMediaPickerOpen] = useState(false);
   const [mediaItems, setMediaItems] = useState([]);
   const [mediaTarget, setMediaTarget] = useState('cover'); // 'cover' or 'editor'
+  const [imageLinkOpen, setImageLinkOpen] = useState(false);
+  const [imageLinkUrl, setImageLinkUrl] = useState('');
+  const [imageLinkBusy, setImageLinkBusy] = useState(false);
+  const [imageLinkError, setImageLinkError] = useState('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [slugStatus, setSlugStatus] = useState({ checked: false, isUnique: true, msg: '' });
   const [quotePopup, setQuotePopup] = useState(null); // { index } — pending quote insertion
@@ -581,6 +585,66 @@ export default function EditorPage({
     setMediaPickerOpen(true);
   };
 
+  // Image-from-link: fetch the remote image through /api/fetch-image
+  // (server-side, so no CORS issues), then run it through the editor's
+  // normal compress → Supabase storage → insert pipeline.
+  const closeImageLink = () => {
+    if (imageLinkBusy) return;
+    setImageLinkOpen(false);
+    setImageLinkUrl('');
+    setImageLinkError('');
+  };
+
+  const filenameFromImageUrl = (url, contentType) => {
+    try {
+      const base = new URL(url).pathname.split('/').pop().split(/[?#]/)[0];
+      if (base && /\.(jpe?g|png|gif|webp|avif|svg|bmp)$/i.test(base)) return base;
+    } catch {
+      /* fall through to generated name */
+    }
+    const ext =
+      {
+        'image/jpeg': 'jpg',
+        'image/png': 'png',
+        'image/gif': 'gif',
+        'image/webp': 'webp',
+        'image/avif': 'avif',
+        'image/svg+xml': 'svg',
+        'image/bmp': 'bmp',
+      }[contentType] || 'jpg';
+    return `image.${ext}`;
+  };
+
+  const fetchImageFromLink = async () => {
+    const url = imageLinkUrl.trim();
+    if (!url || imageLinkBusy) return;
+    setImageLinkBusy(true);
+    setImageLinkError('');
+    try {
+      const res = await fetch(`/api/fetch-image?url=${encodeURIComponent(url)}`);
+      if (!res.ok) {
+        let msg = 'Could not fetch that image.';
+        try {
+          const j = await res.json();
+          if (j && j.error) msg = j.error;
+        } catch {
+          /* keep default */
+        }
+        throw new Error(msg);
+      }
+      const blob = await res.blob();
+      const ct = (res.headers.get('content-type') || 'image/jpeg').split(';')[0].trim();
+      const file = new File([blob], filenameFromImageUrl(url, ct), { type: ct });
+      setImageLinkOpen(false);
+      setImageLinkUrl('');
+      await articleRef.current?.insertImageFile(file, null);
+    } catch (err) {
+      setImageLinkError(err.message || 'Could not fetch that image.');
+    } finally {
+      setImageLinkBusy(false);
+    }
+  };
+
   const selectMediaItem = (item) => {
     if (mediaTarget === 'cover') {
       setFormData((prev) => ({
@@ -798,6 +862,7 @@ export default function EditorPage({
                     if (kind === 'divider') articleRef.current?.insertDivider(null);
                     else if (kind === 'text') articleRef.current?.insertText(null);
                     else if (kind === 'quote') articleRef.current?.requestQuote(null);
+                    else if (kind === 'image') { setImageLinkError(''); setImageLinkOpen(true); }
                     else articleRef.current?.pickFiles(kind, null);
                   }}
                   title={kind === 'divider' ? 'Click to insert a divider line' : kind === 'text' ? 'Drag into the document or click to insert a text paragraph' : kind === 'quote' ? 'Drag into the document or click, then choose Positive or Negative' : 'Drag into the document, click to upload, or drop files here'}
@@ -1391,6 +1456,79 @@ export default function EditorPage({
           </div>
         </aside>
       </div>
+
+      {/* Image insert popup: upload from device or paste a link */}
+      {imageLinkOpen && (
+        <div className="admin-modal-backdrop" onClick={closeImageLink}>
+          <div className="admin-modal-card" onClick={(e) => e.stopPropagation()}>
+            <div className="admin-modal-header">
+              <h3 style={{ fontSize: '16px', fontWeight: 600 }}>Insert image</h3>
+              <button
+                type="button"
+                className="admin-btn-ghost admin-btn-icon"
+                onClick={closeImageLink}
+              >
+                <X size={16} />
+              </button>
+            </div>
+            <div className="admin-modal-body">
+              <button
+                type="button"
+                className="admin-btn admin-btn-ghost"
+                style={{ width: '100%', justifyContent: 'center', marginBottom: '6px' }}
+                disabled={imageLinkBusy}
+                onClick={() => { closeImageLink(); articleRef.current?.pickFiles('image', null); }}
+              >
+                <UploadCloud size={15} />
+                <span>Upload from device</span>
+              </button>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: '12px 0' }}>
+                <span style={{ flex: 1, height: '1px', background: 'var(--admin-border-subtle)' }} />
+                <span style={{ fontSize: '12px', color: 'var(--admin-text-muted)' }}>or paste an image link</span>
+                <span style={{ flex: 1, height: '1px', background: 'var(--admin-border-subtle)' }} />
+              </div>
+              <input
+                type="url"
+                className="admin-form-input"
+                placeholder="https://example.com/photo.jpg"
+                value={imageLinkUrl}
+                disabled={imageLinkBusy}
+                onChange={(e) => setImageLinkUrl(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') fetchImageFromLink(); }}
+                autoFocus
+              />
+              {imageLinkError && (
+                <p style={{ display: 'flex', gap: '6px', alignItems: 'flex-start', marginTop: '10px', fontSize: '13px', color: 'var(--admin-danger)' }}>
+                  <AlertCircle size={14} style={{ flexShrink: 0, marginTop: '2px' }} />
+                  <span>{imageLinkError}</span>
+                </p>
+              )}
+              <p style={{ marginTop: '10px', marginBottom: 0, fontSize: '12px', color: 'var(--admin-text-muted)' }}>
+                The image is downloaded, saved to your media storage, and inserted — the link itself is never hotlinked.
+              </p>
+            </div>
+            <div className="admin-modal-footer">
+              <button
+                type="button"
+                className="admin-btn admin-btn-ghost"
+                disabled={imageLinkBusy}
+                onClick={closeImageLink}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="admin-btn admin-btn-primary"
+                disabled={imageLinkBusy || !imageLinkUrl.trim()}
+                onClick={fetchImageFromLink}
+              >
+                <Link2 size={14} />
+                <span>{imageLinkBusy ? 'Fetching…' : 'Fetch & insert'}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Media Library Selection Modal */}
       {mediaPickerOpen && (
