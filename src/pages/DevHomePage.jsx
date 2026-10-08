@@ -305,11 +305,7 @@ export default function DevHomePage({ onNavigate }) {
                   }
                 }}
               >
-                <div>
-                  <h3 className="dev-card-title">{item.title}</h3>
-                  <p className="dev-card-metric">{item.metric}</p>
-                </div>
-                <span className="dev-year-badge">{item.date}</span>
+                <h3 className="dev-card-title">{item.title}</h3>
               </a>
             );
           })}
