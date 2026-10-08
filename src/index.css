@@ -1093,10 +1093,11 @@ body {
 }
 
 .dev-funfact-text {
-  font-size: 13.5px;
-  color: var(--dev-text-3);
+  font-size: 16px;
+  color: var(--dev-bio-text);
   margin: 0 0 16px;
-  line-height: 1.5;
+  line-height: 28px;
+  letter-spacing: 0.3px;
 }
 
 /* 4. SOCIAL ICONS ROW */
