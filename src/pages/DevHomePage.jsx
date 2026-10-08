@@ -140,7 +140,23 @@ export default function DevHomePage({ onNavigate }) {
   return (
     <div className="dev-page-animate">
       <div className="dev-edge-fade-top" aria-hidden="true" />
-      <div className="dev-edge-fade-bottom" aria-hidden="true" />
+      <div className="dev-progressive-blur" aria-hidden="true">
+        {[
+          [0.195, 0], [0.39, 12.5], [0.78, 25], [1.5625, 37.5],
+          [3.125, 50], [6.25, 62.5], [12.5, 75], [25, 87.5],
+        ].map(([b, s], i) => (
+          <div
+            key={i}
+            className="dev-progressive-blur-layer"
+            style={{
+              backdropFilter: `blur(${b}px)`,
+              WebkitBackdropFilter: `blur(${b}px)`,
+              maskImage: `linear-gradient(to bottom, transparent ${s}%, black ${s + 12.5}%, black ${s + 25}%, transparent ${s + 37.5}%)`,
+              WebkitMaskImage: `linear-gradient(to bottom, transparent ${s}%, black ${s + 12.5}%, black ${s + 25}%, transparent ${s + 37.5}%)`,
+            }}
+          />
+        ))}
+      </div>
       {/* 1. TOP HEADER: Avatar + Name + Audio Mute Toggle + Theme Toggle */}
       <header className="dev-top-bar">
         <div className="dev-profile-left">

@@ -930,15 +930,20 @@ body {
   }
 }
 
-.dev-edge-fade-bottom {
+/* Progressive frosted blur at the viewport bottom (like the reference) */
+.dev-progressive-blur {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
   height: 80px;
-  background: linear-gradient(to bottom, rgba(147, 197, 253, 0), rgba(147, 197, 253, 0.40));
-  pointer-events: none;
   z-index: 60;
+  pointer-events: none;
+}
+
+.dev-progressive-blur-layer {
+  position: absolute;
+  inset: 0;
 }
 
 [data-theme="dark"] .dev-edge-fade-top {
