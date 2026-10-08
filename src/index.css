@@ -1783,6 +1783,25 @@ body {
   margin-bottom: 22px;
   font-weight: 400;
 }
+
+/* Article back button (live article header) */
+.dev-article-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  padding: 0;
+  margin-bottom: 20px;
+  font-size: 14px;
+  color: var(--dev-text-3);
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.dev-article-back-btn:hover {
+  color: var(--dev-text-1);
+}
 .dev-detail-source {
   font-size: 12.5px;
   color: var(--dev-text-3);
@@ -1920,6 +1939,26 @@ body {
 }
 .cs-html-body figure { margin: 20px 0; }
 .cs-html-body figure img { margin: 0 auto; }
+
+/* Article images break out wider than the text column (live site only —
+   the admin editor never renders .cs-html-body). */
+.cs-html-body > figure {
+  width: min(880px, 94vw);
+  max-width: none;
+  margin: 20px 0 20px 50%;
+  transform: translateX(-50%);
+}
+.cs-html-body > figure img {
+  width: 100%;
+  margin: 0;
+}
+.cs-html-body > p > img:only-child {
+  width: min(880px, 94vw);
+  max-width: none;
+  height: auto;
+  margin: 18px 0 18px 50%;
+  transform: translateX(-50%);
+}
 .cs-html-body figcaption {
   font-size: 12.5px;
   color: var(--dev-text-3);

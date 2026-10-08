@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { enhanceVideos } from './videoPlayer';
-import { X, ArrowUp } from 'lucide-react';
+import { X, ArrowUp, ArrowLeft } from 'lucide-react';
 import { playUiSound } from '../utils/sound';
 
 export default function DevCaseStudyLayout({
@@ -404,6 +404,14 @@ export default function DevCaseStudyLayout({
           {/* Main Content Column */}
           <article className="dev-detail-content" ref={articleRef}>
             <header className="dev-reveal" style={{ marginBottom: '32px' }}>
+              <button
+                className="dev-article-back-btn"
+                onClick={handleClose}
+                aria-label="Back to home"
+              >
+                <ArrowLeft size={16} />
+                <span>Back</span>
+              </button>
               <h1 className="dev-detail-title">{title}</h1>
               {meta && <div className="dev-detail-meta">{meta}</div>}
               {sourceLink?.url && (

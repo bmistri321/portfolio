@@ -221,12 +221,13 @@ function RichArticle({ item, onNavigate }) {
       })();
 
   const readTime = md.readingTime || calculateReadingTime(item.content);
+  const year = md.year || new Date(item.published_at || item.created_at).getFullYear().toString();
   const mediumUrl = md.medium?.url;
 
   return (
     <DevCaseStudyLayout
       title={item.title}
-      meta={readTime}
+      meta={`${year} · ${readTime}`}
       heroVisual={
         item.cover_image
           ? { image: item.cover_image, alt: item.title }
