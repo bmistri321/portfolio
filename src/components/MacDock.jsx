@@ -37,7 +37,7 @@ export default function MacDock() {
     {
       id: 'figma',
       name: 'Figma',
-      iconUrl: '/images/dock-figma.svg',
+      iconUrl: '/images/dock-figma.png',
       fallbackIcon: Palette
     },
     {
