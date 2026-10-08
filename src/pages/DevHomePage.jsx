@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   Volume2, 
   VolumeX, 
@@ -59,6 +59,25 @@ export default function DevHomePage({ onNavigate }) {
     playUiSound('tab');
     setActiveTab(tab);
   };
+
+  // Sliding active-tab indicator: measures the active pill and glides the
+  // pink background to it with ease-in-out (no cross-fade jerk).
+  const tabsRef = useRef(null);
+  const [tabIndicator, setTabIndicator] = useState(null);
+  useEffect(() => {
+    const place = () => {
+      const root = tabsRef.current;
+      if (!root) return;
+      const btn = root.querySelector('.dev-tab-pill.active');
+      if (!btn) return;
+      setTabIndicator({ x: btn.offsetLeft, w: btn.offsetWidth });
+    };
+    place();
+    window.addEventListener('resize', place);
+    const fonts = document.fonts;
+    if (fonts && fonts.ready) fonts.ready.then(place).catch(() => {});
+    return () => window.removeEventListener('resize', place);
+  }, [activeTab]);
 
   // Merge CMS published items
   const dynamicWork = cmsItems
@@ -221,7 +240,14 @@ export default function DevHomePage({ onNavigate }) {
       </div>
 
       {/* 5. SEGMENTED FILTER PILL TABS */}
-      <div id="home-tabs-anchor" className="dev-tabs-container">
+      <div id="home-tabs-anchor" className="dev-tabs-container" ref={tabsRef}>
+        {tabIndicator && (
+          <span
+            aria-hidden="true"
+            className="dev-tab-indicator"
+            style={{ width: tabIndicator.w, transform: `translateX(${tabIndicator.x}px)` }}
+          />
+        )}
         <button
           className={`dev-tab-pill ${activeTab === 'work' ? 'active' : ''}`}
           onClick={() => handleTabChange('work')}

@@ -1061,10 +1061,15 @@ body {
 
 /* 5. TABS PILLS */
 .dev-tabs-container {
-  display: flex;
+  position: relative;
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 4px;
+  padding: 4px;
+  background: var(--dev-tab-bg);
+  border-radius: 9999px;
   margin-bottom: 28px;
+  max-width: 100%;
   overflow-x: auto;
   scrollbar-width: none;
 }
@@ -1073,7 +1078,32 @@ body {
   display: none;
 }
 
+/* Sliding active-tab background: one pink pill glides between tabs with
+   ease-in-out instead of two pills cross-fading. */
+.dev-tab-indicator {
+  position: absolute;
+  top: 4px;
+  left: 0;
+  height: 32px;
+  border-radius: 9999px;
+  background: var(--dev-pink);
+  transition: transform 0.35s ease-in-out, width 0.35s ease-in-out;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dev-tab-indicator {
+    transition: none;
+  }
+  .dev-tab-pill {
+    transition: none;
+  }
+}
+
 .dev-tab-pill {
+  position: relative;
+  z-index: 1;
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -1082,12 +1112,12 @@ body {
   border-radius: 9999px;
   font-size: 13px;
   font-weight: 500;
-  background: var(--dev-tab-bg);
+  background: transparent;
   color: var(--dev-tab-text);
   border: none;
   cursor: pointer;
   white-space: nowrap;
-  transition: background-color 0.35s ease-in-out, color 0.35s ease-in-out;
+  transition: color 0.35s ease-in-out;
 }
 
 .dev-tab-pill:hover {
@@ -1095,8 +1125,11 @@ body {
 }
 
 .dev-tab-pill.active {
-  background: var(--dev-pink) !important;
-  color: #ffffff !important;
+  color: #ffffff;
+}
+
+.dev-tab-pill.active:hover {
+  color: #ffffff;
 }
 
 /* 6. 2-COLUMN PROJECT CARDS GRID */
