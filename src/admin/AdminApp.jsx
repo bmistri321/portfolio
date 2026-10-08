@@ -6,7 +6,6 @@ import ContentListPage from './ContentListPage';
 import EditorPage from './EditorPage';
 import MediaLibraryPage from './MediaLibraryPage';
 import SettingsPage from './SettingsPage';
-import PreviewModal from './PreviewModal';
 import { contentService } from '../lib/contentService';
 import { getStoredSession, supabaseAuth } from '../lib/supabase';
 import './admin.css';
@@ -45,7 +44,6 @@ export default function AdminApp({ onNavigateLive }) {
     archived: 0
   });
 
-  const [previewItem, setPreviewItem] = useState(null);
 
   // Sync metrics across navigation
   const refreshMetrics = async () => {
@@ -139,7 +137,6 @@ export default function AdminApp({ onNavigateLive }) {
           title="All Content"
           subtitle="Manage all work projects, experiments, essays, and archives."
           onNavigate={navigate}
-          onPreview={(item) => setPreviewItem(item)}
         />
       );
     }
@@ -151,7 +148,6 @@ export default function AdminApp({ onNavigateLive }) {
           title="Work Projects"
           subtitle="Detailed case studies and commercial product architecture."
           onNavigate={navigate}
-          onPreview={(item) => setPreviewItem(item)}
         />
       );
     }
@@ -163,7 +159,6 @@ export default function AdminApp({ onNavigateLive }) {
           title="Tinkering Experiments"
           subtitle="WebGL shaders, UI prototypes, motion concepts, and code explorations."
           onNavigate={navigate}
-          onPreview={(item) => setPreviewItem(item)}
         />
       );
     }
@@ -175,7 +170,6 @@ export default function AdminApp({ onNavigateLive }) {
           title="Writing & Essays"
           subtitle="Long-form editorial essays, design thoughts, and technical deep-dives."
           onNavigate={navigate}
-          onPreview={(item) => setPreviewItem(item)}
         />
       );
     }
@@ -188,7 +182,6 @@ export default function AdminApp({ onNavigateLive }) {
           contentId="new"
           initialType={type}
           onNavigate={navigate}
-          onOpenPreview={(item) => setPreviewItem(item)}
         />
       );
     }
@@ -199,7 +192,6 @@ export default function AdminApp({ onNavigateLive }) {
         <EditorPage
           contentId={id}
           onNavigate={navigate}
-          onOpenPreview={(item) => setPreviewItem(item)}
         />
       );
     }
@@ -229,12 +221,6 @@ export default function AdminApp({ onNavigateLive }) {
     >
       {renderCurrentView()}
 
-      {previewItem && (
-        <PreviewModal
-          item={previewItem}
-          onClose={() => setPreviewItem(null)}
-        />
-      )}
     </AdminLayout>
   );
 }

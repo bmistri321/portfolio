@@ -4,7 +4,6 @@ import {
   Plus,
   Filter,
   FileEdit,
-  Eye,
   Send,
   Archive,
   RotateCcw,
@@ -27,8 +26,7 @@ export default function ContentListPage({
   defaultType = 'all',
   title = 'All Content',
   subtitle = 'Manage, organize, and publish your personal portfolio content.',
-  onNavigate,
-  onPreview
+  onNavigate
 }) {
   const [items, setItems] = useState([]);
   const [editingTitleId, setEditingTitleId] = useState(null);
@@ -617,15 +615,6 @@ export default function ContentListPage({
                         >
                           <FileEdit size={13} />
                           <span>Edit</span>
-                        </button>
-
-                        <button
-                          type="button"
-                          className="admin-btn admin-btn-ghost admin-btn-sm"
-                          onClick={() => onPreview(item)}
-                          title="Preview Mode"
-                        >
-                          <Eye size={13} />
                         </button>
 
                         {item.status === 'draft' ? (

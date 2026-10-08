@@ -3,7 +3,6 @@ import {
   ArrowLeft,
   Save,
   Send,
-  Eye,
   RotateCcw,
   Loader2,
   Image as ImageIcon,
@@ -60,8 +59,7 @@ const INSERT_TILES = [
 export default function EditorPage({
   contentId,
   initialType = 'work',
-  onNavigate,
-  onOpenPreview
+  onNavigate
 }) {
   const isNew = !contentId || contentId === 'new';
 
@@ -741,15 +739,6 @@ export default function EditorPage({
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <button
-            type="button"
-            className="admin-btn admin-btn-ghost admin-btn-sm"
-            onClick={() => onOpenPreview(formData)}
-          >
-            <Eye size={14} />
-            <span>Preview</span>
-          </button>
-
           <button
             type="button"
             className={`admin-btn admin-btn-sm ${manualSaved ? 'admin-btn-success' : formData.status === 'published' ? 'admin-btn-primary' : 'admin-btn-ghost'}`}
