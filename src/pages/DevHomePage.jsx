@@ -139,6 +139,8 @@ export default function DevHomePage({ onNavigate }) {
 
   return (
     <div className="dev-page-animate">
+      <div className="dev-edge-fade-top" aria-hidden="true" />
+      <div className="dev-edge-fade-bottom" aria-hidden="true" />
       {/* 1. TOP HEADER: Avatar + Name + Audio Mute Toggle + Theme Toggle */}
       <header className="dev-top-bar">
         <div className="dev-profile-left">
