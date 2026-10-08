@@ -117,7 +117,12 @@ function splitArticleHtml(html) {
   };
   Array.from(root.childNodes).forEach((node) => {
     if (node.nodeName === 'H2') {
-      startSection(slugId(node.textContent), node.textContent.trim(), true);
+      const label = node.textContent.trim();
+      // Skip empty headings (e.g. leftover <h2><br></h2> from divider or
+      // line-break inserts) — they must not create blank entries in the
+      // section nav.
+      if (!label) return;
+      startSection(slugId(label), label, true);
     } else {
       if (!cur) startSection('overview', 'Overview', false);
       cur.parts.push(node.outerHTML !== undefined ? node.outerHTML : node.textContent);
