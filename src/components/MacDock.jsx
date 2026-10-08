@@ -49,7 +49,7 @@ export default function MacDock() {
     {
       id: 'framer',
       name: 'Framer',
-      iconUrl: 'https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/svg/framer.svg',
+      iconUrl: '/images/dock-framer.png',
       fallbackIcon: Frame
     },
     {
