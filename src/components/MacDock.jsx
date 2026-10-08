@@ -55,13 +55,13 @@ export default function MacDock() {
     {
       id: 'antigravity',
       name: 'Antigravity',
-      iconUrl: null, // no public icon available yet — Bishal to provide
+      iconUrl: '/images/dock-antigravity.png',
       fallbackIcon: Orbit
     },
     {
       id: 'muse',
       name: 'Muse',
-      iconUrl: null, // no public icon available yet — Bishal to provide
+      iconUrl: '/images/dock-muse.png',
       fallbackIcon: Bot
     },
     {
