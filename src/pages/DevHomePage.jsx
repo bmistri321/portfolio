@@ -110,7 +110,9 @@ export default function DevHomePage({ onNavigate }) {
       year: i.metadata?.year || new Date(i.published_at || i.created_at).getFullYear().toString(),
       date: i.metadata?.date || new Date(i.published_at || i.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
       metric: i.excerpt || i.metadata?.subtitle || 'Long-form editorial essay',
-      url: i.metadata?.projectUrl || i.metadata?.external_url || i.metadata?.link || `/casestudy/${i.slug}`
+      // Writings linked to Medium open the Medium article in a new tab
+      // instead of the internal article page.
+      url: i.metadata?.medium?.url || i.metadata?.projectUrl || i.metadata?.external_url || i.metadata?.link || `/casestudy/${i.slug}`
     }));
 
 
