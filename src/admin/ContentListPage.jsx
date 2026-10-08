@@ -52,7 +52,7 @@ export default function ContentListPage({
   const [mediumMsg, setMediumMsg] = useState(null); // { ok: bool, text: string }
 
   const isWriting = typeFilter === 'writing';
-  const showOrder = isWriting && sortOption === 'order_index';
+  const showOrder = (isWriting || typeFilter === 'work') && sortOption === 'order_index';
 
   const loadContent = async () => {
     try {

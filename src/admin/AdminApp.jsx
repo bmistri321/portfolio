@@ -135,7 +135,7 @@ export default function AdminApp({ onNavigateLive }) {
     if (currentPath === '/admin/content') {
       return (
         <ContentListPage
-          defaultType="all"
+          defaultType="work"
           title="All Content"
           subtitle="Manage all work projects, experiments, essays, and archives."
           onNavigate={navigate}
