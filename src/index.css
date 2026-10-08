@@ -1261,6 +1261,20 @@ body {
   color: var(--dev-text-3);
   white-space: nowrap;
   flex-shrink: 0;
+  min-width: 44px;
+  text-align: center;
+}
+
+.dev-year-arrow {
+  display: none;
+}
+
+.dev-project-card:hover .dev-year-text {
+  display: none;
+}
+
+.dev-project-card:hover .dev-year-arrow {
+  display: inline;
 }
 
 .dev-card-metric {

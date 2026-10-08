@@ -371,7 +371,12 @@ export default function DevHomePage({ onNavigate }) {
               <div className="dev-card-info">
                 <div className="dev-card-title-row">
                   <h3 className="dev-card-title">{project.title}</h3>
-                  {project.year && <span className="dev-year-badge">{project.year}</span>}
+                  {project.year && (
+                    <span className="dev-year-badge">
+                      <span className="dev-year-text">{project.year}</span>
+                      <span className="dev-year-arrow">→</span>
+                    </span>
+                  )}
                 </div>
                 {project.metric && <p className="dev-card-metric">{project.metric}</p>}
               </div>
