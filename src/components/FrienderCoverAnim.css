@@ -179,6 +179,18 @@
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.25));
   z-index: 5;
 }
+.fri-cursor-arrow,
+.fri-cursor-hand {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transition: opacity 0.18s ease;
+}
+.fri-cursor-hand { opacity: 0; }
+/* hand takes over exactly at the click moment */
+.fri-root[data-phase="click"] .fri-cursor-arrow { opacity: 0; }
+.fri-root[data-phase="click"] .fri-cursor-hand { opacity: 1; }
 .fri-root[data-phase="click"] .fri-cursor { transform: scale(0.8); }
 .fri-root[data-phase="hold"] .fri-cursor {
   transition: left 2.2s ease-in-out, top 2.2s ease-in-out, opacity 0.8s ease;

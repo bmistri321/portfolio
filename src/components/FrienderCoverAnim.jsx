@@ -165,14 +165,25 @@ export default function FrienderCoverAnim() {
         </div>
 
         {/* cursor */}
-        <svg ref={cursorRef} className="fri-cursor" viewBox="0 0 24 24">
-          <path
-            d="M6 3.5v15.2l4.5-4.3 2.4 5.9 2.6-1.1-2.4-5.8 5.9-.3L6 3.5z"
-            fill="#1f2937"
-            stroke="#fff"
-            strokeWidth="1.6"
-          />
-        </svg>
+        <span ref={cursorRef} className="fri-cursor">
+          <svg className="fri-cursor-arrow" viewBox="0 0 24 24">
+            <path
+              d="M6 3.5v15.2l4.5-4.3 2.4 5.9 2.6-1.1-2.4-5.8 5.9-.3L6 3.5z"
+              fill="#1f2937"
+              stroke="#fff"
+              strokeWidth="1.6"
+            />
+          </svg>
+          <svg className="fri-cursor-hand" viewBox="0 0 24 24">
+            <g fill="#1f2937" stroke="#fff" strokeWidth="1.2" strokeLinejoin="round">
+              <rect x="6.2" y="3.2" width="3.4" height="8.8" rx="1.7" />
+              <rect x="10.1" y="6.2" width="3.2" height="6.6" rx="1.6" />
+              <rect x="13.8" y="7.4" width="3" height="5.8" rx="1.5" />
+              <rect x="6.2" y="10.6" width="11.6" height="8.8" rx="3.4" />
+              <rect x="2.4" y="10.6" width="5.6" height="3" rx="1.5" transform="rotate(-24 5.2 12.1)" />
+            </g>
+          </svg>
+        </span>
       </div>
     </div>
   );
