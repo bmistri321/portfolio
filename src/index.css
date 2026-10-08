@@ -1546,7 +1546,7 @@ body {
   border-radius: 12px;
   overflow: hidden;
   background: var(--dev-bg-subtle);
-  box-shadow: var(--dev-card-shadow);
+  box-shadow: 0 2px 4px #0000000a;
 }
 
 .dev-hero-clean-img {
