@@ -960,7 +960,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 17px;
+  margin-bottom: 27px;
 }
 
 .dev-profile-left {
@@ -1040,8 +1040,8 @@ body {
   font-family: 'Caveat', cursive, sans-serif !important;
   font-size: 28px;
   color: var(--dev-tagline-color);
-  line-height: 1.4;
-  margin: 10px 0 19px;
+  line-height: 1.76;
+  margin: 0 0 19px;
   font-weight: 500;
   letter-spacing: 0.02em;
 }
