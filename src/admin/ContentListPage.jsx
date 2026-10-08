@@ -51,6 +51,10 @@ export default function ContentListPage({
   const [mediumUrl, setMediumUrl] = useState('');
   const [mediumBusy, setMediumBusy] = useState(false);
   const [mediumMsg, setMediumMsg] = useState(null); // { ok: bool, text: string }
+  // Add-any-link quick-add (Writing list)
+  const [linkTitle, setLinkTitle] = useState('');
+  const [linkUrl, setLinkUrl] = useState('');
+  const [linkBusy, setLinkBusy] = useState(false);
 
   const isWriting = typeFilter === 'writing';
   const showOrder = (isWriting || typeFilter === 'work') && sortOption === 'order_index';
@@ -218,6 +222,44 @@ export default function ContentListPage({
     }
   };
 
+  // Add any link (any URL, any title) straight to the Writing list, published immediately.
+  // The live Writing list opens metadata.external_url in a new tab.
+  const handleAddLink = async () => {
+    const title = linkTitle.trim();
+    const rawUrl = linkUrl.trim();
+    if (!title) {
+      setMediumMsg({ ok: false, text: 'Give the link a title first.' });
+      return;
+    }
+    if (!rawUrl) {
+      setMediumMsg({ ok: false, text: 'Paste the link URL first.' });
+      return;
+    }
+    const url = /^https?:\/\//i.test(rawUrl) ? rawUrl : `https://${rawUrl}`;
+    setLinkBusy(true);
+    setMediumMsg(null);
+    try {
+      await contentService.create({
+        type: 'writing',
+        status: 'published',
+        title,
+        excerpt: '',
+        content: '',
+        cover_image: null,
+        author: 'Bishal Mistri',
+        metadata: { external_url: url }
+      });
+      setLinkTitle('');
+      setLinkUrl('');
+      setMediumMsg({ ok: true, text: `Added \u201C${title}\u201D and published.` });
+      loadContent();
+    } catch (err) {
+      setMediumMsg({ ok: false, text: err.message });
+    } finally {
+      setLinkBusy(false);
+    }
+  };
+
   // Move a row up/down in the custom (live-site) order.
   const handleMove = async (item, dir) => {
     const sorted = [...items];
@@ -316,6 +358,58 @@ export default function ContentListPage({
               {mediumMsg.text}
             </div>
           )}
+          <div style={{ borderTop: '1px solid var(--admin-border)', margin: '12px 0 10px' }} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+            <Link2 size={15} style={{ color: 'var(--admin-text-muted)' }} />
+            <span style={{ fontSize: '13.5px', fontWeight: 600 }}>Add any link</span>
+          </div>
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            <input
+              type="text"
+              value={linkTitle}
+              onChange={(e) => setLinkTitle(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') handleAddLink(); }}
+              placeholder="Link title…"
+              disabled={linkBusy}
+              style={{
+                flex: '1 1 180px',
+                background: 'rgba(255,255,255,0.04)',
+                border: '1px solid var(--admin-border)',
+                borderRadius: '8px',
+                padding: '8px 10px',
+                fontSize: '13px',
+                color: 'var(--admin-text-primary)',
+                fontFamily: 'inherit'
+              }}
+            />
+            <input
+              type="url"
+              value={linkUrl}
+              onChange={(e) => setLinkUrl(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') handleAddLink(); }}
+              placeholder="Paste any link…"
+              disabled={linkBusy}
+              style={{
+                flex: '2 1 260px',
+                background: 'rgba(255,255,255,0.04)',
+                border: '1px solid var(--admin-border)',
+                borderRadius: '8px',
+                padding: '8px 10px',
+                fontSize: '13px',
+                color: 'var(--admin-text-primary)',
+                fontFamily: 'inherit'
+              }}
+            />
+            <button
+              type="button"
+              className="admin-btn admin-btn-primary admin-btn-sm"
+              onClick={handleAddLink}
+              disabled={linkBusy}
+            >
+              {linkBusy ? <Loader2 size={14} /> : <Download size={14} />}
+              <span>{linkBusy ? 'Adding…' : 'Add to list'}</span>
+            </button>
+          </div>
         </div>
       )}
 
