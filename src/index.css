@@ -888,7 +888,7 @@ body {
 
 .dev-main-container {
   width: 100%;
-  max-width: 720px;
+  max-width: 678px;
   margin: 0 auto;
   padding: 40px 24px 80px;
 }
@@ -960,7 +960,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 20px;
+  margin-bottom: 17px;
 }
 
 .dev-profile-left {
@@ -1041,7 +1041,7 @@ body {
   font-size: 28px;
   color: var(--dev-tagline-color);
   line-height: 1.4;
-  margin: 10px 0 16px;
+  margin: 10px 0 19px;
   font-weight: 500;
   letter-spacing: 0.02em;
 }
@@ -1056,7 +1056,7 @@ body {
 .dev-bio-section {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 16px;
 }
 
 .dev-bio-paragraph {
@@ -1081,7 +1081,7 @@ body {
 .dev-funfact-text {
   font-size: 13.5px;
   color: var(--dev-text-3);
-  margin: 6px 0 16px;
+  margin: 0 0 16px;
   line-height: 1.5;
 }
 
@@ -1090,7 +1090,7 @@ body {
   display: flex;
   align-items: center;
   gap: 14px;
-  margin-bottom: 24px;
+  margin-bottom: 28px;
 }
 
 .dev-social-icon {
@@ -1115,7 +1115,7 @@ body {
   padding: 4px;
   background: var(--dev-tab-bg);
   border-radius: 9999px;
-  margin-bottom: 28px;
+  margin-bottom: 14px;
   max-width: 100%;
   overflow-x: auto;
   scrollbar-width: none;
@@ -1183,7 +1183,7 @@ body {
 .dev-cards-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 28px 20px;
+  gap: 28px 32px;
 }
 
 @media (max-width: 600px) {
@@ -1223,7 +1223,7 @@ body {
 }
 
 .dev-card-info {
-  padding-top: 10px;
+  padding-top: 18px;
 }
 
 .dev-card-title-row {
@@ -1275,7 +1275,7 @@ body {
   font-size: 14px;
   color: var(--dev-text-2);
   line-height: 1.45;
-  margin: 3px 0 0;
+  margin: 9px 0 0;
 }
 
 /* Writing List View */
@@ -1478,7 +1478,7 @@ body {
 
 /* 7. FOOTER */
 .dev-footer-row {
-  margin-top: 56px;
+  margin-top: 32px;
   padding-top: 24px;
   border-top: 1px solid var(--dev-border-subtle);
   display: flex;
