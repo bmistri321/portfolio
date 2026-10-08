@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import './FrienderCoverAnim.css';
 
-const GENERATED = 'Meet the new dashboard ✨\nPlan, schedule and publish — all in one calm place.';
+const GENERATED = '🚴 Your Next Ride Starts Here! 🚴\n\nLooking for a new cycle to explore, commute, or simply enjoy the ride? We’ve got you covered! 🔥\n\nRide More. Explore More. Live More. 🚴‍♂️';
 
 // Gentle pacing (ms). Total loop ≈ 13s.
 const WAIT = {
@@ -10,7 +10,7 @@ const WAIT = {
   click: 700,
   working: 2000,
   skeleton: 3200,
-  typing: 3800,
+  typing: 4600,
   hold: 2600,
   reset: 900,
 };
@@ -104,7 +104,7 @@ export default function FrienderCoverAnim() {
       n += 1;
       setTyped(GENERATED.slice(0, n));
       if (n >= GENERATED.length) clearInterval(iv);
-    }, 30);
+    }, 22);
     timers.current.push(iv);
     return () => clearInterval(iv);
   }, [phase]);
