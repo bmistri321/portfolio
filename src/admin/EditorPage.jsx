@@ -30,12 +30,10 @@ import {
   Film,
   Type,
   Info,
-  ChevronDown,
   X,
   Link2,
   RefreshCw,
-  Download,
-  Calendar
+  Download
 } from 'lucide-react';
 import {
   contentService,
@@ -103,9 +101,6 @@ export default function EditorPage({
 
   const [loading, setLoading] = useState(!isNew);
   const [saveStatus, setSaveStatus] = useState('saved'); // 'saved', 'saving', 'unsaved'
-  const [customPublishModal, setCustomPublishModal] = useState(false);
-  const [publishDateInput, setPublishDateInput] = useState('');
-  const [dateModalMode, setDateModalMode] = useState('publish'); // 'publish' | 'update'
   const [mediaPickerOpen, setMediaPickerOpen] = useState(false);
   const [mediaItems, setMediaItems] = useState([]);
   const [mediaTarget, setMediaTarget] = useState('cover'); // 'cover' or 'editor'
@@ -344,14 +339,13 @@ export default function EditorPage({
   };
 
   // Publish Workflow
-  const handlePublish = async (customDate = null) => {
+  const handlePublish = async () => {
     setSaveStatus('saving');
     try {
-      const pubDate = customDate || new Date().toISOString();
       const updatedData = {
         ...formData,
         status: 'published',
-        published_at: pubDate
+        published_at: new Date().toISOString()
       };
 
       if (!persistedRef.current) {
@@ -362,11 +356,10 @@ export default function EditorPage({
           window.history.replaceState(null, 'Bishal Mistri Studio', `/admin/content/${created.id}`);
         }
       } else {
-        const updated = await contentService.publish(formData.id, pubDate);
+        const updated = await contentService.publish(formData.id, updatedData.published_at);
         setFormData(updated);
       }
       setSaveStatus('saved');
-      setCustomPublishModal(false);
     } catch (err) {
       alert(`Publishing failed: ${err.message}`);
       setSaveStatus('unsaved');
@@ -383,41 +376,14 @@ export default function EditorPage({
     }
   };
 
-  // Update the publish date of an already-published item (this drives the
-  // year shown on the live site).
-  const handleUpdatePublishDate = async (iso) => {
-    if (!iso || !formData.id) return;
-    setSaveStatus('saving');
-    try {
-      const updated = await contentService.update(formData.id, { published_at: iso });
-      setFormData(updated);
-      setSaveStatus('saved');
-      setCustomPublishModal(false);
-    } catch (err) {
-      alert(`Updating date failed: ${err.message}`);
-      setSaveStatus('unsaved');
-    }
-  };
-
-  const openUpdateDateModal = () => {
-    const iso = formData.published_at;
-    if (iso) {
-      const d = new Date(iso);
-      const pad = (n) => String(n).padStart(2, '0');
-      setPublishDateInput(
-        `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
-      );
-    } else {
-      setPublishDateInput('');
-    }
-    setDateModalMode('update');
-    setCustomPublishModal(true);
-  };
-
-  const handleDateModalConfirm = () => {
-    const iso = publishDateInput ? new Date(publishDateInput).toISOString() : null;
-    if (dateModalMode === 'update') handleUpdatePublishDate(iso);
-    else handlePublish(iso);
+  // Update a single metadata key (e.g. the "Year label") with autosave.
+  const handleMetadataField = (key, value) => {
+    setManualSaved(false);
+    setFormData((prev) => ({
+      ...prev,
+      metadata: { ...(prev.metadata || {}), [key]: value }
+    }));
+    scheduleAutosave();
   };
 
   // ---------- Medium import / sync (Writing) ----------
@@ -795,44 +761,23 @@ export default function EditorPage({
           </button>
 
           {formData.status === 'published' ? (
-            <div style={{ display: 'flex', gap: '6px' }}>
-              <button
-                type="button"
-                className="admin-btn admin-btn-ghost admin-btn-sm"
-                onClick={openUpdateDateModal}
-                title="Update publish date"
-              >
-                <Calendar size={14} />
-              </button>
-              <button
-                type="button"
-                className="admin-btn admin-btn-ghost admin-btn-sm"
-                onClick={handleUnpublish}
-                title="Revert to Draft"
-              >
-                <RotateCcw size={14} />
-              </button>
-            </div>
+            <button
+              type="button"
+              className="admin-btn admin-btn-ghost admin-btn-sm"
+              onClick={handleUnpublish}
+              title="Revert to Draft"
+            >
+              <RotateCcw size={14} />
+            </button>
           ) : (
-            <div style={{ display: 'flex', gap: '6px' }}>
-              <button
-                type="button"
-                className="admin-btn admin-btn-primary admin-btn-sm"
-                onClick={() => handlePublish()}
-              >
-                <Send size={14} />
-                <span>Publish</span>
-              </button>
-              <button
-                type="button"
-                className="admin-btn admin-btn-primary admin-btn-sm"
-                onClick={() => { setDateModalMode('publish'); setPublishDateInput(''); setCustomPublishModal(true); }}
-                title="Schedule / Custom Date Publish"
-                style={{ padding: '6px 8px' }}
-              >
-                <ChevronDown size={14} />
-              </button>
-            </div>
+            <button
+              type="button"
+              className="admin-btn admin-btn-primary admin-btn-sm"
+              onClick={() => handlePublish()}
+            >
+              <Send size={14} />
+              <span>Publish</span>
+            </button>
           )}
         </div>
       </header>
@@ -1364,6 +1309,19 @@ export default function EditorPage({
             )}
           </div>
 
+          {['work', 'tinkering', 'writing'].includes(formData.type) && (
+            <div className="admin-form-group">
+              <label className="admin-form-label">Year label</label>
+              <input
+                type="text"
+                className="admin-form-input"
+                placeholder="2026 or WIP"
+                value={formData.metadata?.year || ''}
+                onChange={(e) => handleMetadataField('year', e.target.value)}
+              />
+            </div>
+          )}
+
           <div className="admin-form-group">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
               <label className="admin-form-label">SEO Title</label>
@@ -1465,44 +1423,6 @@ export default function EditorPage({
                   </div>
                 ))}
               </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Custom Publish Date Modal (publish with date, or update date) */}
-      {customPublishModal && (
-        <div className="admin-modal-backdrop" onClick={() => setCustomPublishModal(false)}>
-          <div className="admin-modal-card" onClick={(e) => e.stopPropagation()}>
-            <div className="admin-modal-header">
-              <h3 style={{ fontSize: '16px', fontWeight: 600 }}>{dateModalMode === 'update' ? 'Update Publish Date' : 'Publish with Custom Date'}</h3>
-            </div>
-            <div className="admin-modal-body">
-              <div className="admin-form-group">
-                <label className="admin-form-label">Publish Date & Time</label>
-                <input
-                  type="datetime-local"
-                  className="admin-form-input"
-                  value={publishDateInput}
-                  onChange={(e) => setPublishDateInput(e.target.value)}
-                />
-              </div>
-            </div>
-            <div className="admin-modal-footer">
-              <button
-                type="button"
-                className="admin-btn admin-btn-ghost"
-                onClick={() => setCustomPublishModal(false)}
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                className="admin-btn admin-btn-primary"
-                onClick={handleDateModalConfirm}
-              >
-                {dateModalMode === 'update' ? 'Update Date' : 'Publish Now'}
-              </button>
             </div>
           </div>
         </div>
