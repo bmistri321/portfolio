@@ -1064,7 +1064,10 @@ body {
   position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 4px;
+  padding: 4px;
+  background: var(--dev-tab-bg);
+  border-radius: 9999px;
   margin-bottom: 28px;
   max-width: 100%;
   overflow-x: auto;
@@ -1075,22 +1078,24 @@ body {
   display: none;
 }
 
-/* Sliding + squeezing active-tab background: one pink pill glides between
-   tabs and stretches toward its target mid-flight (liquid squeeze). Driven
-   by the Web Animations API; the radius stays a perfect capsule throughout. */
+/* Sliding active-tab background: one pink pill glides between tabs with
+   ease-in-out instead of two pills cross-fading. */
 .dev-tab-indicator {
   position: absolute;
-  top: 0;
+  top: 4px;
   left: 0;
   height: 32px;
   border-radius: 9999px;
   background: var(--dev-pink);
+  transition: transform 0.35s ease-in-out, width 0.35s ease-in-out;
   pointer-events: none;
   z-index: 0;
-  will-change: transform, width;
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .dev-tab-indicator {
+    transition: none;
+  }
   .dev-tab-pill {
     transition: none;
   }
