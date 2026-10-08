@@ -165,19 +165,21 @@ export default function FrienderCoverAnim() {
         <span ref={cursorRef} className="fri-cursor">
           <svg className="fri-cursor-arrow" viewBox="0 0 24 24">
             <path
-              d="M6 3.5v15.2l4.5-4.3 2.4 5.9 2.6-1.1-2.4-5.8 5.9-.3L6 3.5z"
-              fill="#1f2937"
+              d="M5.5 3.8 L5.5 17.4 L10.1 13.2 L12.9 19.2 L15.3 18.1 L12.6 12.3 L18.2 12.3 Z"
+              fill="#000"
               stroke="#fff"
-              strokeWidth="1.6"
+              strokeWidth="1.8"
+              strokeLinejoin="round"
             />
           </svg>
           <svg className="fri-cursor-hand" viewBox="0 0 24 24">
-            <g fill="#1f2937" stroke="#fff" strokeWidth="1.2" strokeLinejoin="round">
-              <rect x="6.2" y="3.2" width="3.4" height="8.8" rx="1.7" />
-              <rect x="10.1" y="6.2" width="3.2" height="6.6" rx="1.6" />
-              <rect x="13.8" y="7.4" width="3" height="5.8" rx="1.5" />
-              <rect x="6.2" y="10.6" width="11.6" height="8.8" rx="3.4" />
-              <rect x="2.4" y="10.6" width="5.6" height="3" rx="1.5" transform="rotate(-24 5.2 12.1)" />
+            <g fill="#fff" stroke="#1a1a1a" strokeWidth="1.3" strokeLinejoin="round">
+              <rect x="5.4" y="2.6" width="3.6" height="9.2" rx="1.8" />
+              <rect x="9.4" y="6.2" width="3.4" height="6.4" rx="1.7" />
+              <rect x="13.1" y="7.4" width="3.2" height="5.6" rx="1.6" />
+              <rect x="16.5" y="8.8" width="2.9" height="4.6" rx="1.45" />
+              <rect x="5.4" y="10.8" width="14.2" height="9" rx="4" />
+              <rect x="1.8" y="10.9" width="5.6" height="3.1" rx="1.55" transform="rotate(-28 4.6 12.45)" />
             </g>
           </svg>
         </span>
