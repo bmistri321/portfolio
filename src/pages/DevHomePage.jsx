@@ -270,13 +270,13 @@ export default function DevHomePage({ onNavigate }) {
       {/* 4. SOCIAL ICONS ROW */}
       <div className="dev-social-row">
         <a href="mailto:hello@bishalmistri.com" className="dev-social-icon" aria-label="Email" onClick={() => playUiSound('click')}>
-          <Mail size={16} />
+          <Mail size={20} />
         </a>
         <a href="https://linkedin.com/in/bishalmistri" target="_blank" rel="noopener noreferrer" className="dev-social-icon" aria-label="LinkedIn" onClick={() => playUiSound('click')}>
-          <Linkedin size={16} />
+          <Linkedin size={20} />
         </a>
         <a href="https://behance.net/bishalmistri" target="_blank" rel="noopener noreferrer" className="dev-social-icon" aria-label="Behance" onClick={() => playUiSound('click')}>
-          <Behance size={16} />
+          <Behance size={20} />
         </a>
       </div>
 
