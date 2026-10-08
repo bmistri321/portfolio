@@ -1323,7 +1323,8 @@ body {
   align-items: flex-end;
   justify-content: center;
   padding: 90px 20px 24px;
-  margin: 4px 0 8px;
+  margin-top: 4px;
+  margin-bottom: 8px;
   box-shadow: 0 20px 48px rgba(30, 27, 60, 0.22);
 }
 
