@@ -134,7 +134,7 @@ export default function FrienderCoverAnim() {
           {/* editor */}
           <div className="fri-editor">
             <div className="fri-editor-head">
-              <span className="fri-doc-name">Untitled post</span>
+              <span className="fri-doc-name">Create post</span>
               <button ref={btnRef} className="fri-ai-btn" tabIndex={-1}>
                 <svg viewBox="0 0 24 24" className="fri-spark" fill="currentColor">
                   <path d="M12 2l1.9 6.1L20 10l-6.1 1.9L12 18l-1.9-6.1L4 10l6.1-1.9L12 2z" />
