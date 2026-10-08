@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   Laptop,
   Terminal,
@@ -11,17 +11,20 @@ import {
   Music
 } from 'lucide-react';
 
-// macOS-style magnification tuning — kept subtle like the reference:
-// a gentle nudge with the tooltip as the main hover feedback.
+// macOS-style magnification, matching the reference: a strong cursor-driven
+// wave (~1.7x peak). Icons push apart as they grow, like the real macOS dock,
+// so magnified icons never overlap — the glass bar resizes to fit.
 const MAGNIFY_PEAK = 1.7;    // max icon scale right under the cursor
 const MAGNIFY_RANGE = 2.2;   // falloff range, measured in icon pitches
 const MAGNIFY_LIFT = 6;      // px the icon rises at peak scale
+const ICON_GAP = 8;          // px gap between icons at rest scale
+const SHELF_PAD_X = 10;      // px horizontal padding inside the glass bar
 
 export default function MacDock() {
   const shelfRef = useRef(null);
+  const iconRefs = useRef([]);
   const magRefs = useRef([]);
   const rafRef = useRef(0);
-  const centersRef = useRef([]);
   const [failedIcons, setFailedIcons] = useState({});
 
   const dockApps = [
@@ -107,49 +110,77 @@ export default function MacDock() {
     }
   ];
 
-  // Icon centers are measured from layout (offsetLeft), so the live
-  // magnification transforms can never feed back into the measurement.
-  const measureCenters = useCallback(() => {
+  // Rendered icon size (40px desktop, 34px on small screens via CSS).
+  const iconSize = () => iconRefs.current[0]?.offsetWidth || 40;
+
+  // Lay out the dock for the given per-icon scales: each icon is centered on
+  // its scaled slot, so icons push apart as they grow (like the real macOS
+  // dock) and the glass bar resizes to fit. Positions are computed, never
+  // measured from live transforms, so magnification can't feed back into them.
+  const layoutDock = (scales) => {
     const shelf = shelfRef.current;
     if (!shelf) return;
-    const icons = shelf.querySelectorAll('.mac-dock-icon');
-    centersRef.current = Array.from(icons).map(
-      (el) => el.offsetLeft + el.offsetWidth / 2
-    );
-  }, []);
+    const size = iconSize();
+    const widths = scales.map((s) => size * s);
+    const total = widths.reduce((a, b) => a + b, 0) + ICON_GAP * (scales.length - 1);
+    shelf.style.width = `${total + SHELF_PAD_X * 2}px`;
+    let x = SHELF_PAD_X;
+    widths.forEach((w, i) => {
+      const outer = iconRefs.current[i];
+      // outer box is `size` wide; offset so the scaled artwork centers on its slot
+      if (outer) outer.style.left = `${x + (w - size) / 2}px`;
+      x += w + ICON_GAP;
+    });
+  };
+
+  const resetDock = () => {
+    cancelAnimationFrame(rafRef.current);
+    magRefs.current.forEach((el) => {
+      if (el) el.style.transform = '';
+    });
+    layoutDock(dockApps.map(() => 1));
+  };
 
   useEffect(() => {
-    measureCenters();
-    const t = setTimeout(measureCenters, 600); // re-measure after assets settle
-    window.addEventListener('resize', measureCenters);
+    resetDock();
+    const t = setTimeout(resetDock, 600); // re-layout after assets settle
+    window.addEventListener('resize', resetDock);
     return () => {
-      window.removeEventListener('resize', measureCenters);
+      window.removeEventListener('resize', resetDock);
       clearTimeout(t);
       cancelAnimationFrame(rafRef.current);
     };
-  }, [measureCenters]);
+  }, []);
 
   const applyMagnification = (clientX) => {
     const shelf = shelfRef.current;
-    if (!shelf || centersRef.current.length === 0) return;
+    if (!shelf) return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const x = clientX - shelf.getBoundingClientRect().left;
-    const pitch =
-      centersRef.current.length > 1
-        ? centersRef.current[1] - centersRef.current[0]
-        : 58;
+    const size = iconSize();
+    const pitch = size + ICON_GAP;
+    const n = dockApps.length;
+    // Measure the cursor against where the UNMAGNIFIED shelf sits (centered in
+    // the stable wrapper) — the live shelf widens as icons grow, so measuring
+    // from its live edge would make the wave trail the cursor.
+    const wrapperRect = shelf.parentElement.getBoundingClientRect();
+    const baseShelfW = n * size + ICON_GAP * (n - 1) + SHELF_PAD_X * 2;
+    const baseShelfLeft = wrapperRect.left + (wrapperRect.width - baseShelfW) / 2;
+    const x = clientX - baseShelfLeft;
+    const scales = dockApps.map((_, i) => {
+      const center = SHELF_PAD_X + i * pitch + size / 2;
+      const d = Math.abs(x - center) / pitch;
+      if (d >= MAGNIFY_RANGE) return 1;
+      return 1 + (MAGNIFY_PEAK - 1) * Math.pow(Math.cos((d / MAGNIFY_RANGE) * Math.PI / 2), 1.15);
+    });
     magRefs.current.forEach((el, i) => {
       if (!el) return;
-      const d = Math.abs(x - centersRef.current[i]) / pitch;
-      let s = 1;
-      if (d < MAGNIFY_RANGE) {
-        s = 1 + (MAGNIFY_PEAK - 1) * Math.pow(Math.cos((d / MAGNIFY_RANGE) * Math.PI / 2), 1.15);
-      }
+      const s = scales[i];
       el.style.transform =
         s <= 1.001
           ? ''
           : `translateY(${(-(s - 1) * MAGNIFY_LIFT).toFixed(1)}px) scale(${s.toFixed(3)})`;
     });
+    layoutDock(scales);
   };
 
   const handleMouseMove = (e) => {
@@ -159,10 +190,7 @@ export default function MacDock() {
   };
 
   const handleMouseLeave = () => {
-    cancelAnimationFrame(rafRef.current);
-    magRefs.current.forEach((el) => {
-      if (el) el.style.transform = '';
-    });
+    resetDock();
   };
 
   return (
@@ -181,6 +209,7 @@ export default function MacDock() {
               <div
                 key={app.id}
                 className="mac-dock-icon"
+                ref={(el) => { iconRefs.current[index] = el; }}
               >
                 <div
                   className="mac-dock-icon-mag"

@@ -1330,23 +1330,23 @@ body {
 
 .mac-dock-shelf {
   position: relative;
-  display: flex;
-  align-items: flex-end;
-  gap: 8px;
-  padding: 8px 10px 14px;
+  height: 62px;
+  /* width is set by JS — the bar grows as icons magnify */
   background: rgba(255, 255, 255, 0.28);
   -webkit-backdrop-filter: blur(24px) saturate(1.6);
   backdrop-filter: blur(24px) saturate(1.6);
   border-radius: 20px;
   box-shadow: 0 12px 32px rgba(20, 16, 50, 0.22);
+  transition: width 0.12s ease-out;
 }
 
 .mac-dock-icon {
-  position: relative;
+  position: absolute;
+  bottom: 14px;
   width: 40px;
   height: 40px;
-  flex-shrink: 0;
-  cursor: pointer;
+  transition: left 0.12s ease-out;
+  cursor: default;
 }
 
 .mac-dock-icon-mag {
@@ -1413,12 +1413,12 @@ body {
     padding: 72px 12px 18px;
   }
   .mac-dock-shelf {
-    gap: 5px;
-    padding: 7px 7px 12px;
+    height: 53px;
   }
   .mac-dock-icon {
     width: 34px;
     height: 34px;
+    bottom: 12px;
   }
 }
 
