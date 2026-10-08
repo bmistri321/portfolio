@@ -1268,6 +1268,193 @@ body {
   color: var(--dev-text-3);
 }
 
+/* macOS Dock — interactive magnification shelf */
+.mac-dock-shelf-wrapper {
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  background-image: url('/images/dock-wallpaper.jpg');
+  background-size: cover;
+  background-position: center 62%;
+  min-height: 380px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 110px 20px 26px;
+  margin: 8px 0;
+  box-shadow: 0 20px 48px rgba(30, 27, 60, 0.22);
+}
+
+.mac-dock-shelf {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  padding: 10px 12px 16px;
+  background: rgba(255, 255, 255, 0.28);
+  -webkit-backdrop-filter: blur(24px) saturate(1.6);
+  backdrop-filter: blur(24px) saturate(1.6);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  border-radius: 22px;
+  box-shadow: 0 12px 32px rgba(20, 16, 50, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+.mac-dock-icon {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.mac-dock-icon-mag {
+  width: 100%;
+  height: 100%;
+  transform-origin: 50% 100%;
+  transition: transform 0.12s ease-out;
+  will-change: transform;
+}
+
+.mac-dock-icon-mag img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 12px;
+  display: block;
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
+.mac-dock-icon-fallback {
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.55);
+  color: #4b5563;
+}
+
+.mac-dock-bouncing {
+  animation: mac-dock-bounce 0.9s cubic-bezier(0.28, 0.84, 0.42, 1);
+}
+
+@keyframes mac-dock-bounce {
+  0% { transform: translateY(0); }
+  28% { transform: translateY(-24px); }
+  52% { transform: translateY(0); }
+  72% { transform: translateY(-11px); }
+  100% { transform: translateY(0); }
+}
+
+.dock-tooltip {
+  position: absolute;
+  bottom: calc(100% + 54px);
+  left: 50%;
+  transform: translateX(-50%) translateY(6px);
+  background: rgba(28, 28, 34, 0.88);
+  color: #fff;
+  font-size: 12.5px;
+  font-weight: 500;
+  padding: 5px 12px;
+  border-radius: 8px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  z-index: 5;
+}
+
+.mac-dock-icon:hover .dock-tooltip {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.mac-dock-indicator {
+  position: absolute;
+  left: 50%;
+  bottom: -10px;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mac-dock-icon-mag {
+    transition: none;
+  }
+  .mac-dock-bouncing {
+    animation: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .mac-dock-shelf-wrapper {
+    min-height: 320px;
+    padding: 88px 12px 20px;
+  }
+  .mac-dock-shelf {
+    gap: 6px;
+    padding: 8px 8px 14px;
+  }
+  .mac-dock-icon {
+    width: 38px;
+    height: 38px;
+  }
+}
+
+/* Dock page — Workspace & Toolkit */
+.gear-category-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.gear-card {
+  border: 1px solid var(--dev-border-subtle);
+  border-radius: 16px;
+  padding: 20px;
+  background: var(--dev-bg);
+  display: flex;
+  flex-direction: column;
+}
+
+.gear-info-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--dev-text-1);
+  margin: 0 0 8px;
+}
+
+.gear-items {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.gear-item {
+  border-top: 1px solid var(--dev-border-subtle);
+  padding-top: 8px;
+}
+
+.gear-item-name {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--dev-text-1);
+}
+
+.gear-item-desc {
+  font-size: 12.5px;
+  color: var(--dev-text-2);
+  line-height: 1.45;
+  margin-top: 2px;
+}
+
 /* 7. FOOTER */
 .dev-footer-row {
   margin-top: 56px;

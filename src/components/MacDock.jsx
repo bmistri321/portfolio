@@ -1,20 +1,28 @@
-import React, { useState, useRef } from 'react';
-import { 
-  Laptop, 
-  Terminal, 
-  Sparkles, 
-  Code, 
-  Palette, 
-  Search, 
-  CheckSquare, 
-  FileText, 
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import {
+  Laptop,
+  Terminal,
+  Sparkles,
+  Code,
+  Palette,
+  Search,
+  CheckSquare,
+  FileText,
   Music
 } from 'lucide-react';
 
+// macOS-style magnification tuning
+const MAGNIFY_PEAK = 1.8;   // max icon scale right under the cursor
+const MAGNIFY_RANGE = 2.6;  // falloff range, measured in icon pitches
+const MAGNIFY_LIFT = 12;    // px the icon rises at peak scale
+
 export default function MacDock() {
-  const dockRef = useRef(null);
-  const [mouseX, setMouseX] = useState(null);
+  const shelfRef = useRef(null);
+  const magRefs = useRef([]);
+  const rafRef = useRef(0);
+  const centersRef = useRef([]);
   const [bouncingIndex, setBouncingIndex] = useState(null);
+  const [failedIcons, setFailedIcons] = useState({});
 
   const dockApps = [
     {
@@ -138,24 +146,67 @@ export default function MacDock() {
     }
   ];
 
-  const handleIconClick = (idx) => {
-    setBouncingIndex(idx);
-    setTimeout(() => setBouncingIndex(null), 1000);
+  // Icon centers are measured from layout (offsetLeft), so the live
+  // magnification transforms can never feed back into the measurement.
+  const measureCenters = useCallback(() => {
+    const shelf = shelfRef.current;
+    if (!shelf) return;
+    const icons = shelf.querySelectorAll('.mac-dock-icon');
+    centersRef.current = Array.from(icons).map(
+      (el) => el.offsetLeft + el.offsetWidth / 2
+    );
+  }, []);
+
+  useEffect(() => {
+    measureCenters();
+    const t = setTimeout(measureCenters, 600); // re-measure after assets settle
+    window.addEventListener('resize', measureCenters);
+    return () => {
+      window.removeEventListener('resize', measureCenters);
+      clearTimeout(t);
+      cancelAnimationFrame(rafRef.current);
+    };
+  }, [measureCenters]);
+
+  const applyMagnification = (clientX) => {
+    const shelf = shelfRef.current;
+    if (!shelf || centersRef.current.length === 0) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const x = clientX - shelf.getBoundingClientRect().left;
+    const pitch =
+      centersRef.current.length > 1
+        ? centersRef.current[1] - centersRef.current[0]
+        : 58;
+    magRefs.current.forEach((el, i) => {
+      if (!el) return;
+      const d = Math.abs(x - centersRef.current[i]) / pitch;
+      let s = 1;
+      if (d < MAGNIFY_RANGE) {
+        s = 1 + (MAGNIFY_PEAK - 1) * Math.pow(Math.cos((d / MAGNIFY_RANGE) * Math.PI / 2), 1.15);
+      }
+      el.style.transform =
+        s <= 1.001
+          ? ''
+          : `translateY(${(-(s - 1) * MAGNIFY_LIFT).toFixed(1)}px) scale(${s.toFixed(3)})`;
+    });
   };
 
-  const calculateScale = (index) => {
-    if (mouseX === null || !dockRef.current) return 1;
-    const icons = dockRef.current.children;
-    if (!icons[index]) return 1;
+  const handleMouseMove = (e) => {
+    const clientX = e.clientX;
+    cancelAnimationFrame(rafRef.current);
+    rafRef.current = requestAnimationFrame(() => applyMagnification(clientX));
+  };
 
-    const rect = icons[index].getBoundingClientRect();
-    const iconCenter = rect.left + rect.width / 2;
-    const distance = Math.abs(mouseX - iconCenter);
-    const maxDistance = 140;
+  const handleMouseLeave = () => {
+    cancelAnimationFrame(rafRef.current);
+    magRefs.current.forEach((el) => {
+      if (el) el.style.transform = '';
+    });
+  };
 
-    if (distance > maxDistance) return 1;
-    const scale = 1 + 0.35 * Math.cos((distance / maxDistance) * (Math.PI / 2));
-    return Math.max(1, scale);
+  const handleIconClick = (idx) => {
+    setBouncingIndex(idx);
+    setTimeout(() => setBouncingIndex(null), 900);
   };
 
   return (
@@ -163,34 +214,39 @@ export default function MacDock() {
       {/* Interactive macOS Dock Shelf */}
       <div className="mac-dock-shelf-wrapper">
         <div
-          ref={dockRef}
+          ref={shelfRef}
           className="mac-dock-shelf"
-          onMouseMove={(e) => setMouseX(e.clientX)}
-          onMouseLeave={() => setMouseX(null)}
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseLeave}
         >
           {dockApps.map((app, index) => {
-            const scale = calculateScale(index);
             const isBouncing = bouncingIndex === index;
-
+            const isFailed = failedIcons[app.id];
+            const FallbackIcon = app.fallbackIcon;
             return (
               <div
                 key={app.id}
                 className="mac-dock-icon"
-                style={{
-                  transform: `scale(${scale}) ${isBouncing ? 'translateY(-16px)' : ''}`,
-                  transition: isBouncing 
-                    ? 'transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)' 
-                    : 'transform 0.12s cubic-bezier(0.16, 1, 0.3, 1)'
-                }}
                 onClick={() => handleIconClick(index)}
               >
-                <img
-                  src={app.iconUrl}
-                  alt={app.name}
-                  onError={(e) => {
-                    e.currentTarget.style.display = 'none';
-                  }}
-                />
+                <div
+                  className="mac-dock-icon-mag"
+                  ref={(el) => { magRefs.current[index] = el; }}
+                >
+                  {isFailed ? (
+                    <span className="mac-dock-icon-fallback">
+                      <FallbackIcon size={28} />
+                    </span>
+                  ) : (
+                    <img
+                      src={app.iconUrl}
+                      alt={app.name}
+                      draggable={false}
+                      className={isBouncing ? 'mac-dock-bouncing' : ''}
+                      onError={() => setFailedIcons((p) => ({ ...p, [app.id]: true }))}
+                    />
+                  )}
+                </div>
                 <span className="dock-tooltip">{app.name}</span>
                 <span className="mac-dock-indicator" />
               </div>
@@ -201,22 +257,16 @@ export default function MacDock() {
 
       {/* Categorized Gear & Stack */}
       <h2 className="dev-section-heading">Workspace &amp; Toolkit</h2>
-      
+
       <div className="gear-category-grid">
         {gearCategories.map((cat) => (
-          <div key={cat.title} className="gear-card" style={{ flexDirection: 'column' }}>
-            <h3 className="gear-info-title" style={{ fontSize: '15px', color: 'var(--text-primary)', marginBottom: '8px' }}>
-              {cat.title}
-            </h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '100%' }}>
+          <div key={cat.title} className="gear-card">
+            <h3 className="gear-info-title">{cat.title}</h3>
+            <div className="gear-items">
               {cat.items.map((item) => (
-                <div key={item.name} style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: '8px' }}>
-                  <div style={{ fontSize: '13.5px', fontWeight: 600, color: 'var(--text-primary)' }}>
-                    {item.name}
-                  </div>
-                  <div style={{ fontSize: '12.5px', color: 'var(--text-secondary)', lineHeight: '1.4', marginTop: '2px' }}>
-                    {item.desc}
-                  </div>
+                <div key={item.name} className="gear-item">
+                  <div className="gear-item-name">{item.name}</div>
+                  <div className="gear-item-desc">{item.desc}</div>
                 </div>
               ))}
             </div>
