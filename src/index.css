@@ -1342,7 +1342,7 @@ body {
 
 .mac-dock-icon {
   position: absolute;
-  bottom: 14px;
+  bottom: 11px;
   width: 40px;
   height: 40px;
   transition: left 0.12s ease-out;
@@ -1418,7 +1418,7 @@ body {
   .mac-dock-icon {
     width: 34px;
     height: 34px;
-    bottom: 12px;
+    bottom: 9.5px;
   }
 }
 
