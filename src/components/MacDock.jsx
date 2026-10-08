@@ -1,14 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
-  Laptop,
-  Terminal,
-  Sparkles,
-  Code,
+  Globe,
   Palette,
-  Search,
-  CheckSquare,
-  FileText,
-  Music
+  Shapes,
+  Frame,
+  Orbit,
+  Bot,
+  Sparkles,
+  Clapperboard
 } from 'lucide-react';
 
 // macOS-style magnification, matching the reference: a strong cursor-driven
@@ -30,87 +29,66 @@ export default function MacDock() {
 
   const dockApps = [
     {
-      id: 'finder',
-      name: 'Finder',
-      category: 'System',
-      iconUrl: 'https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/svg/finder.svg',
-      fallbackIcon: Laptop,
-      desc: 'macOS file manager & workspace organizer'
+      id: 'chrome',
+      name: 'Chrome',
+      iconUrl: 'https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/svg/chrome.svg',
+      fallbackIcon: Globe
     },
     {
       id: 'figma',
       name: 'Figma',
-      category: 'Design',
       iconUrl: 'https://cdn.jsdelivr.net/gh/bmistri321/Images-web@main/soft-img-figma.svg',
-      fallbackIcon: Palette,
-      desc: 'Primary UI/UX design tool, prototyping & design systems'
+      fallbackIcon: Palette
     },
     {
-      id: 'cursor',
-      name: 'Cursor',
-      category: 'Development',
-      iconUrl: 'https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/svg/cursor.svg',
-      fallbackIcon: Code,
-      desc: 'AI-first code editor for rapid prototyping and full stack shipping'
+      id: 'rive',
+      name: 'Rive',
+      iconUrl: '/images/dock-rive.svg',
+      fallbackIcon: Shapes
     },
     {
-      id: 'ghostty',
-      name: 'Ghostty',
-      category: 'Terminal',
-      iconUrl: 'https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/svg/terminal.svg',
-      fallbackIcon: Terminal,
-      desc: 'Blazing fast GPU-accelerated terminal emulator'
+      id: 'framer',
+      name: 'Framer',
+      iconUrl: 'https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/svg/framer.svg',
+      fallbackIcon: Frame
+    },
+    {
+      id: 'antigravity',
+      name: 'Antigravity',
+      iconUrl: null, // no public icon available yet — Bishal to provide
+      fallbackIcon: Orbit
+    },
+    {
+      id: 'muse',
+      name: 'Muse',
+      iconUrl: null, // no public icon available yet — Bishal to provide
+      fallbackIcon: Bot
     },
     {
       id: 'claude',
       name: 'Claude',
-      category: 'AI',
       iconUrl: 'https://cdn.jsdelivr.net/gh/bmistri321/Images-web@main/soft-img-claude.svg',
-      fallbackIcon: Sparkles,
-      desc: 'Reasoning model for architecture planning and design crit'
+      fallbackIcon: Sparkles
+    },
+    {
+      id: 'photoshop',
+      name: 'Photoshop',
+      iconUrl: '/images/dock-photoshop.svg',
+      fallbackIcon: Palette
+    },
+    {
+      id: 'premiere',
+      name: 'Premiere',
+      iconUrl: '/images/dock-premiere.svg',
+      fallbackIcon: Clapperboard
     },
     {
       id: 'gemini',
       name: 'Gemini',
-      category: 'AI',
       iconUrl: 'https://cdn.jsdelivr.net/gh/bmistri321/Images-web@main/soft-img-gemini.svg',
-      fallbackIcon: Sparkles,
-      desc: 'Multimodal research and rapid concept iteration'
-    },
-    {
-      id: 'raycast',
-      name: 'Raycast',
-      category: 'Productivity',
-      iconUrl: 'https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/svg/raycast.svg',
-      fallbackIcon: Search,
-      desc: 'Keyboard launcher, clipboard history, snippets & window management'
-    },
-    {
-      id: 'linear',
-      name: 'Linear',
-      category: 'Management',
-      iconUrl: 'https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/svg/linear.svg',
-      fallbackIcon: CheckSquare,
-      desc: 'Issue tracking, roadmaps, and sprint execution'
-    },
-    {
-      id: 'notion',
-      name: 'Notion',
-      category: 'Notes',
-      iconUrl: 'https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/svg/notion.svg',
-      fallbackIcon: FileText,
-      desc: 'Product specs, design documentation & knowledge base'
-    },
-    {
-      id: 'spotify',
-      name: 'Spotify',
-      category: 'Media',
-      iconUrl: 'https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/svg/spotify.svg',
-      fallbackIcon: Music,
-      desc: 'Lo-fi beats, ambient synthwave and focus playlists'
+      fallbackIcon: Sparkles
     }
   ];
-
   // Rendered icon size (40px desktop, 34px on small screens via CSS).
   const iconSize = () => iconRefs.current[0]?.offsetWidth || 40;
   // Tighter gap on small screens so all 10 icons still fit.
@@ -220,7 +198,7 @@ export default function MacDock() {
                   className="mac-dock-icon-mag"
                   ref={(el) => { magRefs.current[index] = el; }}
                 >
-                  {isFailed ? (
+                  {(!app.iconUrl || isFailed) ? (
                     <span className="mac-dock-icon-fallback">
                       <FallbackIcon size={28} />
                     </span>
