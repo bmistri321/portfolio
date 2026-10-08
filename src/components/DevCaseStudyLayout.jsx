@@ -22,10 +22,10 @@ export default function DevCaseStudyLayout({
   const settleTimerRef = useRef(null);
   // Which TOC item was clicked (ground truth for where a click-scroll ends).
   const clickedIdRef = useRef(null);
-  // Brief shield after a click settles: { id, until }. A trailing observer
-  // callback firing right after the scroll stopped must not steal the
-  // clicked highlight back (e.g. the bottom guard at max scroll).
-  const shieldRef = useRef(null);
+  // The clicked item stays highlighted until the user scrolls on their own.
+  // Late layout shifts (lazy images finishing) must not hand the highlight
+  // to another section after the click settled.
+  const stickyClickRef = useRef(null);
 
   const clearSettleTimer = () => {
     if (settleTimerRef.current) {
@@ -170,12 +170,21 @@ export default function DevCaseStudyLayout({
 
     const observerCallback = () => {
       if (pendingClickRef.current) return;
-      const shield = shieldRef.current;
-      if (shield && Date.now() < shield.until) {
-        setActiveSection(shield.id);
-        return;
+      const sheetEl = sheetRef.current;
+      const stickyId = stickyClickRef.current;
+      if (stickyId && sheetEl) {
+        const el = document.getElementById(stickyId);
+        const pr = sheetEl.getBoundingClientRect();
+        const r = el ? el.getBoundingClientRect() : null;
+        // Hold the clicked highlight while its section is around the
+        // viewport. If the user moved far away by other means (e.g.
+        // dragging the scrollbar), release it to the scroll-spy.
+        if (r && r.bottom >= pr.top - pr.height && r.top <= pr.bottom + pr.height) {
+          setActiveSection(stickyId);
+          return;
+        }
+        stickyClickRef.current = null;
       }
-      if (shield) shieldRef.current = null;
       const id = computeActiveSection();
       if (id) setActiveSection(id);
     };
@@ -198,6 +207,38 @@ export default function DevCaseStudyLayout({
 
   // Clear any pending settle timer on unmount.
   useEffect(() => () => clearSettleTimer(), []);
+
+  // A real user scroll releases the clicked highlight (and cancels an
+  // in-flight click smooth-scroll) so the scroll-spy follows them again.
+  // Wheel / touch / scroll-keys are genuine user intent; the programmatic
+  // click-scroll never produces them.
+  useEffect(() => {
+    const sheetEl = sheetRef.current;
+    if (!sheetEl) return;
+    const handleUserScrollIntent = () => {
+      if (pendingClickRef.current) {
+        clearSettleTimer();
+        pendingClickRef.current = false;
+        clickedIdRef.current = null;
+      }
+      stickyClickRef.current = null;
+    };
+    const handleKey = (e) => {
+      if (
+        ['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', ' '].includes(e.key)
+      ) {
+        handleUserScrollIntent();
+      }
+    };
+    sheetEl.addEventListener('wheel', handleUserScrollIntent, { passive: true });
+    sheetEl.addEventListener('touchstart', handleUserScrollIntent, { passive: true });
+    document.addEventListener('keydown', handleKey);
+    return () => {
+      sheetEl.removeEventListener('wheel', handleUserScrollIntent);
+      sheetEl.removeEventListener('touchstart', handleUserScrollIntent);
+      document.removeEventListener('keydown', handleKey);
+    };
+  }, [sections]);
 
   // 5. Scroll Reveal Animation for Content & Visuals
   useEffect(() => {
@@ -249,7 +290,7 @@ export default function DevCaseStudyLayout({
     // ignores everything while pending, then the settled geometry decides.
     pendingClickRef.current = true;
     clickedIdRef.current = id;
-    shieldRef.current = null;
+    stickyClickRef.current = null;
     clearSettleTimer();
     const sheet = sheetRef.current;
     const el = document.getElementById(id);
@@ -291,8 +332,10 @@ export default function DevCaseStudyLayout({
         if (!finalId) finalId = computeActiveSection();
         if (finalId) {
           setActiveSection(finalId);
+          // The click sticks: keep this highlight until the user scrolls
+          // on their own, so late layout shifts can't steal it.
           if (clickedId && finalId === clickedId) {
-            shieldRef.current = { id: clickedId, until: Date.now() + 800 };
+            stickyClickRef.current = clickedId;
           }
         }
       }
