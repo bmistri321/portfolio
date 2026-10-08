@@ -31,6 +31,7 @@ export default function ContentListPage({
   onPreview
 }) {
   const [items, setItems] = useState([]);
+  const [editingTitleId, setEditingTitleId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [typeFilter, setTypeFilter] = useState(defaultType);
   const [statusFilter, setStatusFilter] = useState('all');
@@ -94,6 +95,21 @@ export default function ContentListPage({
         loadContent();
     } catch (err) {
       alert(`Action failed: ${err.message}`);
+    }
+  };
+
+  // Inline title edit for writing rows (they have no Edit button in the list).
+  const handleTitleChange = async (item, value) => {
+    const newTitle = (value || '').trim();
+    setEditingTitleId(null);
+    if (!newTitle || newTitle === item.title) return;
+    const prevTitle = item.title;
+    setItems((prev) => prev.map((it) => (it.id === item.id ? { ...it, title: newTitle } : it)));
+    try {
+      await contentService.update(item.id, { title: newTitle });
+    } catch (err) {
+      setItems((prev) => prev.map((it) => (it.id === item.id ? { ...it, title: prevTitle } : it)));
+      alert(`Could not save the title: ${err.message}`);
     }
   };
 
@@ -443,13 +459,27 @@ export default function ContentListPage({
                           </div>
                         )}
                         <div>
-                          <a
-                            href={`/admin/content/${item.id}`}
-                            onClick={(e) => { e.preventDefault(); onNavigate(`/admin/content/${item.id}`); }}
-                            className="admin-item-title"
-                          >
-                            {item.title}
-                          </a>
+                          {item.type === 'writing' && editingTitleId === item.id ? (
+                            <input
+                              autoFocus
+                              type="text"
+                              className="admin-form-input admin-title-inline-input"
+                              defaultValue={item.title}
+                              onBlur={(e) => handleTitleChange(item, e.target.value)}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') e.currentTarget.blur();
+                                if (e.key === 'Escape') setEditingTitleId(null);
+                              }}
+                            />
+                          ) : (
+                            <a
+                              href={`/admin/content/${item.id}`}
+                              onClick={(e) => { e.preventDefault(); onNavigate(`/admin/content/${item.id}`); }}
+                              className="admin-item-title"
+                            >
+                              {item.title}
+                            </a>
+                          )}
                         </div>
                       </div>
                     </td>
@@ -554,6 +584,16 @@ export default function ContentListPage({
                         )}
 
                         </>)}
+                        {isWriting && (
+                          <button
+                            type="button"
+                            className="admin-btn admin-btn-ghost admin-btn-sm"
+                            onClick={() => setEditingTitleId(item.id)}
+                            title="Edit title"
+                          >
+                            <FileEdit size={13} />
+                          </button>
+                        )}
                         <button
                           type="button"
                           className="admin-btn admin-btn-ghost admin-btn-sm"

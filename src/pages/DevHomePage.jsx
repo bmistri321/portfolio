@@ -15,6 +15,13 @@ import InteractiveGlobe from '../components/InteractiveGlobe';
 import { playUiSound, isSoundEnabled, setSoundEnabled } from '../utils/sound';
 import { contentService, CONTENT_LIST_SELECT } from '../lib/contentService';
 
+// A pasted link may miss its scheme — make it safe to open in a new tab.
+const normalizeExternalUrl = (u) => {
+  const t = (u || '').trim();
+  if (!t) return '';
+  return /^https?:\/\//i.test(t) ? t : `https://${t}`;
+};
+
 export default function DevHomePage({ onNavigate }) {
   const [activeTab, setActiveTab] = useState('work');
   const [cmsItems, setCmsItems] = useState([]);
@@ -110,9 +117,9 @@ export default function DevHomePage({ onNavigate }) {
       year: i.metadata?.year || new Date(i.published_at || i.created_at).getFullYear().toString(),
       date: i.metadata?.date || new Date(i.published_at || i.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
       metric: i.excerpt || i.metadata?.subtitle || 'Long-form editorial essay',
-      // Writings linked to Medium open the Medium article in a new tab
-      // instead of the internal article page.
-      url: i.metadata?.medium?.url || i.metadata?.projectUrl || i.metadata?.external_url || i.metadata?.link || `/casestudy/${i.slug}`
+      // Writings with an external link (any pasted URL, or the Medium article)
+      // open it in a new tab instead of the internal article page.
+      url: normalizeExternalUrl(i.metadata?.external_url) || i.metadata?.medium?.url || i.metadata?.projectUrl || i.metadata?.link || `/casestudy/${i.slug}`
     }));
 
 

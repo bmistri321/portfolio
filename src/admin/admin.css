@@ -870,6 +870,15 @@
   font-size: 13px;
 }
 
+/* Inline title input in the content list (writing rows) */
+.admin-title-inline-input {
+  width: 100%;
+  min-width: 200px;
+  padding: 6px 8px;
+  font-size: 13.5px;
+  font-weight: 500;
+}
+
 /* Media Library Grid */
 .admin-media-grid {
   display: grid;

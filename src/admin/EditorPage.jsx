@@ -1322,6 +1322,19 @@ export default function EditorPage({
             </div>
           )}
 
+          {formData.type === 'writing' && (
+            <div className="admin-form-group">
+              <label className="admin-form-label">Link</label>
+              <input
+                type="text"
+                className="admin-form-input"
+                placeholder="https://…"
+                value={formData.metadata?.external_url || ''}
+                onChange={(e) => handleMetadataField('external_url', e.target.value)}
+              />
+            </div>
+          )}
+
           <div className="admin-form-group">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
               <label className="admin-form-label">SEO Title</label>
