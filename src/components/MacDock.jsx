@@ -17,7 +17,8 @@ import {
 const MAGNIFY_PEAK = 1.7;    // max icon scale right under the cursor
 const MAGNIFY_RANGE = 2.2;   // falloff range, measured in icon pitches
 const MAGNIFY_LIFT = 6;      // px the icon rises at peak scale
-const ICON_GAP = 8;          // px gap between icons at rest scale
+const ICON_GAP = 14;          // px gap between icons at rest scale (desktop)
+const ICON_GAP_SMALL = 8;    // px gap on small screens (icons render at 34px)
 const SHELF_PAD_X = 10;      // px horizontal padding inside the glass bar
 
 export default function MacDock() {
@@ -112,6 +113,8 @@ export default function MacDock() {
 
   // Rendered icon size (40px desktop, 34px on small screens via CSS).
   const iconSize = () => iconRefs.current[0]?.offsetWidth || 40;
+  // Tighter gap on small screens so all 10 icons still fit.
+  const iconGap = (size) => (size >= 40 ? ICON_GAP : ICON_GAP_SMALL);
 
   // Lay out the dock for the given per-icon scales: each icon is centered on
   // its scaled slot, so icons push apart as they grow (like the real macOS
@@ -121,15 +124,16 @@ export default function MacDock() {
     const shelf = shelfRef.current;
     if (!shelf) return;
     const size = iconSize();
+    const gap = iconGap(size);
     const widths = scales.map((s) => size * s);
-    const total = widths.reduce((a, b) => a + b, 0) + ICON_GAP * (scales.length - 1);
+    const total = widths.reduce((a, b) => a + b, 0) + gap * (scales.length - 1);
     shelf.style.width = `${total + SHELF_PAD_X * 2}px`;
     let x = SHELF_PAD_X;
     widths.forEach((w, i) => {
       const outer = iconRefs.current[i];
       // outer box is `size` wide; offset so the scaled artwork centers on its slot
       if (outer) outer.style.left = `${x + (w - size) / 2}px`;
-      x += w + ICON_GAP;
+      x += w + gap;
     });
   };
 
@@ -157,13 +161,14 @@ export default function MacDock() {
     if (!shelf) return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const size = iconSize();
-    const pitch = size + ICON_GAP;
+    const gap = iconGap(size);
+    const pitch = size + gap;
     const n = dockApps.length;
     // Measure the cursor against where the UNMAGNIFIED shelf sits (centered in
     // the stable wrapper) — the live shelf widens as icons grow, so measuring
     // from its live edge would make the wave trail the cursor.
     const wrapperRect = shelf.parentElement.getBoundingClientRect();
-    const baseShelfW = n * size + ICON_GAP * (n - 1) + SHELF_PAD_X * 2;
+    const baseShelfW = n * size + gap * (n - 1) + SHELF_PAD_X * 2;
     const baseShelfLeft = wrapperRect.left + (wrapperRect.width - baseShelfW) / 2;
     const x = clientX - baseShelfLeft;
     const scales = dockApps.map((_, i) => {
