@@ -34,7 +34,7 @@ export default function DevCaseStudyPage({ onNavigate }) {
   }, []);
 
   return (
-    <div className="dev-page-animate">
+    <div className="dev-page-animate dev-page-bounce">
       <header className="cs-header">
         <button
           className="cs-back-btn"

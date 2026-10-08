@@ -904,6 +904,17 @@ body {
   animation: devFadeIn 0.35s ease forwards;
 }
 
+/* Springy landing when a project page opens — settles at the top with a bounce */
+.dev-page-bounce {
+  animation: devBounceIn 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+@keyframes devBounceIn {
+  0% { opacity: 0; transform: translateY(34px); }
+  55% { opacity: 1; transform: translateY(-7px); }
+  78% { opacity: 1; transform: translateY(4px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
 /* Ambient viewport edge washes (workbench home) */
 .dev-edge-fade-top {
   position: fixed;
