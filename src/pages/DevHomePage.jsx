@@ -362,6 +362,16 @@ export default function DevHomePage({ onNavigate }) {
                 <div className="dev-card-img-box">
                   <FrienderCoverAnim />
                 </div>
+              ) : project.slug === 'wexa' ? (
+                <div className="dev-card-img-box">
+                  <img
+                    src="/images/wexa-cover.svg"
+                    alt={project.title}
+                    loading="lazy"
+                    decoding="async"
+                    className="dev-card-img"
+                  />
+                </div>
               ) : project.image ? (
                 <div className="dev-card-img-box">
                   <img
