@@ -108,7 +108,6 @@
   padding-top: 2.4cqw;
   min-height: 0;
 }
-.fri-doc-text,
 .fri-doc-skel,
 .fri-doc-typed {
   position: absolute;
@@ -116,11 +115,23 @@
   margin: 0;
   transition: opacity 0.7s ease;
 }
-.fri-doc-text {
-  font-size: 3.3cqw;
-  line-height: 1.75;
-  color: #3c3c44;
+/* blinking blue caret in the empty editor before generation starts */
+.fri-doc-idle-caret {
+  position: absolute;
+  top: 2.4cqw;
+  left: 0;
+  width: 0.55cqw;
+  height: 3.8cqw;
+  border-radius: 0.3cqw;
+  background: #2f7cf6;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  animation: fri-blink 1.1s steps(1) infinite;
 }
+.fri-root[data-phase="idle"] .fri-doc-idle-caret,
+.fri-root[data-phase="approach"] .fri-doc-idle-caret,
+.fri-root[data-phase="click"] .fri-doc-idle-caret,
+.fri-root[data-phase="working"] .fri-doc-idle-caret { opacity: 1; }
 .fri-doc-skel { opacity: 0; display: flex; flex-direction: column; gap: 1.9cqw; }
 .fri-doc-skel span {
   display: block;
@@ -153,11 +164,7 @@
 @keyframes fri-blink { 50% { opacity: 0; } }
 
 /* phase visibility */
-.fri-root[data-phase="skeleton"] .fri-doc-text { opacity: 0; }
 .fri-root[data-phase="skeleton"] .fri-doc-skel { opacity: 1; }
-.fri-root[data-phase="typing"] .fri-doc-text,
-.fri-root[data-phase="hold"] .fri-doc-text,
-.fri-root[data-phase="static"] .fri-doc-text { opacity: 0; }
 .fri-root[data-phase="typing"] .fri-doc-typed,
 .fri-root[data-phase="hold"] .fri-doc-typed,
 .fri-root[data-phase="static"] .fri-doc-typed { opacity: 1; }

@@ -145,10 +145,7 @@ export default function FrienderCoverAnim() {
               </button>
             </div>
             <div className="fri-doc">
-              <p className="fri-doc-text">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod
-                tempor incididunt ut labore et dolore magna aliqua enim ad minim.
-              </p>
+              <span className="fri-doc-idle-caret" />
               <div className="fri-doc-skel">
                 <span style={{ width: '96%' }} />
                 <span style={{ width: '89%' }} />
