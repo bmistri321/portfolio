@@ -15,11 +15,38 @@ export default function DevCaseStudyLayout({
   const [showScrollTop, setShowScrollTop] = useState(false);
   const sheetRef = useRef(null);
   const articleRef = useRef(null);
-  // While a TOC click is smooth-scrolling, the scroll-spy must not override
-  // the clicked item (the sensor band sits below the landing position, so it
-  // would otherwise highlight the *next* section).
-  const spyLockRef = useRef(false);
-  const spyUnlockTimerRef = useRef(null);
+  // While a TOC click is smooth-scrolling, the clicked item is the ground
+  // truth — the scroll-spy holds it until the sheet stops scrolling, then
+  // re-derives the active section from the settled geometry.
+  const pendingClickRef = useRef(false);
+  const settleTimerRef = useRef(null);
+
+  const clearSettleTimer = () => {
+    if (settleTimerRef.current) {
+      clearInterval(settleTimerRef.current);
+      settleTimerRef.current = null;
+    }
+  };
+
+  // Geometric scroll-spy: the active item is the last section whose top has
+  // reached near the top of the viewport. Includes a bottom guard so the
+  // final (often short) section stays active at max scroll.
+  const computeActiveSection = () => {
+    const rootEl = sheetRef.current;
+    if (!rootEl || !sections.length) return null;
+    if (rootEl.scrollTop + rootEl.clientHeight >= rootEl.scrollHeight - 2) {
+      return sections[sections.length - 1].id;
+    }
+    const line = rootEl.getBoundingClientRect().top + 120;
+    let current = sections[0].id;
+    sections.forEach((sec) => {
+      const el = document.getElementById(sec.id);
+      if (el && el.getBoundingClientRect().top <= line) {
+        current = sec.id;
+      }
+    });
+    return current;
+  };
 
   // Swap native video controls for the designed player on article videos.
   useEffect(() => {
@@ -129,25 +156,16 @@ export default function DevCaseStudyLayout({
   }, [isClosing]);
 
   // 4. Active Section Detection via IntersectionObserver.
-  // Geometric scroll-spy: the active item is the last section whose top has
-  // reached the sensor band. This stays correct for short sections, where the
-  // following section would otherwise steal the highlight.
+  // The observer only decides *when* to re-evaluate; the geometric
+  // computation decides *which* section is active. While a TOC click is
+  // scrolling, the clicked item is held.
   useEffect(() => {
     if (!sections.length || !sheetRef.current) return;
 
     const observerCallback = () => {
-      if (spyLockRef.current) return;
-      const rootEl = sheetRef.current;
-      if (!rootEl) return;
-      const bandTop = rootEl.getBoundingClientRect().top + rootEl.clientHeight * 0.1;
-      let current = sections[0].id;
-      sections.forEach((sec) => {
-        const el = document.getElementById(sec.id);
-        if (el && el.getBoundingClientRect().top <= bandTop + 1) {
-          current = sec.id;
-        }
-      });
-      setActiveSection(current);
+      if (pendingClickRef.current) return;
+      const id = computeActiveSection();
+      if (id) setActiveSection(id);
     };
 
     const observerOptions = {
@@ -165,6 +183,9 @@ export default function DevCaseStudyLayout({
 
     return () => observer.disconnect();
   }, [sections]);
+
+  // Clear any pending settle timer on unmount.
+  useEffect(() => () => clearSettleTimer(), []);
 
   // 5. Scroll Reveal Animation for Content & Visuals
   useEffect(() => {
@@ -212,21 +233,11 @@ export default function DevCaseStudyLayout({
   const scrollToSection = (id) => {
     playUiSound('tab');
     setActiveSection(id);
-    // Lock the scroll-spy until the smooth scroll settles, so intermediate
-    // sections passing through the sensor band can't steal the highlight.
-    spyLockRef.current = true;
-    if (spyUnlockTimerRef.current) clearTimeout(spyUnlockTimerRef.current);
+    // Hold the clicked item until the sheet stops scrolling: the scroll-spy
+    // ignores everything while pending, then the settled geometry decides.
+    pendingClickRef.current = true;
+    clearSettleTimer();
     const sheet = sheetRef.current;
-    const unlockSpy = () => {
-      spyLockRef.current = false;
-      if (sheet) sheet.removeEventListener('scrollend', unlockSpy);
-      if (spyUnlockTimerRef.current) {
-        clearTimeout(spyUnlockTimerRef.current);
-        spyUnlockTimerRef.current = null;
-      }
-    };
-    if (sheet) sheet.addEventListener('scrollend', unlockSpy, { once: true });
-    spyUnlockTimerRef.current = setTimeout(unlockSpy, 1000);
     const el = document.getElementById(id);
     if (el) {
       const isReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -234,9 +245,23 @@ export default function DevCaseStudyLayout({
         behavior: isReduced ? 'auto' : 'smooth',
         block: 'start'
       });
-    } else {
-      unlockSpy();
     }
+    let lastTop = sheet ? sheet.scrollTop : -1;
+    let stableTicks = 0;
+    settleTimerRef.current = setInterval(() => {
+      const top = sheet ? sheet.scrollTop : -1;
+      if (top === lastTop) stableTicks += 1;
+      else {
+        stableTicks = 0;
+        lastTop = top;
+      }
+      if (stableTicks >= 2) {
+        clearSettleTimer();
+        pendingClickRef.current = false;
+        const finalId = computeActiveSection();
+        if (finalId) setActiveSection(finalId);
+      }
+    }, 120);
   };
 
   const handleBackdropClick = (e) => {
