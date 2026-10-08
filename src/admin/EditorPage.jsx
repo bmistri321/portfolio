@@ -106,6 +106,7 @@ export default function EditorPage({
   const [imageLinkUrl, setImageLinkUrl] = useState('');
   const [imageLinkBusy, setImageLinkBusy] = useState(false);
   const [imageLinkError, setImageLinkError] = useState('');
+  const [imageLinkIndex, setImageLinkIndex] = useState(null);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [slugStatus, setSlugStatus] = useState({ checked: false, isUnique: true, msg: '' });
   const [quotePopup, setQuotePopup] = useState(null); // { index } — pending quote insertion
@@ -637,7 +638,7 @@ export default function EditorPage({
       const file = new File([blob], filenameFromImageUrl(url, ct), { type: ct });
       setImageLinkOpen(false);
       setImageLinkUrl('');
-      await articleRef.current?.insertImageFile(file, null);
+      await articleRef.current?.insertImageFile(file, imageLinkIndex);
     } catch (err) {
       setImageLinkError(err.message || 'Could not fetch that image.');
     } finally {
@@ -859,13 +860,11 @@ export default function EditorPage({
                     if (files.length) articleRef.current?.insertFiles(null, files);
                   }}
                   onClick={() => {
-                    if (kind === 'divider') articleRef.current?.insertDivider(null);
-                    else if (kind === 'text') articleRef.current?.insertText(null);
-                    else if (kind === 'quote') articleRef.current?.requestQuote(null);
-                    else if (kind === 'image') { setImageLinkError(''); setImageLinkOpen(true); }
-                    else articleRef.current?.pickFiles(kind, null);
+                    // Clicking a tile does nothing — drag it into the document
+                    // first to choose the position, then the popup/file picker
+                    // asks how to proceed.
                   }}
-                  title={kind === 'divider' ? 'Click to insert a divider line' : kind === 'text' ? 'Drag into the document or click to insert a text paragraph' : kind === 'quote' ? 'Drag into the document or click, then choose Positive or Negative' : 'Drag into the document, click to upload, or drop files here'}
+                  title="Drag into the document, then choose how to insert it"
                 >
                   <span className="admin-insert-tile-icon">
                     <Icon size={16} />
@@ -877,7 +876,7 @@ export default function EditorPage({
                 </div>
               ))}
             </div>
-            <p className="admin-insert-panel-note">Drag into the document, click to insert, or drop files onto a tile.</p>
+            <p className="admin-insert-panel-note">Drag a tile into the document, or drop files onto a tile.</p>
           </aside>
         )}
         <div className="admin-editor-canvas">
@@ -1314,6 +1313,7 @@ export default function EditorPage({
                   value={formData.content || ''}
                   onChange={(html) => handleFieldChange('content', html)}
                   onRequestQuote={(idx) => setQuotePopup({ index: idx })}
+                  onRequestImage={(idx) => { setImageLinkIndex(idx); setImageLinkError(''); setImageLinkOpen(true); }}
                   placeholder="Write the case study… Use the Insert panel for text, images, video, GIFs or dividers."
                 />
               </div>
@@ -1477,7 +1477,7 @@ export default function EditorPage({
                 className="admin-btn admin-btn-ghost"
                 style={{ width: '100%', justifyContent: 'center', marginBottom: '6px' }}
                 disabled={imageLinkBusy}
-                onClick={() => { closeImageLink(); articleRef.current?.pickFiles('image', null); }}
+                onClick={() => { closeImageLink(); articleRef.current?.pickFiles('image', imageLinkIndex); }}
               >
                 <UploadCloud size={15} />
                 <span>Upload from device</span>

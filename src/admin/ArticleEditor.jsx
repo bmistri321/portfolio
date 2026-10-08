@@ -153,9 +153,11 @@ function kindOfFile(file) {
 // Type text, select for the floating toolbar, press "/" for image/video/GIF,
 // or drag options in from the Insert panel.
 // ---------------------------------------------------------------------------
-const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, placeholder, onRequestQuote }, ref) {
+const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, placeholder, onRequestQuote, onRequestImage }, ref) {
   const onRequestQuoteRef = useRef(onRequestQuote);
   onRequestQuoteRef.current = onRequestQuote;
+  const onRequestImageRef = useRef(onRequestImage);
+  onRequestImageRef.current = onRequestImage;
   const wrapRef = useRef(null);
   const containerRef = useRef(null);
   const quillRef = useRef(null);
@@ -387,6 +389,13 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
       return;
     }
     if (onRequestQuoteRef.current) onRequestQuoteRef.current(idx);
+  };
+
+  // Image tile: position is resolved by the drag-drop first; the popup
+  // (upload from device vs paste link) is then requested via EditorPage.
+  const requestImageAt = (index) => {
+    const idx = clampIndex(index ?? cursorIndex());
+    if (onRequestImageRef.current) onRequestImageRef.current(idx);
   };
 
   const insertDividerAt = (index) => {
@@ -628,6 +637,8 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
       requestQuoteAt(idx);
     } else if (kind === 'text') {
       insertTextAt(idx);
+    } else if (kind === 'image') {
+      requestImageAt(idx);
     } else if (kind) {
       pickFilesAt(kind, idx);
     } else if (files.length > 0) {
