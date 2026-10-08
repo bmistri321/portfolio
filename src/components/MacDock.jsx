@@ -209,7 +209,6 @@ export default function MacDock() {
                   )}
                 </div>
                 <span className="dock-tooltip">{app.name}</span>
-                <span className="mac-dock-indicator" />
               </div>
             );
           })}
