@@ -8,7 +8,8 @@ export default function DevCaseStudyLayout({
   meta,
   heroVisual,
   sections = [],
-  onNavigate
+  onNavigate,
+  sourceLink = null
 }) {
   const [activeSection, setActiveSection] = useState(sections[0]?.id || 'introduction');
   const [isClosing, setIsClosing] = useState(false);
@@ -405,6 +406,14 @@ export default function DevCaseStudyLayout({
             <header className="dev-reveal" style={{ marginBottom: '32px' }}>
               <h1 className="dev-detail-title">{title}</h1>
               {meta && <div className="dev-detail-meta">{meta}</div>}
+              {sourceLink?.url && (
+                <div className="dev-detail-source">
+                  Originally published on{' '}
+                  <a href={sourceLink.url} target="_blank" rel="noopener">
+                    {sourceLink.label || 'Medium'}
+                  </a>
+                </div>
+              )}
             </header>
 
             {/* Hero Visual Mockup */}

@@ -221,6 +221,7 @@ function RichArticle({ item, onNavigate }) {
       })();
 
   const readTime = md.readingTime || calculateReadingTime(item.content);
+  const mediumUrl = md.medium?.url;
 
   return (
     <DevCaseStudyLayout
@@ -233,6 +234,7 @@ function RichArticle({ item, onNavigate }) {
       }
       sections={sections}
       onNavigate={onNavigate}
+      sourceLink={mediumUrl ? { url: mediumUrl, label: 'Medium' } : null}
     />
   );
 }

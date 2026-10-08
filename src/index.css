@@ -1512,6 +1512,16 @@ body {
   margin-bottom: 22px;
   font-weight: 400;
 }
+.dev-detail-source {
+  font-size: 12.5px;
+  color: var(--dev-text-3);
+  margin: -12px 0 0;
+}
+.dev-detail-source a {
+  color: var(--dev-pink);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
 
 .dev-detail-p {
   font-size: 14px;
