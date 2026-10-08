@@ -224,14 +224,16 @@ export default function ContentListPage({
           <p className="admin-page-subtitle">{subtitle}</p>
         </div>
 
-        <button
-          type="button"
-          className="admin-btn admin-btn-primary"
-          onClick={() => onNavigate(`/admin/content/new?type=${typeFilter === 'all' || typeFilter === 'archive' ? 'work' : typeFilter}`)}
-        >
-          <Plus size={16} />
-          <span>New {typeFilter === 'all' || typeFilter === 'archive' ? 'Piece' : typeFilter.charAt(0).toUpperCase() + typeFilter.slice(1)}</span>
-        </button>
+        {!isWriting && (
+          <button
+            type="button"
+            className="admin-btn admin-btn-primary"
+            onClick={() => onNavigate(`/admin/content/new?type=${typeFilter === 'all' || typeFilter === 'archive' ? 'work' : typeFilter}`)}
+          >
+            <Plus size={16} />
+            <span>New {typeFilter === 'all' || typeFilter === 'archive' ? 'Piece' : typeFilter.charAt(0).toUpperCase() + typeFilter.slice(1)}</span>
+          </button>
+        )}
       </div>
 
       {/* Medium quick-import (Writing list only) */}
