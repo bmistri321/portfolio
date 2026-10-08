@@ -846,8 +846,8 @@ body {
   --dev-card-border: #e5e7eb;
   --dev-tab-bg: #f3f4f6;
   --dev-tab-text: #4b5563;
-  --dev-pink: #e11d48;
-  --dev-pink-hover: #be123c;
+  --dev-pink: #a333ff;
+  --dev-pink-hover: #8a2be2;
   --dev-row-hover: #f4f4f6;
   --dev-card-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
 }
@@ -863,9 +863,9 @@ body {
   --dev-card-border: #27272a;
   --dev-tab-bg: #1c1c20;
   --dev-tab-text: #a1a1aa;
-  --dev-pink: #fb7185;
+  --dev-pink: #c084fc;
   --dev-row-hover: #17171b;
-  --dev-pink-hover: #f43f5e;
+  --dev-pink-hover: #a855f7;
   --dev-card-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1), 0 2px 4px rgba(0, 0, 0, 0.4);
 }
 
