@@ -1,0 +1,260 @@
+/* Animated cover for the Friender work card — minimal replica of the
+   post editor. Gentle, slow motion; loops only while visible. */
+.fri-root {
+  width: 100%;
+  height: 100%;
+  container-type: inline-size;
+  pointer-events: none;
+  user-select: none;
+  background: #fbfbfc;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+.fri-stage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  transition: opacity 0.9s ease;
+}
+.fri-root[data-phase="reset"] .fri-stage { opacity: 0; }
+
+/* ---------- top mini bar ---------- */
+.fri-topbar {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 11%;
+  background: #fff;
+  border-bottom: 1px solid #ececf0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 4%;
+}
+.fri-cmd {
+  font-size: 4.6cqw;
+  color: #b9b9c1;
+  letter-spacing: 0.06em;
+}
+.fri-top-spark {
+  width: 6.4cqw;
+  height: 6.4cqw;
+  color: #2f7cf6;
+  display: block;
+}
+
+/* ---------- main split ---------- */
+.fri-main {
+  position: absolute;
+  top: 11%; left: 0; right: 0; bottom: 0;
+  display: flex;
+  padding: 3.4%;
+  gap: 3.4%;
+}
+
+/* ---------- editor ---------- */
+.fri-editor {
+  flex: 1 1 0;
+  background: #fff;
+  border: 1px solid #e7e7ec;
+  border-radius: 1.8cqw;
+  padding: 2.8cqw;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.fri-editor-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2.4cqw;
+}
+.fri-doc-name {
+  font-size: 3.3cqw;
+  color: #a2a2ab;
+}
+
+/* AI Writing button — the hero of the scene */
+.fri-ai-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 1.2cqw;
+  border: 0;
+  cursor: none;
+  background: #2f7cf6;
+  color: #fff;
+  font-size: 3.2cqw;
+  font-weight: 600;
+  padding: 1.5cqw 2.8cqw;
+  border-radius: 999px;
+  box-shadow: 0 0 0 3px rgba(47, 124, 246, 0.14), 0 2px 10px rgba(47, 124, 246, 0.35);
+  transition: box-shadow 0.5s ease, transform 0.25s ease;
+  overflow: visible;
+  font-family: inherit;
+}
+.fri-spark { width: 3.6cqw; height: 3.6cqw; flex: none; }
+
+/* click ripple */
+.fri-ripple {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  border: 2px solid #2f7cf6;
+  opacity: 0;
+  pointer-events: none;
+}
+.fri-root[data-phase="click"] .fri-ripple { animation: fri-ripple 0.7s ease-out forwards; }
+@keyframes fri-ripple {
+  from { transform: scale(1); opacity: 0.8; }
+  to { transform: scale(2.1); opacity: 0; }
+}
+
+/* working state — slow breathing glow + lazy sparkle spin */
+.fri-root[data-phase="working"] .fri-ai-btn,
+.fri-root[data-phase="skeleton"] .fri-ai-btn {
+  animation: fri-btn-breathe 2.4s ease-in-out infinite;
+}
+@keyframes fri-btn-breathe {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(47,124,246,.14), 0 2px 10px rgba(47,124,246,.35); }
+  50% { box-shadow: 0 0 0 6px rgba(47,124,246,.10), 0 2px 18px rgba(47,124,246,.55); }
+}
+.fri-root[data-phase="working"] .fri-spark,
+.fri-root[data-phase="skeleton"] .fri-spark {
+  animation: fri-spark-spin 3.2s linear infinite;
+}
+@keyframes fri-spark-spin { to { transform: rotate(360deg); } }
+
+/* ---------- document / skeleton / typed ---------- */
+.fri-doc {
+  position: relative;
+  flex: 1;
+  border-top: 1px solid #f0f0f4;
+  padding-top: 2.4cqw;
+  min-height: 0;
+}
+.fri-doc-text,
+.fri-doc-skel,
+.fri-doc-typed {
+  position: absolute;
+  inset: 2.4cqw 0 0 0;
+  margin: 0;
+  transition: opacity 0.7s ease;
+}
+.fri-doc-text {
+  font-size: 3.3cqw;
+  line-height: 1.75;
+  color: #3c3c44;
+}
+.fri-doc-skel { opacity: 0; display: flex; flex-direction: column; gap: 1.9cqw; }
+.fri-doc-skel span {
+  display: block;
+  height: 2.3cqw;
+  border-radius: 1.2cqw;
+  background: linear-gradient(90deg, #ececf1 25%, #f7f7fa 50%, #ececf1 75%);
+  background-size: 200% 100%;
+  animation: fri-shimmer 2.8s linear infinite;
+}
+@keyframes fri-shimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+.fri-doc-typed {
+  opacity: 0;
+  font-size: 3.4cqw;
+  line-height: 1.8;
+  color: #1e1e26;
+  white-space: pre-line;
+}
+.fri-caret {
+  display: inline-block;
+  width: 0.5cqw;
+  height: 3.4cqw;
+  background: #2f7cf6;
+  margin-left: 0.6cqw;
+  vertical-align: -0.5cqw;
+  animation: fri-blink 1s steps(1) infinite;
+}
+@keyframes fri-blink { 50% { opacity: 0; } }
+
+/* phase visibility */
+.fri-root[data-phase="skeleton"] .fri-doc-text { opacity: 0; }
+.fri-root[data-phase="skeleton"] .fri-doc-skel { opacity: 1; }
+.fri-root[data-phase="typing"] .fri-doc-text,
+.fri-root[data-phase="hold"] .fri-doc-text,
+.fri-root[data-phase="static"] .fri-doc-text { opacity: 0; }
+.fri-root[data-phase="typing"] .fri-doc-typed,
+.fri-root[data-phase="hold"] .fri-doc-typed,
+.fri-root[data-phase="static"] .fri-doc-typed { opacity: 1; }
+.fri-root[data-phase="static"] .fri-caret { display: none; }
+
+/* ---------- settings side panel (minimal grey boxes) ---------- */
+.fri-side {
+  width: 31%;
+  flex: none;
+  min-width: 0;
+}
+.fri-side-title {
+  margin: 0 0 2.2cqw;
+  font-size: 3.9cqw;
+  font-weight: 700;
+  color: #1c1c22;
+}
+.fri-side-box {
+  background: #f1f2f5;
+  border-radius: 1.5cqw;
+  padding: 2.1cqw 2.2cqw;
+  margin-bottom: 1.9cqw;
+}
+.fri-side-box > span {
+  display: block;
+  font-size: 2.9cqw;
+  font-weight: 600;
+  color: #55555e;
+  margin-bottom: 1.4cqw;
+}
+.fri-chips { display: flex; gap: 1.2cqw; }
+.fri-chips i {
+  font-style: normal;
+  font-size: 2.6cqw;
+  font-weight: 500;
+  color: #77777f;
+  background: #e4e5ea;
+  border-radius: 1.6cqw;
+  padding: 0.9cqw 1.8cqw;
+}
+.fri-chips .chip-blue { background: #dbeafe; color: #2f7cf6; }
+.fri-chips .chip-lav { background: #e3dff7; color: #6d64c8; }
+.fri-chips .chip-peach { background: #fbe3d3; color: #b26a35; }
+.fri-bar {
+  height: 2.4cqw;
+  border-radius: 1.2cqw;
+  background: #e4e5ea;
+  width: 72%;
+}
+
+/* ---------- cursor ---------- */
+.fri-cursor {
+  position: absolute;
+  width: 7.5cqw;
+  height: 7.5cqw;
+  left: 6%;
+  top: 84%;
+  opacity: 0;
+  transform-origin: 12% 12%;
+  transition: left 2.4s cubic-bezier(0.45, 0, 0.2, 1),
+              top 2.4s cubic-bezier(0.45, 0, 0.2, 1),
+              opacity 0.5s ease,
+              transform 0.25s ease;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.25));
+  z-index: 5;
+}
+.fri-root[data-phase="click"] .fri-cursor { transform: scale(0.8); }
+.fri-root[data-phase="hold"] .fri-cursor {
+  transition: left 2.2s ease-in-out, top 2.2s ease-in-out, opacity 0.8s ease;
+}
+.fri-root[data-phase="static"] .fri-cursor { display: none; }
+
+/* inherit the card's hover zoom so it behaves like the old cover image */
+.dev-project-card:hover .fri-root { transform: scale(1.02); }
+.fri-root { transition: transform 0.5s ease; }
