@@ -10,6 +10,36 @@ import ImageMetaFields from './ImageMetaFields';
 // Custom <video> blot (real video tag — Quill's built-in video blot is iframe-only)
 // ---------------------------------------------------------------------------
 const BlockEmbed = Quill.import('blots/block/embed');
+
+// ---------------------------------------------------------------------------
+// Custom <img> blot that preserves alt text and data-caption across the
+// paste/load cycle. Quill's built-in image blot drops unknown attributes
+// when content is reloaded via dangerouslyPasteHTML, which wiped captions.
+// ---------------------------------------------------------------------------
+const QuillImage = Quill.import('formats/image');
+class ImageWithMeta extends QuillImage {
+  static create(value) {
+    const v = typeof value === 'string' ? { src: value } : (value || {});
+    const node = super.create(v.src || '');
+    if (v.alt) node.setAttribute('alt', v.alt);
+    if (v.caption) node.setAttribute('data-caption', v.caption);
+    // Also accept the raw attribute name in case a Delta carries it directly.
+    if (v['data-caption']) node.setAttribute('data-caption', v['data-caption']);
+    return node;
+  }
+  static value(node) {
+    return {
+      src: node.getAttribute('src'),
+      alt: node.getAttribute('alt') || '',
+      caption: node.getAttribute('data-caption') || '',
+    };
+  }
+}
+try {
+  Quill.register(ImageWithMeta, true);
+} catch {
+  /* already registered */
+}
 class ArticleVideoBlot extends BlockEmbed {
   static create(value) {
     const node = super.create();

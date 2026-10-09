@@ -89,7 +89,7 @@ function renderSectionBody(body) {
 const RICH_ALLOWED = {
   ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 's', 'a', 'ul', 'ol', 'li',
     'blockquote', 'h2', 'h3', 'img', 'figure', 'figcaption', 'video', 'source', 'hr', 'div'],
-  ALLOWED_ATTR: ['href', 'target', 'rel', 'src', 'alt', 'controls', 'preload', 'autoplay', 'muted', 'playsinline', 'loop', 'class', 'data-sentiment'],
+  ALLOWED_ATTR: ['href', 'target', 'rel', 'src', 'alt', 'data-caption', 'controls', 'preload', 'autoplay', 'muted', 'playsinline', 'loop', 'class', 'data-sentiment'],
 };
 
 // Makes repeat ids unique: foo, foo-2, foo-3… (duplicate headings otherwise
