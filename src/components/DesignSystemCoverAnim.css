@@ -24,18 +24,20 @@
   border-radius: 50%;
   background: var(--token);
   opacity: 0.35;
-  animation: ds-breathe 3.2s ease-in-out infinite;
-  animation-delay: calc(var(--i) * 0.4s);
+  animation: ds-breathe 4.5s ease-in-out infinite;
+  animation-delay: calc(var(--i) * 0.55s);
 }
 
 @keyframes ds-breathe {
   0%, 100% {
     opacity: 0.3;
-    transform: scale(1);
+    transform: scale(1) rotate(0deg);
+    border-radius: 50%;
   }
   50% {
     opacity: 1;
-    transform: scale(1.25);
+    transform: scale(1.2) rotate(90deg);
+    border-radius: 4px;
   }
 }
 
