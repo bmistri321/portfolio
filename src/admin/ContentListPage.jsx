@@ -92,6 +92,18 @@ export default function ContentListPage({
     }
   };
 
+  const handleLiveToggle = async (item) => {
+    const prevMetadata = item.metadata;
+    const nextMetadata = { ...(prevMetadata || {}), show_on_live: !(prevMetadata?.show_on_live !== false) };
+    setItems((prev) => prev.map((it) => (it.id === item.id ? { ...it, metadata: nextMetadata } : it)));
+    try {
+      await contentService.update(item.id, { metadata: nextMetadata });
+    } catch (err) {
+      setItems((prev) => prev.map((it) => (it.id === item.id ? { ...it, metadata: prevMetadata } : it)));
+      alert(`Could not update live visibility: ${err.message}`);
+    }
+  };
+
   const handleUnpublish = async (item) => {
     try {
         await contentService.unpublish(item.id);
@@ -478,6 +490,7 @@ export default function ContentListPage({
                 <th>{showYearColumn ? 'Year' : 'Featured'}</th>
                 <th>Published</th>
                 <th>Updated</th>
+                <th>Live</th>
                 <th style={{ textAlign: 'right' }}>Actions</th>
               </tr>
             </thead>
@@ -604,6 +617,40 @@ export default function ContentListPage({
                     </td>
                     <td>{formatDate(item.published_at)}</td>
                     <td>{formatDate(item.updated_at || item.created_at)}</td>
+                    <td>
+                      <button
+                        type="button"
+                        role="switch"
+                        aria-checked={item.metadata?.show_on_live !== false}
+                        title={item.metadata?.show_on_live !== false ? 'Visible on live site — click to hide' : 'Hidden on live site — click to show'}
+                        onClick={() => handleLiveToggle(item)}
+                        style={{
+                          width: '36px',
+                          height: '20px',
+                          borderRadius: '999px',
+                          border: 'none',
+                          cursor: 'pointer',
+                          padding: 0,
+                          background: item.metadata?.show_on_live !== false ? '#7c3aed' : '#d1d5db',
+                          position: 'relative',
+                          transition: 'background 0.2s ease',
+                        }}
+                      >
+                        <span
+                          style={{
+                            position: 'absolute',
+                            top: '2px',
+                            left: item.metadata?.show_on_live !== false ? '18px' : '2px',
+                            width: '16px',
+                            height: '16px',
+                            borderRadius: '50%',
+                            background: '#fff',
+                            boxShadow: '0 1px 3px rgba(0,0,0,0.3)',
+                            transition: 'left 0.2s ease',
+                          }}
+                        />
+                      </button>
+                    </td>
                     <td className="admin-actions-cell">
                       <div className="admin-actions-group">
                         {!isWriting && (
