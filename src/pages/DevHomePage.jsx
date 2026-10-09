@@ -44,7 +44,11 @@ export default function DevHomePage({ onNavigate }) {
     async function loadPublished() {
       try {
         const items = await contentService.getAll({ status: 'published', select: CONTENT_LIST_SELECT });
-        setCmsItems(items);
+        // Live site hides items toggled off in the admin; dev site shows all.
+        const host = typeof window !== 'undefined' ? window.location.hostname.toLowerCase() : '';
+        const isDevSite = host.includes('dev.') || host === 'localhost' || host === '127.0.0.1';
+        const visible = isDevSite ? items : items.filter((i) => i.metadata?.show_on_live !== false);
+        setCmsItems(visible);
       } catch (err) {
         console.warn('Could not load CMS items:', err);
       }

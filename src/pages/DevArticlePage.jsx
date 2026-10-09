@@ -323,7 +323,12 @@ export default function DevArticlePage({ slug, onNavigate }) {
     );
   }
 
-  if (failed || !item) {
+  // Hidden on the live site via the admin toggle (dev site shows all).
+  const host = typeof window !== 'undefined' ? window.location.hostname.toLowerCase() : '';
+  const isDevSite = host.includes('dev.') || host === 'localhost' || host === '127.0.0.1';
+  const hiddenOnLive = !isDevSite && item.metadata?.show_on_live === false;
+
+  if (failed || !item || hiddenOnLive) {
     return (
       <div className="dev-page-animate" style={{ padding: '80px 24px', textAlign: 'center' }}>
         <button

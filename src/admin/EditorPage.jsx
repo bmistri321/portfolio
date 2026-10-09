@@ -833,6 +833,21 @@ export default function EditorPage({
               <span>Publish</span>
             </button>
           )}
+
+          <label
+            style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12.5px', cursor: 'pointer', color: 'var(--admin-text-secondary)', marginLeft: '4px' }}
+            title="ON = visible on the live site (bishalmistri.com). OFF = hidden on live, still visible on the dev site."
+          >
+            <input
+              type="checkbox"
+              checked={formData.metadata?.show_on_live !== false}
+              onChange={(e) => {
+                const md = { ...(formData.metadata || {}), show_on_live: e.target.checked };
+                handleFieldChange('metadata', md);
+              }}
+            />
+            Show on live site
+          </label>
         </div>
       </header>
 
