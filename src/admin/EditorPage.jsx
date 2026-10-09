@@ -834,20 +834,56 @@ export default function EditorPage({
             </button>
           )}
 
-          <label
-            style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12.5px', cursor: 'pointer', color: 'var(--admin-text-secondary)', marginLeft: '4px' }}
+          <button
+            type="button"
+            role="switch"
+            aria-checked={formData.metadata?.show_on_live !== false}
             title="ON = visible on the live site (bishalmistri.com). OFF = hidden on live, still visible on the dev site."
+            onClick={() => {
+              const current = formData.metadata?.show_on_live !== false;
+              const md = { ...(formData.metadata || {}), show_on_live: !current };
+              handleFieldChange('metadata', md);
+            }}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              padding: '4px',
+              marginLeft: '4px',
+              fontSize: '12.5px',
+              color: 'var(--admin-text-secondary)',
+            }}
           >
-            <input
-              type="checkbox"
-              checked={formData.metadata?.show_on_live !== false}
-              onChange={(e) => {
-                const md = { ...(formData.metadata || {}), show_on_live: e.target.checked };
-                handleFieldChange('metadata', md);
+            <span
+              style={{
+                width: '36px',
+                height: '20px',
+                borderRadius: '999px',
+                background: formData.metadata?.show_on_live !== false ? '#7c3aed' : '#d1d5db',
+                position: 'relative',
+                transition: 'background 0.2s ease',
+                flexShrink: 0,
               }}
-            />
-            Show on live site
-          </label>
+            >
+              <span
+                style={{
+                  position: 'absolute',
+                  top: '2px',
+                  left: formData.metadata?.show_on_live !== false ? '18px' : '2px',
+                  width: '16px',
+                  height: '16px',
+                  borderRadius: '50%',
+                  background: '#fff',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.3)',
+                  transition: 'left 0.2s ease',
+                }}
+              />
+            </span>
+            Live site
+          </button>
         </div>
       </header>
 
