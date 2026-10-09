@@ -23,6 +23,10 @@ const normalizeExternalUrl = (u) => {
   return /^https?:\/\//i.test(t) ? t : `https://${t}`;
 };
 
+// Tinkering is hidden from the public site but NOT removed — content,
+// admin, and tab logic stay intact. Flip to true to show it again.
+const SHOW_TINKERING = false;
+
 export default function DevHomePage({ onNavigate }) {
   const [activeTab, setActiveTab] = useState('work');
   const [cmsItems, setCmsItems] = useState([]);
@@ -249,16 +253,20 @@ export default function DevHomePage({ onNavigate }) {
             dock
           </a>
           . Always{' '}
-          <a
-            href="#tinkering"
-            className="dev-pink-link"
-            onClick={(e) => {
-              e.preventDefault();
-              handleTabChange('tinkering');
-            }}
-          >
-            tinkering
-          </a>
+          {SHOW_TINKERING ? (
+            <a
+              href="#tinkering"
+              className="dev-pink-link"
+              onClick={(e) => {
+                e.preventDefault();
+                handleTabChange('tinkering');
+              }}
+            >
+              tinkering
+            </a>
+          ) : (
+            'tinkering'
+          )}
           .
         </p>
 
@@ -297,13 +305,15 @@ export default function DevHomePage({ onNavigate }) {
           <span>Work</span>
         </button>
 
-        <button
-          className={`dev-tab-pill ${activeTab === 'tinkering' ? 'active' : ''}`}
-          onClick={() => handleTabChange('tinkering')}
-        >
-          <Sparkles size={13} />
-          <span>Tinkering</span>
-        </button>
+        {SHOW_TINKERING && (
+          <button
+            className={`dev-tab-pill ${activeTab === 'tinkering' ? 'active' : ''}`}
+            onClick={() => handleTabChange('tinkering')}
+          >
+            <Sparkles size={13} />
+            <span>Tinkering</span>
+          </button>
+        )}
 
         <button
           className={`dev-tab-pill ${activeTab === 'writing' ? 'active' : ''}`}
