@@ -2017,3 +2017,16 @@ body {
 }
 .cs-html-body .ql-callout p { margin: 0 0 12px 0; }
 .cs-html-body .ql-callout p:last-child { margin-bottom: 0; }
+
+/* No text/image selection anywhere on the public site (admin untouched) */
+.dev-app-wrapper,
+.dev-app-wrapper *,
+.pm-app-container,
+.pm-app-container * {
+  user-select: none;
+  -webkit-user-select: none;
+}
+.dev-app-wrapper img,
+.pm-app-container img {
+  -webkit-user-drag: none;
+}
