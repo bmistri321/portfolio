@@ -1587,12 +1587,12 @@ body {
   to { opacity: 0; }
 }
 
-/* Slide-Up Sheet Panel with 20px Top Gap & Rounded Top Corners */
+/* Slide-Up Sheet Panel with 10px Top Gap & Rounded Top Corners */
 .dev-sheet-panel {
   position: relative;
   width: 100%;
-  height: calc(100vh - 20px);
-  max-height: calc(100vh - 20px);
+  height: calc(100vh - 10px);
+  max-height: calc(100vh - 10px);
   border-radius: 16px 16px 0 0;
   background: var(--dev-bg);
   color: var(--dev-text-1);
@@ -1715,8 +1715,8 @@ body {
 
 @media (max-width: 1024px) {
   .dev-sheet-panel {
-    height: calc(100vh - 20px);
-    max-height: calc(100vh - 20px);
+    height: calc(100vh - 10px);
+    max-height: calc(100vh - 10px);
     border-radius: 14px 14px 0 0;
   }
 
