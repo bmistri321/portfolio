@@ -145,7 +145,7 @@ function splitArticleHtml(html) {
   // text" should render the same gap as "text [divider] text". Strip <br>s
   // and empty paragraphs directly adjacent to an <hr>.
   const isBlankPara = (el) =>
-    el && el.nodeName === 'P' && !el.textContent.trim();
+    el && el.nodeName === 'P' && !el.textContent.trim() && !el.querySelector('img, video');
   const stripBreaksAround = (hr) => {
     let prev = hr.previousElementSibling;
     while (prev && (prev.nodeName === 'BR' || isBlankPara(prev))) {
