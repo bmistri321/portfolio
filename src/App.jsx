@@ -53,6 +53,9 @@ export const isDevSubdomain = () => {
     host === 'www.dev.bishalmistri.com' ||
     host.startsWith('dev.') ||
     host.includes('.dev.') ||
+    // Main live domain now serves the workbench (old static site removed)
+    host === 'bishalmistri.com' ||
+    host === 'www.bishalmistri.com' ||
     host === 'localhost' ||
     host === '127.0.0.1' ||
     search.includes('mode=dev')
@@ -206,35 +209,13 @@ export default function App() {
     );
   }
 
-  // 3. MAIN LIVE DOMAIN (bishalmistri.com -> Original Site)
-  const renderMainPage = () => {
-    switch (currentPath) {
-      case '/casestudy':
-        return <CaseStudyPage onNavigate={navigate} />;
-      case '/playground':
-        return <PlaygroundPage onNavigate={navigate} />;
-      case '/about':
-        return <AboutPage onNavigate={navigate} />;
-      case '/casestudy/friender-case-study':
-        return <FrienderCaseStudyPage onNavigate={navigate} />;
-      case '/casestudy/wexa':
-        return <WexaCaseStudyPage onNavigate={navigate} />;
-      case '/book/ux.mastery.30.days':
-        return <BookPage onNavigate={navigate} />;
-      case '/':
-      default:
-        return <HomePage onNavigate={navigate} />;
-    }
-  };
-
+  // 3. FALLBACK — any other domain serves the workbench too.
+  // (The main live domain is handled by the isDev branch above.)
   return (
-    <div className="pm-app-container">
-      <main id="pm-content-wrap">
-        <Suspense fallback={<ChunkFallback />}>
-          {renderMainPage()}
-        </Suspense>
+    <div className="dev-app-wrapper">
+      <main className="dev-main-container">
+        <DevHomePage onNavigate={navigate} />
       </main>
-      <FloatingNav currentPath={currentPath} onNavigate={navigate} />
     </div>
   );
 }
