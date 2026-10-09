@@ -1260,13 +1260,13 @@
   background-color: #fff;
 }
 .admin-main.focus-mode .admin-cover-dropzone {
-  border: none;
   background: transparent;
+  border: 1.5px dashed var(--admin-border);
 }
 .admin-main.focus-mode .admin-cover-dropzone:hover,
 .admin-main.focus-mode .admin-cover-dropzone.drag-over {
-  border: none;
-  background: transparent;
+  border-color: var(--admin-accent);
+  background: var(--admin-accent-subtle);
 }
 .admin-main.focus-mode .admin-meta-panel {
   background: transparent;
