@@ -1538,3 +1538,45 @@ textarea.admin-form-input {
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
 }
+
+/* Alt text + caption fields below a hovered image/GIF in the article editor */
+.admin-media-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 300px;
+  max-width: min(320px, 80%);
+  background: #232328;
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.28);
+}
+.admin-media-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.admin-media-field span {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: #a7a7b3;
+}
+.admin-media-field input {
+  background: #17171b;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  color: #f4f4f6;
+  font-size: 13px;
+  padding: 8px 10px;
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+}
+.admin-media-field input:focus {
+  border-color: #cb53a2;
+}
+.admin-media-field input::placeholder {
+  color: #6d6d78;
+}

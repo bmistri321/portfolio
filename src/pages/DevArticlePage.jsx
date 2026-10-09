@@ -103,6 +103,35 @@ const makeUniqueId = () => {
   };
 };
 
+// Wrap images carrying a data-caption (set in the editor's Alt/Caption
+// fields) in <figure> + <figcaption> so the caption shows below the image.
+// An image that is the only child of its paragraph replaces the paragraph,
+// keeping the full-bleed 880px treatment like uncaptioned images.
+function wrapImageCaptions(html) {
+  const doc = new DOMParser().parseFromString(`<div>${String(html || '')}</div>`, 'text/html');
+  const root = doc.body.firstChild;
+  if (!root) return '';
+  root.querySelectorAll('img[data-caption]').forEach((img) => {
+    const caption = (img.getAttribute('data-caption') || '').trim();
+    img.removeAttribute('data-caption');
+    if (!caption) return;
+    const figure = doc.createElement('figure');
+    const fc = doc.createElement('figcaption');
+    fc.textContent = caption;
+    const parent = img.parentElement;
+    const onlyChild = parent && parent.tagName === 'P' &&
+      [...parent.childNodes].every((n) =>
+        n === img ||
+        (n.nodeType === 3 && !n.textContent.trim()) ||
+        n.tagName === 'BR');
+    img.replaceWith(figure);
+    figure.appendChild(img);
+    figure.appendChild(fc);
+    if (onlyChild) parent.replaceWith(figure);
+  });
+  return root.innerHTML;
+}
+
 // Split a unified article document at its H2s into nav-able pseudo-sections.
 // Content before the first H2 becomes an "Overview" section.
 function splitArticleHtml(html) {
@@ -174,7 +203,7 @@ function splitArticleHtml(html) {
       id: s.id,
       label: s.label,
       heading: s.heading ? s.label : null,
-      html: DOMPurify.sanitize(s.parts.join(''), RICH_ALLOWED),
+      html: DOMPurify.sanitize(wrapImageCaptions(s.parts.join('')), RICH_ALLOWED),
     }));
 }
 

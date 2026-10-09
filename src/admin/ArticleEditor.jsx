@@ -4,6 +4,7 @@ import 'quill/dist/quill.bubble.css';
 import { Trash2, Repeat, Settings2, X } from 'lucide-react';
 import { mediaService } from '../lib/contentService';
 import EditorVideoChrome from './EditorVideoChrome';
+import ImageMetaFields from './ImageMetaFields';
 
 // ---------------------------------------------------------------------------
 // Custom <video> blot (real video tag — Quill's built-in video blot is iframe-only)
@@ -208,12 +209,14 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
           node: t,
           top: Math.max(0, r.top - wrapRect.top + 8),
           right: Math.max(0, wrapRect.right - r.right + 8),
+          bottom: r.bottom - wrapRect.top + 8,
+          left: Math.max(0, r.left - wrapRect.left),
         });
       }
     };
     const onMediaOut = (e) => {
       const rt = e.relatedTarget;
-      if (rt && rt.closest && rt.closest('.admin-media-hoverbar, .vp-overlay')) return;
+      if (rt && rt.closest && rt.closest('.admin-media-hoverbar, .admin-media-fields, .vp-overlay')) return;
       const t = e.target && e.target.closest ? e.target.closest('img, video, hr.article-divider') : null;
       const rtt = rt && rt.closest ? rt.closest('img, video, hr.article-divider') : null;
       if (t && t === rtt) return;
@@ -469,6 +472,13 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
     if (idx !== null) quill.deleteText(idx, 1, 'user');
   };
 
+  // Alt/caption edits mutate the <img> node directly — push the updated HTML
+  // through the normal change pipeline so autosave picks it up.
+  const commitImageMeta = () => {
+    const quill = quillRef.current;
+    if (quill && onChangeRef.current) onChangeRef.current(quill.root.innerHTML);
+  };
+
   // ---- Video playback settings (autoplay / muted / controls) ----
   const VIDEO_SETTING_DEFS = [
     { key: 'controls', label: 'Controls', desc: 'Show the play bar' },
@@ -685,6 +695,16 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
             </button>
           )}
         </div>
+      )}
+
+      {mediaHover && (mediaHover.kind === 'image' || mediaHover.kind === 'gif') && mediaHover.node && (
+        <ImageMetaFields
+          node={mediaHover.node}
+          top={mediaHover.bottom}
+          left={mediaHover.left}
+          onCommit={commitImageMeta}
+          onLeave={() => setMediaHover(null)}
+        />
       )}
 
       {mediaHover && mediaHover.kind === 'video' && mediaHover.node && mediaHover.node.hasAttribute('controls') && (
