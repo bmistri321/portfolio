@@ -268,11 +268,7 @@ function RichArticle({ item, onNavigate }) {
     <DevCaseStudyLayout
       title={item.title}
       meta={`${year} · ${readTime}`}
-      heroVisual={
-        item.cover_image
-          ? { image: item.cover_image, alt: item.title }
-          : null
-      }
+      heroVisual={null}
       sections={sections}
       onNavigate={onNavigate}
       sourceLink={mediumUrl ? { url: mediumUrl, label: 'Medium' } : null}
