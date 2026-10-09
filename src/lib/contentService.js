@@ -42,7 +42,26 @@ function getLocalItems(key, defaultFn) {
 
 function setLocalItems(key, items) {
   if (typeof localStorage === 'undefined') return;
-  localStorage.setItem(key, JSON.stringify(items));
+  const write = (v) => localStorage.setItem(key, JSON.stringify(v));
+  try {
+    write(items);
+  } catch {
+    // Quota exceeded (~5MB browser limit): embedded data-URI file payloads
+    // are the bloat — drop them first and keep only the newer half, then
+    // retry once. This cache is best-effort (Supabase is the source of
+    // truth), so a cache write must never fail the caller's upload.
+    try {
+      const arr = Array.isArray(items) ? items : [];
+      const slim = arr.map((it) =>
+        it && typeof it.url === 'string' && it.url.startsWith('data:')
+          ? { ...it, url: '' }
+          : it
+      );
+      write(slim.slice(0, Math.max(1, Math.ceil(slim.length / 2))));
+    } catch {
+      /* best-effort cache — give up silently */
+    }
+  }
 }
 
 // Utility: Generate RFC4122 v4 UUID
