@@ -99,7 +99,6 @@ export default function WexaCoverAnim() {
             Next
           </div>
         </div>
-        <div className="wexa-base" />
       </div>
     </div>
   );

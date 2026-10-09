@@ -10,50 +10,33 @@
   font-family: 'Inter', system-ui, sans-serif;
   overflow: hidden;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
+  padding: 9% 11% 0;
 }
 
-/* ---------- laptop ---------- */
+/* ---------- laptop monitor only (no base) ---------- */
 .wexa-laptop {
-  width: 78%;
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
   transform: scale(0.8);
+  transform-origin: bottom center;
+  margin-bottom: -4%;
 }
 
 .wexa-screen {
   width: 100%;
   background: #ffffff;
   border: 1.6cqw solid #26262e;
-  border-bottom-width: 2.2cqw;
+  border-bottom: none;
   border-radius: 2.4cqw 2.4cqw 0 0;
   padding: 6% 8%;
   display: flex;
   flex-direction: column;
   gap: 3.4cqw;
   box-shadow: 0 3cqw 7cqw rgba(20, 18, 40, 0.18);
-}
-
-.wexa-base {
-  width: 112%;
-  height: 2.2cqw;
-  background: linear-gradient(180deg, #3a3a44, #26262e);
-  border-radius: 0 0 2.4cqw 2.4cqw;
-  position: relative;
-}
-
-.wexa-base::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 22%;
-  height: 0.9cqw;
-  background: #17171c;
-  border-radius: 0 0 1.2cqw 1.2cqw;
 }
 
 /* ---------- options + button: same width ---------- */
