@@ -210,17 +210,7 @@ export default function DevHomePage({ onNavigate }) {
 
         <p className="dev-bio-paragraph">
           Outside of design, I'm into arts, coffee, online games, and{' '}
-          <a
-            href="/travel"
-            className="dev-pink-link"
-            onClick={(e) => {
-              e.preventDefault();
-              playUiSound('open');
-              onNavigate('/travel');
-            }}
-          >
-            travelling
-          </a>
+          travelling
           . I{' '}
           <a
             href="https://www.pexels.com/@bishal/"
