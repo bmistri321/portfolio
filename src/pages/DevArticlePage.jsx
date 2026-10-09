@@ -275,50 +275,6 @@ function RichArticle({ item, onNavigate }) {
     />
   );
 }
-
-// ---------------------------------------------------------------------------
-// Generic article fallback (items without structured sections)
-// ---------------------------------------------------------------------------
-function GenericArticle({ item, onNavigate }) {
-  return (
-    <div className="dev-sheet-backdrop dev-backdrop-enter" onClick={(e) => { if (e.target === e.currentTarget) onNavigate('/'); }}>
-      <div className="dev-sheet-panel dev-sheet-enter">
-        <div className="dev-sheet-inner">
-          <div className="dev-page-animate" style={{ padding: '40px 32px' }}>
-      <header className="cs-header" style={{ marginBottom: '32px' }}>
-        <button
-          className="cs-back-btn"
-          onClick={() => onNavigate('/')}
-        >
-          <ArrowLeft size={16} />
-          <span>Back</span>
-        </button>
-
-        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', margin: '16px 0 8px' }}>
-          <span style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#ec4899', fontWeight: 600 }}>
-            {item.type}
-          </span>
-        </div>
-
-        <h1 className="cs-title" style={{ fontSize: '32px', lineHeight: 1.25 }}>
-          {item.title}
-        </h1>
-      </header>
-
-      {item.content && (
-        <div style={{ fontSize: '16px', lineHeight: 1.8, color: '#E5E7EB', whiteSpace: 'pre-line', marginBottom: '40px' }}>
-          {item.content}
-        </div>
-      )}
-
-      <SharedFooter />
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 // ---------------------------------------------------------------------------
 // Router: fetch once, render the rich layout when the item has structured
 // sections, otherwise the generic article.
@@ -384,10 +340,7 @@ export default function DevArticlePage({ slug, onNavigate }) {
     );
   }
 
-  const rich =
-    (item.content && item.content.trim().length > 0) ||
-    (item.metadata?.sections && item.metadata.sections.length > 0);
-  return rich
-    ? <RichArticle item={item} onNavigate={onNavigate} />
-    : <GenericArticle item={item} onNavigate={onNavigate} />;
+  // All projects use the rich sheet layout — even title-only ones render
+  // cleanly (title + meta, no content) instead of the broken generic view.
+  return <RichArticle item={item} onNavigate={onNavigate} />;
 }
