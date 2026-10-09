@@ -162,14 +162,15 @@ export default function DevCaseStudyLayout({
     };
   }, [isClosing]);
 
-  // 4. Active Section Detection via IntersectionObserver.
-  // The observer only decides *when* to re-evaluate; the geometric
-  // computation decides *which* section is active. While a TOC click is
-  // scrolling, the clicked item is held.
+  // 4. Active Section Detection: IntersectionObserver triggers re-evaluation,
+  // and a rAF-throttled scroll listener keeps the highlight aligned with the
+  // actual scroll position (the observer alone can lag between crossings).
+  // The geometric computation decides *which* section is active. While a TOC
+  // click is scrolling, the clicked item is held.
   useEffect(() => {
     if (!sections.length || !sheetRef.current) return;
 
-    const observerCallback = () => {
+    const updateActive = () => {
       if (pendingClickRef.current) return;
       const sheetEl = sheetRef.current;
       const stickyId = stickyClickRef.current;
@@ -190,20 +191,34 @@ export default function DevCaseStudyLayout({
       if (id) setActiveSection(id);
     };
 
-    const observerOptions = {
+    const observer = new IntersectionObserver(updateActive, {
       root: sheetRef.current,
       rootMargin: '-10% 0px -65% 0px',
       threshold: 0
-    };
-
-    const observer = new IntersectionObserver(observerCallback, observerOptions);
+    });
 
     sections.forEach((sec) => {
       const el = document.getElementById(sec.id);
       if (el) observer.observe(el);
     });
 
-    return () => observer.disconnect();
+    // Keep the highlight in sync on every scroll (throttled via rAF).
+    let rafId = 0;
+    const onScroll = () => {
+      if (rafId) return;
+      rafId = requestAnimationFrame(() => {
+        rafId = 0;
+        updateActive();
+      });
+    };
+    const sheetEl = sheetRef.current;
+    sheetEl.addEventListener('scroll', onScroll, { passive: true });
+
+    return () => {
+      observer.disconnect();
+      sheetEl.removeEventListener('scroll', onScroll);
+      if (rafId) cancelAnimationFrame(rafId);
+    };
   }, [sections]);
 
   // Clear any pending settle timer on unmount.
