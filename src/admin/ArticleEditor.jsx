@@ -47,6 +47,30 @@ try {
 }
 
 // ---------------------------------------------------------------------------
+// Links: normalize the URL Quill saves (e.g. "rider.xyvot.com" →
+// "https://rider.xyvot.com") so it opens as an external site instead of
+// resolving relative to the article page. Also collapses an accidentally
+// doubled domain ("rider.xyvot.comrider.xyvot.com").
+// ---------------------------------------------------------------------------
+const QuillLink = Quill.import('formats/link');
+class ArticleLink extends QuillLink {
+  static sanitize(url) {
+    let u = String(url || '').trim();
+    if (u && !/^(https?:\/\/|mailto:|tel:|sms:|#|\/)/i.test(u)) {
+      const dup = u.match(/^(.{4,})\1$/i);
+      if (dup) u = dup[1];
+      u = 'https://' + u;
+    }
+    return super.sanitize(u);
+  }
+}
+try {
+  Quill.register(ArticleLink, true);
+} catch {
+  /* already registered */
+}
+
+// ---------------------------------------------------------------------------
 // Divider blot — a real <hr> the Insert panel can drop in
 // ---------------------------------------------------------------------------
 class DividerBlot extends BlockEmbed {

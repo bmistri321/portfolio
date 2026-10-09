@@ -74,7 +74,7 @@ function renderImages(images) {
 
 // HTML section bodies from the WYSIWYG editor: sanitized, styled via .cs-html-body.
 function renderHtmlBody(body) {
-  const clean = DOMPurify.sanitize(String(body || ''), {
+  const clean = DOMPurify.sanitize(enhanceArticleHtml(body), {
     ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 's', 'a', 'ul', 'ol', 'li', 'blockquote', 'h2', 'h3'],
     ALLOWED_ATTR: ['href', 'target', 'rel'],
   });
@@ -107,7 +107,11 @@ const makeUniqueId = () => {
 // fields) in <figure> + <figcaption> so the caption shows below the image.
 // An image that is the only child of its paragraph replaces the paragraph,
 // keeping the full-bleed 880px treatment like uncaptioned images.
-function wrapImageCaptions(html) {
+// Also normalizes anchors: collapses accidental href duplication
+// ("rider.xyvot.comrider.xyvot.com") and prepends https:// to scheme-less
+// URLs so they open as external sites instead of resolving relative to
+// the article page.
+function enhanceArticleHtml(html) {
   const doc = new DOMParser().parseFromString(`<div>${String(html || '')}</div>`, 'text/html');
   const root = doc.body.firstChild;
   if (!root) return '';
@@ -128,6 +132,13 @@ function wrapImageCaptions(html) {
     figure.appendChild(img);
     figure.appendChild(fc);
     if (onlyChild) parent.replaceWith(figure);
+  });
+  root.querySelectorAll('a[href]').forEach((a) => {
+    let href = (a.getAttribute('href') || '').trim();
+    if (!href || /^(https?:\/\/|mailto:|tel:|sms:|#|\/)/i.test(href)) return;
+    const dup = href.match(/^(.{4,})\1$/i);
+    if (dup) href = dup[1];
+    a.setAttribute('href', 'https://' + href);
   });
   return root.innerHTML;
 }
@@ -203,7 +214,7 @@ function splitArticleHtml(html) {
       id: s.id,
       label: s.label,
       heading: s.heading ? s.label : null,
-      html: DOMPurify.sanitize(wrapImageCaptions(s.parts.join('')), RICH_ALLOWED),
+      html: DOMPurify.sanitize(enhanceArticleHtml(s.parts.join('')), RICH_ALLOWED),
     }));
 }
 
