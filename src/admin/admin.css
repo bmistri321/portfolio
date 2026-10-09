@@ -746,20 +746,26 @@
   object-fit: cover;
 }
 
-.admin-cover-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.4);
+/* Cover exists: preview on top, actions always visible below it */
+.admin-cover-filled {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.admin-cover-filled .admin-cover-preview {
+  flex: 1;
+  min-height: 0;
+  height: auto;
+  border-radius: var(--admin-radius-sm);
+}
+.admin-cover-actions {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  opacity: 0;
-  transition: var(--admin-transition);
-}
-
-.admin-cover-dropzone:hover .admin-cover-overlay {
-  opacity: 1;
+  gap: 8px;
+  flex-shrink: 0;
 }
 
 /* Editor Toolbar */

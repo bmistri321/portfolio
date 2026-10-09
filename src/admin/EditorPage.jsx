@@ -1009,9 +1009,9 @@ export default function EditorPage({
                 }}
               >
                 {formData.cover_image ? (
-                  <>
+                  <div className="admin-cover-filled">
                     <img src={formData.cover_image} alt="" className="admin-cover-preview" />
-                    <div className="admin-cover-overlay">
+                    <div className="admin-cover-actions">
                       <button
                         type="button"
                         className="admin-btn admin-btn-sm"
@@ -1032,11 +1032,12 @@ export default function EditorPage({
                         type="button"
                         className="admin-btn admin-btn-danger admin-btn-sm"
                         onClick={() => handleFieldChange('cover_image', '')}
+                        aria-label="Remove cover image"
                       >
                         <Trash2 size={14} />
                       </button>
                     </div>
-                  </>
+                  </div>
                 ) : (
                   <div style={{ textAlign: 'center', color: 'var(--admin-text-muted)' }}>
                     <UploadCloud size={32} style={{ marginBottom: '8px', opacity: 0.6 }} />
