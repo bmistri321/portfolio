@@ -134,7 +134,7 @@ const INSERT_MIME = 'application/x-insert-kind';
 // Compress an image in-browser (canvas). GIFs pass through untouched to
 // preserve animation. Returns a File ready for upload.
 async function compressImage(file) {
-  if (file.type === 'image/gif') return file;
+  if (file.type === 'image/gif' || file.type === 'image/svg+xml') return file;
   let bitmap;
   try {
     bitmap = await createImageBitmap(file);
