@@ -37,6 +37,7 @@
   flex-direction: column;
   gap: 3.4cqw;
   box-shadow: 0 3cqw 7cqw rgba(20, 18, 40, 0.18);
+  overflow: hidden;
 }
 
 /* ---------- options + button: same width ---------- */
