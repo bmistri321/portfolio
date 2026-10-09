@@ -223,7 +223,7 @@ export default function DevHomePage({ onNavigate }) {
           </a>
           . I{' '}
           <a
-            href="https://instagram.com/bishalsphotos"
+            href="https://www.pexels.com/@bishal/"
             target="_blank"
             rel="noopener noreferrer"
             className="dev-pink-link"
