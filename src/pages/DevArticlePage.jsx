@@ -306,12 +306,6 @@ function GenericArticle({ item, onNavigate }) {
         </h1>
       </header>
 
-      {item.cover_image && (
-        <div style={{ width: '100%', aspectRatio: '16/9', borderRadius: '16px', overflow: 'hidden', marginBottom: '36px', border: '1px solid rgba(255,255,255,0.08)' }}>
-          <img src={item.cover_image} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-        </div>
-      )}
-
       {item.content && (
         <div style={{ fontSize: '16px', lineHeight: 1.8, color: '#E5E7EB', whiteSpace: 'pre-line', marginBottom: '40px' }}>
           {item.content}
