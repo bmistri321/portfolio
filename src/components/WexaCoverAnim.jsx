@@ -83,6 +83,7 @@ export default function WexaCoverAnim() {
     <div ref={rootRef} className="wexa-root" data-phase={phase} aria-hidden="true">
       <div className="wexa-laptop">
         <div className="wexa-screen">
+          <div className="wexa-content">
           <div className="wexa-options">
             {bars.map((w, i) => (
               <div
@@ -97,6 +98,7 @@ export default function WexaCoverAnim() {
           </div>
           <div className={'wexa-next' + (nextReady ? ' ready' : '') + (phase === 'press' ? ' press' : '')}>
             Next
+          </div>
           </div>
         </div>
       </div>

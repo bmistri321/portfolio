@@ -40,6 +40,13 @@
 }
 
 /* ---------- options + button: same width ---------- */
+.wexa-content {
+  display: flex;
+  flex-direction: column;
+  gap: 3.4cqw;
+  transform: scale(0.85);
+}
+
 .wexa-options {
   display: flex;
   flex-direction: column;
