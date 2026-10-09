@@ -1,0 +1,319 @@
+/* Animated Design System cover — a mini component sheet that assembles,
+   interacts (button press, toggle flip), settles, and loops. */
+
+.ds-cover {
+  width: 100%;
+  height: 100%;
+  min-height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #fafafa 0%, #f3f0ff 100%);
+  overflow: hidden;
+  border-radius: inherit;
+}
+
+.ds-sheet {
+  width: 72%;
+  max-width: 260px;
+  background: #ffffff;
+  border: 1px solid #ececf1;
+  border-radius: 14px;
+  box-shadow: 0 12px 32px rgba(124, 58, 237, 0.1);
+  padding: 18px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.ds-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ---- Color tokens ---- */
+.ds-swatches {
+  gap: 8px;
+}
+
+.ds-swatch {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--swatch);
+  transform: scale(0);
+  opacity: 0;
+  transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+  transition-delay: calc(var(--i) * 70ms);
+}
+
+.phase-enter .ds-swatch,
+.phase-interact .ds-swatch,
+.phase-settle .ds-swatch {
+  transform: scale(1);
+  opacity: 1;
+}
+
+/* During interact, swatches do a subtle wave */
+.phase-interact .ds-swatch {
+  animation: ds-swatch-bounce 0.9s ease-in-out infinite;
+  animation-delay: calc(var(--i) * 90ms);
+}
+
+@keyframes ds-swatch-bounce {
+  0%, 100% { transform: scale(1) translateY(0); }
+  50% { transform: scale(1.12) translateY(-3px); }
+}
+
+.phase-exit .ds-swatch,
+.phase-rest .ds-swatch {
+  transform: scale(0);
+  opacity: 0;
+  transition-delay: 0ms;
+}
+
+/* ---- Buttons ---- */
+.ds-btn {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 7px 16px;
+  border-radius: 8px;
+  transform: translateY(12px);
+  opacity: 0;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease, background 0.2s ease;
+}
+
+.ds-btn-primary {
+  background: #7c3aed;
+  color: #fff;
+  transition-delay: 200ms;
+}
+
+.ds-btn-outline {
+  border: 1.5px solid #d9d4f5;
+  color: #7c3aed;
+  transition-delay: 300ms;
+}
+
+.phase-enter .ds-btn,
+.phase-interact .ds-btn,
+.phase-settle .ds-btn {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* Button press during interact */
+.phase-interact .ds-btn-primary {
+  animation: ds-btn-press 1.4s ease-in-out infinite;
+}
+
+@keyframes ds-btn-press {
+  0%, 100% { transform: scale(1); background: #7c3aed; }
+  45%, 55% { transform: scale(0.94); background: #6d28d9; }
+}
+
+.phase-exit .ds-btn,
+.phase-rest .ds-btn {
+  transform: translateY(12px);
+  opacity: 0;
+  transition-delay: 0ms;
+}
+
+/* ---- Toggle + slider ---- */
+.ds-toggle {
+  width: 36px;
+  height: 20px;
+  border-radius: 999px;
+  background: #e5e7eb;
+  position: relative;
+  flex-shrink: 0;
+  transform: translateY(12px);
+  opacity: 0;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease, background 0.25s ease;
+  transition-delay: 350ms;
+}
+
+.ds-toggle-knob {
+  position: absolute;
+  top: 2.5px;
+  left: 3px;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  transition: left 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.ds-slider {
+  flex: 1;
+  height: 6px;
+  border-radius: 999px;
+  background: #eef0f4;
+  position: relative;
+  transform: translateY(12px);
+  opacity: 0;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+  transition-delay: 420ms;
+}
+
+.ds-slider-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 30%;
+  border-radius: 999px;
+  background: #7c3aed;
+  transition: width 0.5s ease;
+}
+
+.ds-slider-thumb {
+  position: absolute;
+  top: 50%;
+  left: 30%;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid #7c3aed;
+  transform: translate(-50%, -50%);
+  transition: left 0.5s ease;
+}
+
+.phase-enter .ds-toggle,
+.phase-interact .ds-toggle,
+.phase-settle .ds-toggle,
+.phase-enter .ds-slider,
+.phase-interact .ds-slider,
+.phase-settle .ds-slider {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* Toggle flips on during interact */
+.phase-interact .ds-toggle,
+.phase-settle .ds-toggle {
+  background: #7c3aed;
+}
+
+.phase-interact .ds-toggle .ds-toggle-knob,
+.phase-settle .ds-toggle .ds-toggle-knob {
+  left: 18px;
+}
+
+.phase-interact .ds-slider-fill {
+  animation: ds-slider-grow 1.4s ease-in-out infinite;
+}
+
+.phase-interact .ds-slider-thumb {
+  animation: ds-slider-thumb 1.4s ease-in-out infinite;
+}
+
+@keyframes ds-slider-grow {
+  0%, 100% { width: 30%; }
+  50% { width: 70%; }
+}
+
+@keyframes ds-slider-thumb {
+  0%, 100% { left: 30%; }
+  50% { left: 70%; }
+}
+
+.phase-settle .ds-slider-fill { width: 70%; }
+.phase-settle .ds-slider-thumb { left: 70%; }
+
+.phase-exit .ds-toggle,
+.phase-exit .ds-slider,
+.phase-rest .ds-toggle,
+.phase-rest .ds-slider {
+  transform: translateY(12px);
+  opacity: 0;
+  transition-delay: 0ms;
+}
+
+/* ---- Type scale ---- */
+.ds-type {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 7px;
+}
+
+.ds-type-line {
+  height: 7px;
+  border-radius: 999px;
+  background: #e8e6f5;
+  transform: scaleX(0);
+  transform-origin: left center;
+  opacity: 0;
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+}
+
+.ds-type-lg { width: 82%; transition-delay: 480ms; }
+.ds-type-md { width: 64%; transition-delay: 560ms; }
+.ds-type-sm { width: 45%; transition-delay: 640ms; }
+
+.phase-enter .ds-type-line,
+.phase-interact .ds-type-line,
+.phase-settle .ds-type-line {
+  transform: scaleX(1);
+  opacity: 1;
+}
+
+/* Type lines shimmer during interact */
+.phase-interact .ds-type-line {
+  animation: ds-type-shimmer 1.2s ease-in-out infinite;
+}
+
+.phase-interact .ds-type-lg { animation-delay: 0ms; }
+.phase-interact .ds-type-md { animation-delay: 150ms; }
+.phase-interact .ds-type-sm { animation-delay: 300ms; }
+
+@keyframes ds-type-shimmer {
+  0%, 100% { background: #e8e6f5; }
+  50% { background: #c9bdf3; }
+}
+
+.phase-exit .ds-type-line,
+.phase-rest .ds-type-line {
+  transform: scaleX(0);
+  opacity: 0;
+  transition-delay: 0ms;
+}
+
+/* Sheet entrance/exit */
+.ds-sheet {
+  transform: translateY(16px) scale(0.97);
+  opacity: 0;
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+}
+
+.phase-enter .ds-sheet,
+.phase-interact .ds-sheet,
+.phase-settle .ds-sheet {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+}
+
+.phase-exit .ds-sheet,
+.phase-rest .ds-sheet {
+  transform: translateY(10px) scale(0.98);
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ds-cover * {
+    animation: none !important;
+    transition: none !important;
+  }
+  .ds-sheet,
+  .ds-swatch,
+  .ds-btn,
+  .ds-toggle,
+  .ds-slider,
+  .ds-type-line {
+    transform: none !important;
+    opacity: 1 !important;
+  }
+}

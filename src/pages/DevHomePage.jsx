@@ -14,6 +14,7 @@ import { Linkedin, Behance } from '../components/Icons';
 import InteractiveGlobe from '../components/InteractiveGlobe';
 import FrienderCoverAnim from '../components/FrienderCoverAnim';
 import WexaCoverAnim from '../components/WexaCoverAnim';
+import DesignSystemCoverAnim from '../components/DesignSystemCoverAnim';
 import { playUiSound, isSoundEnabled, setSoundEnabled } from '../utils/sound';
 import { contentService, CONTENT_LIST_SELECT } from '../lib/contentService';
 
@@ -358,6 +359,10 @@ export default function DevHomePage({ onNavigate }) {
               ) : project.slug && project.slug.startsWith('wexa') ? (
                 <div className="dev-card-img-box">
                   <WexaCoverAnim />
+                </div>
+              ) : project.slug && project.slug.startsWith('design-system') ? (
+                <div className="dev-card-img-box">
+                  <DesignSystemCoverAnim />
                 </div>
               ) : project.image ? (
                 <div className="dev-card-img-box">
