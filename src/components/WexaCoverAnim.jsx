@@ -1,12 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
 import './WexaCoverAnim.css';
 
+// 3 rounds: placeholder bar widths + which option gets picked each round.
 const ROUNDS = [
   { bars: [38, 55, 46], pick: 1 },
   { bars: [52, 40, 58], pick: 2 },
   { bars: [44, 60, 36], pick: 0 },
 ];
 
+// Phase order per round, with pacing (ms).
 const PHASES = [
   ['enter', 1000],
   ['select', 1100],
@@ -79,23 +81,25 @@ export default function WexaCoverAnim() {
 
   return (
     <div ref={rootRef} className="wexa-root" data-phase={phase} aria-hidden="true">
-      <div className="wexa-stage">
-        <div className="wexa-label">Step {round + 1} of 3</div>
-        <div className="wexa-options">
-          {bars.map((w, i) => (
-            <div
-              key={round + '-' + i}
-              className={'wexa-opt' + (showSel && i === pick ? ' sel' : '') + (exiting ? ' out' : '')}
-              style={{ '--i': i, '--w': w + '%' }}
-            >
-              <span className="wexa-bar" />
-              <span className="wexa-check">✓</span>
-            </div>
-          ))}
+      <div className="wexa-laptop">
+        <div className="wexa-screen">
+          <div className="wexa-options">
+            {bars.map((w, i) => (
+              <div
+                key={round + '-' + i}
+                className={'wexa-opt' + (showSel && i === pick ? ' sel' : '') + (exiting ? ' out' : '')}
+                style={{ '--i': i, '--w': w + '%' }}
+              >
+                <span className="wexa-bar" />
+                <span className="wexa-check">✓</span>
+              </div>
+            ))}
+          </div>
+          <div className={'wexa-next' + (nextReady ? ' ready' : '') + (phase === 'press' ? ' press' : '')}>
+            Next
+          </div>
         </div>
-        <div className={'wexa-next' + (nextReady ? ' ready' : '') + (phase === 'press' ? ' press' : '')}>
-          Next
-        </div>
+        <div className="wexa-base" />
       </div>
     </div>
   );
