@@ -281,7 +281,10 @@ function RichArticle({ item, onNavigate }) {
 // ---------------------------------------------------------------------------
 function GenericArticle({ item, onNavigate }) {
   return (
-    <div className="dev-page-animate">
+    <div className="dev-sheet-backdrop dev-backdrop-enter" onClick={(e) => { if (e.target === e.currentTarget) onNavigate('/'); }}>
+      <div className="dev-sheet-panel dev-sheet-enter">
+        <div className="dev-sheet-inner">
+          <div className="dev-page-animate" style={{ padding: '40px 32px' }}>
       <header className="cs-header" style={{ marginBottom: '32px' }}>
         <button
           className="cs-back-btn"
@@ -309,6 +312,9 @@ function GenericArticle({ item, onNavigate }) {
       )}
 
       <SharedFooter />
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
