@@ -41,6 +41,7 @@ import {
   calculateReadingTime,
   generateUUID
 } from '../lib/contentService';
+import { compressImage } from '../lib/compressImage';
 import ArticleEditor from './ArticleEditor';
 
 const EMOJIS = ['✨', '💡', '🚀', '🔥', '⚡', '🛠️', '🎨', '📐', '🧠', '🔮', '🎯', '📌', '💎', '🌱', '📦', '🔍'];
@@ -559,12 +560,13 @@ export default function EditorPage({
     })();
   }, [loading, isNew]);
 
-  // Cover Image Handling
+  // Cover Image Handling — compress first, then upload.
   const handleCoverUpload = async (file) => {
     if (!file) return;
     try {
       setSaveStatus('saving');
-      const uploaded = await mediaService.upload(file, { alt_text: formData.title || 'Cover image' });
+      const compressed = await compressImage(file);
+      const uploaded = await mediaService.upload(compressed, { alt_text: formData.title || 'Cover image' });
       setFormData((prev) => ({
         ...prev,
         cover_image: uploaded.url,
@@ -686,13 +688,14 @@ export default function EditorPage({
     }, 50);
   };
 
-  // Drag and Drop Images inside writing area
+  // Drag and Drop Images inside writing area — compress first, then upload.
   const handleDropOnEditor = async (e) => {
     e.preventDefault();
     const files = Array.from(e.dataTransfer.files).filter((f) => f.type.startsWith('image/'));
     if (files.length > 0) {
       for (const file of files) {
-        const media = await mediaService.upload(file);
+        const compressed = await compressImage(file);
+        const media = await mediaService.upload(compressed);
         insertIntoContent(`\n\n![${media.alt_text || media.filename}](${media.url})\n\n`);
       }
     }
