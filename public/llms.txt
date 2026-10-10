@@ -1,0 +1,22 @@
+# Bishal Mistri — Product Designer Portfolio
+
+> Personal portfolio of Bishal Mistri, a product designer. Case studies, writing, photography, and design experiments.
+
+## Pages
+
+- [Home](https://www.bishalmistri.com/): Work, writing, and about — the main portfolio.
+- [Design System case study](https://www.bishalmistri.com/casestudy/design-system): Building a design system.
+- [Xyvot case study](https://www.bishalmistri.com/casestudy/xyvot): Designing a local business platform.
+- [Friender case study](https://www.bishalmistri.com/casestudy/friender): A friendship-finding app concept.
+- [Dock](https://www.bishalmistri.com/dock): A macOS-style dock of tools and links.
+- [Travel](https://www.bishalmistri.com/travel): Photography from travels.
+- [Playground](https://www.bishalmistri.com/playground): Design experiments and interactions.
+
+## About
+
+Bishal Mistri is a product designer interested in arts, coffee, online games, and travelling. He writes about UX design and shares photography on Pexels.
+
+## Contact
+
+- Email via the contact link on the homepage
+- LinkedIn and Behance linked in the site footer

@@ -335,7 +335,7 @@ export default function DevHomePage({ onNavigate }) {
                 }}
               >
                 <span className="dev-writing-icon"><FileText size={18} /></span>
-                <h3 className="dev-card-title dev-writing-title">{item.title}</h3>
+                <h2 className="dev-card-title dev-writing-title">{item.title}</h2>
                 <span className="dev-writing-year">{item.year}</span>
               </a>
             );
@@ -382,7 +382,7 @@ export default function DevHomePage({ onNavigate }) {
 
               <div className="dev-card-info">
                 <div className="dev-card-title-row">
-                  <h3 className="dev-card-title">{project.title}</h3>
+                  <h2 className="dev-card-title">{project.title}</h2>
                   {project.year && (
                     <span className="dev-year-badge">
                       <span className="dev-year-text">{project.year}</span>
