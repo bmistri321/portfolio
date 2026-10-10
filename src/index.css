@@ -834,15 +834,15 @@ body {
   --dev-bg-subtle: #f9fafb;
   --dev-text-1: #111827;
   --dev-text-2: #4b5563;
-  --dev-text-3: #8b92a0;
+  --dev-text-3: #61676f;
   --dev-tagline-color: #6b7280;
   --dev-border-subtle: #e5e7eb;
   --dev-card-border: #e5e7eb;
   --dev-tab-bg: #f3f4f6;
   --dev-tab-text: #4b5563;
   --dev-tab-inactive: #211F26;
-  --dev-pink: #cb53a2;
-  --dev-pink-hover: #ac468a;
+  --dev-pink: #a8438b;
+  --dev-pink-hover: #8e3573;
   --dev-bio-text: #65636D;
   --dev-row-hover: #f4f4f6;
   --dev-card-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
@@ -853,7 +853,7 @@ body {
   --dev-bg-subtle: #121215;
   --dev-text-1: #f4f4f5;
   --dev-text-2: #a1a1aa;
-  --dev-text-3: #71717a;
+  --dev-text-3: #a1a1aa;
   --dev-tagline-color: #9ca3af;
   --dev-border-subtle: #27272a;
   --dev-card-border: #27272a;
