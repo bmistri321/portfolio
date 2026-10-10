@@ -98,16 +98,6 @@ export function calculateReadingTime(content) {
   return `${minutes} min read`;
 }
 
-// Utility: Sanitize Content (prevent script injection)
-export function sanitizeContent(htmlOrMarkdown) {
-  if (!htmlOrMarkdown) return '';
-  return String(htmlOrMarkdown)
-    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-    .replace(/(\s)on\w+="[^"]*"/gi, '$1')
-    .replace(/(\s)on\w+='[^']*'/gi, '$1')
-    .replace(/javascript:[^"']*/gi, '#');
-}
-
 // Lightweight column set for public list views (home, case-study index).
 // Skips the heavy `content` HTML column the lists never render.
 export const CONTENT_LIST_SELECT =

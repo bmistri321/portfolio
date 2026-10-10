@@ -1,13 +1,5 @@
 import React, { useState, useEffect, Suspense, lazy } from 'react';
 
-// Original Live Portfolio Pages & Components
-// Main-site-only pages are code-split: they load on demand instead of
-// weighing down the workbench and admin bundles.
-const HomePage = lazy(() => import('./pages/HomePage'));
-const CaseStudyPage = lazy(() => import('./pages/CaseStudyPage'));
-const AboutPage = lazy(() => import('./pages/AboutPage'));
-const FrienderCaseStudyPage = lazy(() => import('./pages/FrienderCaseStudyPage'));
-const WexaCaseStudyPage = lazy(() => import('./pages/WexaCaseStudyPage'));
 import PlaygroundPage from './pages/PlaygroundPage';
 import BookPage from './pages/BookPage';
 import FloatingNav from './components/FloatingNav';

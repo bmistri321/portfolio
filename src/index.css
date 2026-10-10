@@ -778,12 +778,6 @@ body {
   transform: translateY(0);
 }
 
-.pm-books-grid { display: flex; flex-direction: column; gap: 24px; }
-.pm-book-item { display: flex; flex-direction: column; gap: 16px; padding-bottom: 32px; }
-.pm-book-item:last-child { padding-bottom: 0; }
-.pm-book-item-link { display: block; position: relative; border-radius: 12px; overflow: hidden; background: #f4f4f4; cursor: pointer; }
-.pm-book-item-link img { width: 100%; height: auto; display: block; transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
-.pm-book-item-link:hover img { transform: scale(1.02); }
 
 /* RESPONSIVE STYLES */
 @media screen and (min-width: 481px) and (max-width: 990px) {
