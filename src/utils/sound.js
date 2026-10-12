@@ -10,10 +10,36 @@ function getAudioContext() {
       audioCtx = new AudioContext();
     }
   }
-  if (audioCtx && audioCtx.state === 'suspended') {
-    audioCtx.resume();
-  }
   return audioCtx;
+}
+
+// Warm up the AudioContext on the very first user interaction, so it is
+// created and resumed inside a real gesture before any sound is requested.
+function warmUp() {
+  const ctx = getAudioContext();
+  if (ctx && ctx.state === 'suspended') {
+    ctx.resume().catch(() => {});
+  }
+}
+if (typeof window !== 'undefined') {
+  window.addEventListener('pointerdown', warmUp, { once: true });
+  window.addEventListener('keydown', warmUp, { once: true });
+}
+
+// Browsers can suspend the AudioContext (background tab, power saving).
+// resume() is async — we must await it before scheduling, otherwise the
+// sound is scheduled on a frozen timeline and plays silently.
+async function ensureRunning() {
+  const ctx = getAudioContext();
+  if (!ctx) return null;
+  if (ctx.state === 'suspended') {
+    try {
+      await ctx.resume();
+    } catch (e) {
+      /* resume blocked — stay silent */
+    }
+  }
+  return ctx.state === 'running' ? ctx : null;
 }
 
 export const isSoundEnabled = () => {
@@ -31,13 +57,13 @@ export const setSoundEnabled = (enabled) => {
  * Play a tactile, modern click sound
  * @param {'click' | 'tab' | 'open' | 'close' | 'toggle'} type 
  */
-export const playUiSound = (type = 'click') => {
+export const playUiSound = async (type = 'click') => {
   if (!isSoundEnabled()) return;
 
-  const ctx = getAudioContext();
+  const ctx = await ensureRunning();
   if (!ctx) return;
 
-  const now = ctx.currentTime;
+  const now = ctx.currentTime + 0.01;
 
   if (type === 'click') {
     // Tactile mechanical key click (Linear/Mechanical feel)
