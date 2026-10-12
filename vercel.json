@@ -1,1 +1,25 @@
-{"crons":[{"path":"/api/sync-medium","schedule":"0 1 * * *"}],"rewrites":[{"destination":"/api/$1","source":"/api/(.*)"},{"destination":"/index.html","source":"/(.*)"}]}
+{
+  "crons": [
+    {
+      "path": "/api/sync-medium",
+      "schedule": "0 1 * * *"
+    }
+  ],
+  "rewrites": [
+    {
+      "destination": "/api/$1",
+      "source": "/api/(.*)"
+    },
+    {
+      "destination": "/index.html",
+      "source": "/(.*)"
+    }
+  ],
+  "git": {
+    "deploymentEnabled": {
+      "main": true,
+      "dev": true,
+      "*": false
+    }
+  }
+}
