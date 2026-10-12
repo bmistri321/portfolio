@@ -2,13 +2,21 @@
 
 let audioCtx = null;
 
-function getAudioContext() {
+function createContext() {
   if (typeof window === 'undefined') return null;
-  if (!audioCtx) {
-    const AudioContext = window.AudioContext || window.webkitAudioContext;
-    if (AudioContext) {
-      audioCtx = new AudioContext();
-    }
+  const AudioContext = window.AudioContext || window.webkitAudioContext;
+  if (!AudioContext) return null;
+  try {
+    return new AudioContext();
+  } catch (e) {
+    return null;
+  }
+}
+
+function getAudioContext() {
+  // The browser can kill the context (state 'closed') — recreate it.
+  if (!audioCtx || audioCtx.state === 'closed') {
+    audioCtx = createContext();
   }
   return audioCtx;
 }
@@ -22,35 +30,65 @@ function warmUp() {
   }
 }
 if (typeof window !== 'undefined') {
-  window.addEventListener('pointerdown', warmUp, { once: true });
-  window.addEventListener('keydown', warmUp, { once: true });
+  window.addEventListener('pointerdown', warmUp);
+  window.addEventListener('keydown', warmUp);
+  // Re-warm when returning to the tab — browsers suspend audio in background tabs.
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) warmUp();
+  });
 }
 
 // Browsers can suspend the AudioContext (background tab, power saving).
 // resume() is async — we must await it before scheduling, otherwise the
 // sound is scheduled on a frozen timeline and plays silently.
+// Never wait forever: race resume against a timeout so a stuck promise
+// can't swallow the sound.
 async function ensureRunning() {
-  const ctx = getAudioContext();
+  let ctx = getAudioContext();
   if (!ctx) return null;
-  if (ctx.state === 'suspended') {
+  if (ctx.state === 'suspended' || ctx.state === 'interrupted') {
     try {
-      await ctx.resume();
+      await Promise.race([
+        ctx.resume(),
+        new Promise((resolve) => setTimeout(resolve, 300)),
+      ]);
     } catch (e) {
-      /* resume blocked — stay silent */
+      /* resume blocked — fall through and retry below */
+    }
+    // If resume didn't take, the context may be wedged — rebuild it fresh
+    // inside this user gesture and try once more.
+    if (ctx.state !== 'running') {
+      try { ctx.close().catch(() => {}); } catch (e) {}
+      audioCtx = createContext();
+      ctx = audioCtx;
+      if (ctx && ctx.state === 'suspended') {
+        try {
+          await Promise.race([
+            ctx.resume(),
+            new Promise((resolve) => setTimeout(resolve, 300)),
+          ]);
+        } catch (e) {}
+      }
     }
   }
-  return ctx.state === 'running' ? ctx : null;
+  return ctx && ctx.state === 'running' ? ctx : null;
 }
 
 export const isSoundEnabled = () => {
   if (typeof window === 'undefined') return true;
-  const saved = localStorage.getItem('dev_sound_enabled');
-  return saved === null ? true : saved === 'true';
+  try {
+    const saved = localStorage.getItem('dev_sound_enabled');
+    return saved === null ? true : saved === 'true';
+  } catch (e) {
+    return true;
+  }
 };
 
 export const setSoundEnabled = (enabled) => {
   if (typeof window === 'undefined') return;
-  localStorage.setItem('dev_sound_enabled', enabled ? 'true' : 'false');
+  try {
+    localStorage.setItem('dev_sound_enabled', enabled ? 'true' : 'false');
+  } catch (e) {}
 };
 
 /**
