@@ -48,8 +48,8 @@ export default function InteractiveGlobe({
   className = '',
   size = 38,
   dotColor = "rgba(203, 83, 162, ALPHA)",
-  arcColor = "rgba(205, 51, 135, 0.55)",
-  markerColor = "rgba(242, 151, 116, 1)",
+  arcColor = "rgba(203, 83, 162, 0.55)",
+  markerColor = "rgba(223, 144, 199, 1)",
   autoRotateSpeed = 0.008,
   connections = DEFAULT_CONNECTIONS,
   markers = DEFAULT_MARKERS,
@@ -107,11 +107,6 @@ export default function InteractiveGlobe({
 
     ctx.clearRect(0, 0, w, h);
 
-    // Brand gradient across the globe: #CD3387 -> #F29774
-    const dotGradient = ctx.createLinearGradient(cx - radius, 0, cx + radius, 0);
-    dotGradient.addColorStop(0, '#CD3387');
-    dotGradient.addColorStop(1, '#F29774');
-
     const ry = rotYRef.current;
     const rx = rotXRef.current;
 
@@ -134,10 +129,8 @@ export default function InteractiveGlobe({
 
       ctx.beginPath();
       ctx.arc(sx, sy, dotSize, 0, Math.PI * 2);
-      ctx.globalAlpha = depthAlpha;
-      ctx.fillStyle = dotGradient;
+      ctx.fillStyle = dotColor.replace('ALPHA', depthAlpha.toFixed(2));
       ctx.fill();
-      ctx.globalAlpha = 1;
     }
 
     // Draw connections
