@@ -841,10 +841,10 @@ body {
   --dev-tab-bg: #f3f4f6;
   --dev-tab-text: #4b5563;
   --dev-tab-inactive: #211F26;
-  --dev-pink: #d03984;
-  --dev-pink-hover: #b02e73;
-  --dev-gradient: linear-gradient(90deg, #d03984 0%, #ed8776 100%);
-  --dev-gradient-dark: linear-gradient(90deg, #b02e73 0%, #d4695f 100%);
+  --dev-pink: #CD3387;
+  --dev-pink-hover: #a8296d;
+  --dev-gradient: linear-gradient(90deg, #CD3387 0%, #F29774 100%);
+  --dev-gradient-dark: linear-gradient(90deg, #a8296d 0%, #cf7a5b 100%);
   --dev-bio-text: #65636D;
   --dev-row-hover: #f4f4f6;
   --dev-card-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
@@ -863,8 +863,8 @@ body {
   --dev-tab-text: #a1a1aa;
   --dev-tab-inactive: #a1a1aa;
   --dev-pink: #df90c7;
-  --dev-gradient: linear-gradient(90deg, #e0609a 0%, #f0a08a 100%);
-  --dev-gradient-dark: linear-gradient(90deg, #c74a86 0%, #dd7f6e 100%);
+  --dev-gradient: linear-gradient(90deg, #d84e96 0%, #f6a585 100%);
+  --dev-gradient-dark: linear-gradient(90deg, #c14a86 0%, #dd8a6d 100%);
   --dev-row-hover: #17171b;
   --dev-pink-hover: #eab4d8;
   --dev-bio-text: #a1a1aa;
