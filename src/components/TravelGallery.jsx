@@ -1,3 +1,4 @@
+import { playUiSound } from '../utils/sound';
 import React, { useState } from 'react';
 import { MapPin, X } from 'lucide-react';
 
@@ -62,7 +63,7 @@ export default function TravelGallery() {
           <div
             key={item.id}
             className="travel-card"
-            onClick={() => setSelectedPhoto(item)}
+            onClick={() => { playUiSound('open'); setSelectedPhoto(item); }}
             style={{ cursor: 'pointer' }}
           >
             <div className="travel-img-container">
@@ -103,7 +104,7 @@ export default function TravelGallery() {
             justifyContent: 'center',
             padding: '24px'
           }}
-          onClick={() => setSelectedPhoto(null)}
+          onClick={() => { playUiSound('close'); setSelectedPhoto(null); }}
         >
           <button
             style={{
@@ -119,7 +120,7 @@ export default function TravelGallery() {
               alignItems: 'center',
               justifyContent: 'center'
             }}
-            onClick={() => setSelectedPhoto(null)}
+            onClick={() => { playUiSound('close'); setSelectedPhoto(null); }}
             aria-label="Close"
           >
             <X size={20} />

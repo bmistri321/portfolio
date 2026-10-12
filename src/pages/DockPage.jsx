@@ -1,6 +1,7 @@
 import React from 'react';
 import { ArrowLeft } from 'lucide-react';
 import MacDock from '../components/MacDock';
+import { playUiSound } from '../utils/sound';
 
 export default function DockPage({ onNavigate }) {
   return (
@@ -8,7 +9,7 @@ export default function DockPage({ onNavigate }) {
       <header className="dock-page-header">
         <button
           className="dock-back-link"
-          onClick={() => onNavigate('/')}
+          onClick={() => { playUiSound('close'); onNavigate('/'); }}
         >
           <ArrowLeft size={14} />
           <span>Back</span>

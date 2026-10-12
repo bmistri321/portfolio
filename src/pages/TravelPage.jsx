@@ -1,6 +1,7 @@
 import React from 'react';
 import { ArrowLeft } from 'lucide-react';
 import TravelGallery from '../components/TravelGallery';
+import { playUiSound } from '../utils/sound';
 
 export default function TravelPage({ onNavigate }) {
   return (
@@ -8,7 +9,7 @@ export default function TravelPage({ onNavigate }) {
       <header className="cs-header">
         <button
           className="cs-back-btn"
-          onClick={() => onNavigate('/')}
+          onClick={() => { playUiSound('close'); onNavigate('/'); }}
         >
           <ArrowLeft size={16} />
           <span>Back</span>

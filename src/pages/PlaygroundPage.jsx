@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import SharedFooter from '../components/SharedFooter';
 import CustomCursor from '../components/CustomCursor';
 import Lightbox from '../components/Lightbox';
+import { playUiSound } from '../utils/sound';
 
 export default function PlaygroundPage() {
   const [lightboxOpen, setLightboxOpen] = useState(false);
@@ -47,7 +48,7 @@ export default function PlaygroundPage() {
                   <div 
                     key={idx}
                     className="pm-pin-item pm-pg-image pm-img-loaded"
-                    onClick={() => handleOpenLightbox(idx)}
+                    onClick={() => { playUiSound('open'); handleOpenLightbox(idx); }}
                     onMouseEnter={() => setIsHovering(true)}
                     onMouseLeave={() => { setIsHovering(false); setIsClicked(false); }}
                     onMouseDown={() => setIsClicked(true)}

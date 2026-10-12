@@ -6,6 +6,7 @@ import { contentService, calculateReadingTime } from '../lib/contentService';
 import { applyPageMeta } from '../lib/pageMeta';
 import DOMPurify from 'dompurify';
 import { isHtml } from '../lib/miniFormat';
+import { playUiSound } from '../utils/sound';
 
 // ---------------------------------------------------------------------------
 // Mini rich-text renderer for CMS article bodies.
@@ -333,7 +334,7 @@ export default function DevArticlePage({ slug, onNavigate }) {
       <div className="dev-page-animate" style={{ padding: '80px 24px', textAlign: 'center' }}>
         <button
           className="cs-back-btn"
-          onClick={() => onNavigate('/')}
+          onClick={() => { playUiSound('close'); onNavigate('/'); }}
           style={{ marginBottom: '24px' }}
         >
           <ArrowLeft size={16} />

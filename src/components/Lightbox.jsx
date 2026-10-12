@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { playUiSound } from '../utils/sound';
 
 export default function Lightbox({ images, currentIndex, isOpen, onClose, onPrev, onNext }) {
   useEffect(() => {
@@ -27,9 +28,9 @@ export default function Lightbox({ images, currentIndex, isOpen, onClose, onPrev
   const currentImg = images[currentIndex] || images[0];
 
   return (
-    <div className={`pm-lightbox ${isOpen ? 'active' : ''}`} onClick={onClose}>
+    <div className={`pm-lightbox ${isOpen ? 'active' : ''}`} onClick={() => { playUiSound('close'); onClose(); }}>
       <div className="pm-lightbox-inner" onClick={(e) => e.stopPropagation()}>
-        <button aria-label="Close" className="pm-lightbox-close" onClick={onClose}>
+        <button aria-label="Close" className="pm-lightbox-close" onClick={() => { playUiSound('close'); onClose(); }}>
           <svg strokeLinecap="round" strokeWidth="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path d="M18 6L6 18M6 6l12 12" />
           </svg>
@@ -38,7 +39,7 @@ export default function Lightbox({ images, currentIndex, isOpen, onClose, onPrev
         <button 
           aria-label="Previous" 
           className="pm-lightbox-prev" 
-          onClick={onPrev}
+          onClick={() => { playUiSound('tab'); onPrev(); }}
           style={{
             opacity: currentIndex > 0 ? 0.85 : 0.25,
             pointerEvents: currentIndex > 0 ? 'auto' : 'none'
@@ -52,7 +53,7 @@ export default function Lightbox({ images, currentIndex, isOpen, onClose, onPrev
         <button 
           aria-label="Next" 
           className="pm-lightbox-next" 
-          onClick={onNext}
+          onClick={() => { playUiSound('tab'); onNext(); }}
           style={{
             opacity: currentIndex < images.length - 1 ? 0.85 : 0.25,
             pointerEvents: currentIndex < images.length - 1 ? 'auto' : 'none'

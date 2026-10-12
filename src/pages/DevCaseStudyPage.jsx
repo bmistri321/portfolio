@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { contentService, CONTENT_LIST_SELECT } from '../lib/contentService';
+import { playUiSound } from '../utils/sound';
 
 // Case-study index: rendered from the CMS so it always matches the admin panel.
 export default function DevCaseStudyPage({ onNavigate }) {
@@ -38,7 +39,7 @@ export default function DevCaseStudyPage({ onNavigate }) {
       <header className="cs-header">
         <button
           className="cs-back-btn"
-          onClick={() => onNavigate('/')}
+          onClick={() => { playUiSound('close'); onNavigate('/'); }}
         >
           <ArrowLeft size={16} />
           <span>Back</span>
@@ -65,7 +66,10 @@ export default function DevCaseStudyPage({ onNavigate }) {
               onClick={(e) => {
                 if (project.link.startsWith('/')) {
                   e.preventDefault();
+                  playUiSound('open');
                   onNavigate(project.link);
+                } else {
+                  playUiSound('click');
                 }
               }}
               className="dev-project-card"
