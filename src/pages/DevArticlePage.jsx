@@ -89,8 +89,18 @@ function renderSectionBody(body) {
 
 const RICH_ALLOWED = {
   ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 's', 'a', 'ul', 'ol', 'li',
-    'blockquote', 'h2', 'h3', 'img', 'figure', 'figcaption', 'video', 'source', 'hr', 'div'],
-  ALLOWED_ATTR: ['href', 'target', 'rel', 'src', 'alt', 'data-caption', 'controls', 'preload', 'autoplay', 'muted', 'playsinline', 'loop', 'class', 'data-sentiment'],
+    'blockquote', 'h2', 'h3', 'img', 'figure', 'figcaption', 'video', 'source', 'hr', 'div',
+    // Inline SVG diagrams pasted from the editor (scripts/event handlers still stripped by DOMPurify)
+    'svg', 'g', 'path', 'circle', 'rect', 'line', 'polyline', 'polygon', 'ellipse',
+    'text', 'tspan', 'defs', 'use', 'symbol', 'clipPath', 'mask', 'pattern',
+    'linearGradient', 'radialGradient', 'stop'],
+  ALLOWED_ATTR: ['href', 'target', 'rel', 'src', 'alt', 'data-caption', 'controls', 'preload', 'autoplay', 'muted', 'playsinline', 'loop', 'class', 'data-sentiment',
+    // SVG presentation attributes
+    'viewBox', 'xmlns', 'fill', 'stroke', 'stroke-width', 'd', 'cx', 'cy', 'r',
+    'x', 'y', 'x1', 'y1', 'x2', 'y2', 'width', 'height', 'points', 'transform',
+    'opacity', 'fill-opacity', 'stroke-opacity', 'fill-rule', 'clip-rule',
+    'stroke-linecap', 'stroke-linejoin', 'stroke-dasharray', 'font-size', 'font-family',
+    'text-anchor', 'id', 'offset', 'stop-color', 'stop-opacity'],
 };
 
 // Makes repeat ids unique: foo, foo-2, foo-3… (duplicate headings otherwise
@@ -204,6 +214,13 @@ function splitArticleHtml(html) {
       // section nav.
       if (!label) return;
       startSection(slugId(label), label, true);
+      // Preserve media nested inside the heading (e.g. an image accidentally
+      // placed in the H2 by the editor) — otherwise it is silently dropped.
+      Array.from(node.childNodes).forEach((child) => {
+        if (child.nodeName !== '#text' && child.outerHTML) {
+          cur.parts.push(child.outerHTML);
+        }
+      });
     } else {
       if (!cur) startSection('overview', 'Overview', false);
       cur.parts.push(node.outerHTML !== undefined ? node.outerHTML : node.textContent);
