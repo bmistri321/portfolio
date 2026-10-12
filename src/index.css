@@ -2024,3 +2024,24 @@ body {
 .pm-app-container img {
   -webkit-user-drag: none;
 }
+
+/* Hide page scrollbar on the public site (keep scrolling working).
+   Scoped via :has() so the admin CMS keeps its scrollbars. */
+html:has(.dev-app-wrapper),
+html:has(.pm-app-container) {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+html:has(.dev-app-wrapper)::-webkit-scrollbar,
+html:has(.pm-app-container)::-webkit-scrollbar {
+  display: none;
+}
+html:has(.dev-app-wrapper) body,
+html:has(.pm-app-container) body {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+html:has(.dev-app-wrapper) body::-webkit-scrollbar,
+html:has(.pm-app-container) body::-webkit-scrollbar {
+  display: none;
+}
