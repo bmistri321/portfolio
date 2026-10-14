@@ -6,20 +6,32 @@ import { uploadToCloudinary, optimizedCloudinaryUrl } from '../lib/cloudinary';
 // Runs in the admin with the logged-in session. Visit /admin/migrate-cloudinary
 // while logged in, click Start, keep the tab open.
 const SUPABASE_HOST = 'supabase.co';
+const SUPABASE_PUBLIC = 'https://vieqhbbzndgyqwspgkmy.supabase.co/storage/v1/object/public/portfolio-media/';
+
+// Matches both raw Supabase URLs and /media/ proxy paths (which are
+// Supabase-hosted behind the proxy).
+function isSupabaseUrl(u) {
+  return typeof u === 'string' && (u.includes(SUPABASE_HOST) || u.startsWith('/media/'));
+}
+
+// Cloudinary needs a full URL to fetch from — expand /media/ paths back.
+function fetchableUrl(u) {
+  if (u.startsWith('/media/')) return SUPABASE_PUBLIC + u.slice('/media/'.length);
+  return u;
+}
 
 function extractSupabaseUrls(item) {
   const urls = new Set();
   const fields = ['cover_image', 'thumbnail', 'og_image'];
   for (const f of fields) {
-    const v = item[f];
-    if (typeof v === 'string' && v.includes(SUPABASE_HOST)) urls.add(v);
+    if (isSupabaseUrl(item[f])) urls.add(item[f]);
   }
   // Also check metadata JSON for image URLs
   try {
     const meta = typeof item.metadata === 'string' ? JSON.parse(item.metadata) : item.metadata;
     if (meta) {
       for (const v of Object.values(meta)) {
-        if (typeof v === 'string' && v.includes(SUPABASE_HOST)) urls.add(v);
+        if (isSupabaseUrl(v)) urls.add(v);
       }
     }
   } catch { /* ignore */ }
@@ -28,7 +40,7 @@ function extractSupabaseUrls(item) {
   const imgRe = /<img[^>]+src=["']([^"']+)["']/gi;
   let m;
   while ((m = imgRe.exec(html)) !== null) {
-    if (m[1].includes(SUPABASE_HOST)) urls.add(m[1]);
+    if (isSupabaseUrl(m[1])) urls.add(m[1]);
   }
   return [...urls];
 }
@@ -73,7 +85,7 @@ export default function MigrateToCloudinaryPage() {
         try {
           // Cloudinary can fetch directly from the URL
           const form = new FormData();
-          form.append('file', oldUrl);
+          form.append('file', fetchableUrl(oldUrl));
           form.append('upload_preset', 'portfolio_uploads');
           form.append('folder', 'portfolio');
           const res = await fetch('https://api.cloudinary.com/v1_1/ovj5ffsn/image/upload', {
