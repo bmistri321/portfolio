@@ -27,9 +27,9 @@ export async function uploadToCloudinary(file) {
 
 // Delivery URL with automatic format (AVIF/WebP) and quality optimization.
 // Cloudinary picks the best format the visitor's browser supports.
-export function optimizedCloudinaryUrl(url, { width } = {}) {
+// Requires "Strict transformations" OFF in Cloudinary Settings > Security.
+export function optimizedCloudinaryUrl(url) {
   if (!url || !url.includes('res.cloudinary.com')) return url;
-  const transforms = ['f_auto', 'q_auto'];
-  if (width) transforms.push(`w_${width}`, 'c_limit');
-  return url.replace('/upload/', `/upload/${transforms.join(',')}/`);
+  if (url.includes('/upload/f_auto,q_auto/')) return url;
+  return url.replace('/upload/', '/upload/f_auto,q_auto/');
 }
