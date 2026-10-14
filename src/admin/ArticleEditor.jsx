@@ -207,13 +207,14 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
   const imageInputRef = useRef(null);
   const videoInputRef = useRef(null);
   const gifInputRef = useRef(null);
+  const svgInputRef = useRef(null);
 
   useEffect(() => {
     if (quillRef.current || !containerRef.current) return;
 
     const quill = new Quill(containerRef.current, {
       theme: 'bubble',
-      placeholder: placeholder || 'Start writing… Use the Insert panel for images, video, GIFs or dividers.',
+      placeholder: placeholder || 'Start writing… Use the Insert panel for images, SVG, video, GIFs or dividers.',
       modules: { toolbar: TOOLBAR },
     });
 
@@ -445,6 +446,7 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
     if (kind === 'image') imageInputRef.current?.click();
     else if (kind === 'video') videoInputRef.current?.click();
     else if (kind === 'gif') gifInputRef.current?.click();
+    else if (kind === 'svg') svgInputRef.current?.click();
   };
 
   const handleFile = async (kind, file, atIndex) => {
@@ -609,7 +611,7 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
     const idx = blotIndexOf(node);
     pendingIndex.current = idx !== null ? idx : cursorIndex();
     const input =
-      kind === 'video' ? videoInputRef.current : kind === 'gif' ? gifInputRef.current : imageInputRef.current;
+      kind === 'video' ? videoInputRef.current : kind === 'gif' ? gifInputRef.current : kind === 'svg' ? svgInputRef.current : imageInputRef.current;
     if (input) {
       // If the file dialog is dismissed, forget the pending replacement.
       const onCancel = () => {
@@ -803,6 +805,16 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
         style={{ display: 'none' }}
         onChange={(e) => {
           handleFile('gif', e.target.files[0]);
+          e.target.value = '';
+        }}
+      />
+      <input
+        ref={svgInputRef}
+        type="file"
+        accept="image/svg+xml,.svg"
+        style={{ display: 'none' }}
+        onChange={(e) => {
+          handleFile('svg', e.target.files[0]);
           e.target.value = '';
         }}
       />
