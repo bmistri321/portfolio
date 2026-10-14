@@ -11,13 +11,19 @@ function setMetaContent(attr, key, content) {
   if (el) el.setAttribute('content', content);
 }
 
-export function applyPageMeta({ title, description } = {}) {
+export function applyPageMeta({ title, description, image } = {}) {
   const desc = description || DEFAULT_DESCRIPTION;
   if (title) {
     document.title = title;
     setMetaContent('property', 'og:title', title);
+    setMetaContent('name', 'twitter:title', title);
   }
   setMetaContent('name', 'description', desc);
   setMetaContent('property', 'og:description', desc);
+  setMetaContent('name', 'twitter:description', desc);
   setMetaContent('property', 'og:url', window.location.href);
+  if (image) {
+    setMetaContent('property', 'og:image', image);
+    setMetaContent('name', 'twitter:image', image);
+  }
 }
