@@ -32,7 +32,8 @@ import {
   X,
   Link2,
   RefreshCw,
-  Download
+  Download,
+  Shapes as ShapesIcon
 } from 'lucide-react';
 import {
   contentService,
@@ -50,6 +51,7 @@ const EMOJIS = ['✨', '💡', '🚀', '🔥', '⚡', '🛠️', '🎨', '📐',
 // dropped on a tile, click inserts at the cursor / opens the file picker.
 const INSERT_TILES = [
   { kind: 'image', label: 'Image', hint: 'Upload or paste link', Icon: ImageIcon },
+  { kind: 'svg', label: 'SVG', hint: 'Upload vector', Icon: ShapesIcon },
   { kind: 'video', label: 'Video', hint: 'Upload MP4', Icon: Video },
   { kind: 'gif', label: 'GIF', hint: 'Upload', Icon: Film },
   { kind: 'divider', label: 'Divider', hint: 'Horizontal line', Icon: Minus },
@@ -912,7 +914,11 @@ export default function EditorPage({
                     e.preventDefault();
                     e.stopPropagation();
                     if (kind === 'quote') return;
-                    const files = Array.from(e.dataTransfer.files || []);
+                    let files = Array.from(e.dataTransfer.files || []);
+                    // SVG tile only accepts SVG files
+                    if (kind === 'svg') {
+                      files = files.filter((f) => f.type === 'image/svg+xml' || f.name.toLowerCase().endsWith('.svg'));
+                    }
                     if (files.length) articleRef.current?.insertFiles(null, files);
                   }}
                   onClick={() => {
@@ -1371,7 +1377,7 @@ export default function EditorPage({
                   onChange={(html) => handleFieldChange('content', html)}
                   onRequestQuote={(idx) => setQuotePopup({ index: idx })}
                   onRequestImage={(idx) => { setImageLinkIndex(idx); setImageLinkError(''); setImageLinkOpen(true); }}
-                  placeholder="Write the case study… Use the Insert panel for text, images, video, GIFs or dividers."
+                  placeholder="Write the case study… Use the Insert panel for text, images, SVG, video, GIFs or dividers."
                 />
               </div>
             </div>
