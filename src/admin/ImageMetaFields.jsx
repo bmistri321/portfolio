@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 // Edits write straight onto the <img> node (alt / data-caption attributes)
 // and push through the normal change pipeline so autosave picks them up.
 // Rendered as an overlay OUTSIDE the Quill document — never saved into content.
-export default function ImageMetaFields({ node, top, left, onCommit, onLeave }) {
+export default function ImageMetaFields({ node, top, left, onCommit, onLeave, onEnter }) {
   const [alt, setAlt] = useState('');
   const [caption, setCaption] = useState('');
 
@@ -33,6 +33,7 @@ export default function ImageMetaFields({ node, top, left, onCommit, onLeave }) 
     <div
       className="admin-media-fields"
       style={{ position: 'absolute', top, left, zIndex: 40 }}
+      onMouseEnter={onEnter}
       onMouseLeave={onLeave}
     >
       <label className="admin-media-field">

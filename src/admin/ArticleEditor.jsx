@@ -197,6 +197,19 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
 
   const [uploading, setUploading] = useState(null); // 'image' | 'video' | 'gif' | null
   const [mediaHover, setMediaHover] = useState(null); // { kind, node, top, right } | null
+  const mediaHoverHideTimer = useRef(null);
+  const clearMediaHoverSoon = () => {
+    // Small delay so moving between the image, the Delete/Replace bar and the
+    // Alt/Caption card doesn't flicker the popup away.
+    if (mediaHoverHideTimer.current) clearTimeout(mediaHoverHideTimer.current);
+    mediaHoverHideTimer.current = setTimeout(() => setMediaHover(null), 180);
+  };
+  const cancelMediaHoverHide = () => {
+    if (mediaHoverHideTimer.current) {
+      clearTimeout(mediaHoverHideTimer.current);
+      mediaHoverHideTimer.current = null;
+    }
+  };
   const [videoSettings, setVideoSettings] = useState(null); // { node, top, right, settings } | null
   const videoSettingsRef = useRef(null);
   const [dropHint, setDropHint] = useState(null); // { top } | null — blue insert line while dragging
@@ -234,6 +247,7 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
     const onMediaOver = (e) => {
       const t = e.target && e.target.closest ? e.target.closest('img, video, hr.article-divider') : null;
       if (t && quill.root.contains(t) && wrapRef.current) {
+        cancelMediaHoverHide();
         const wrapRect = wrapRef.current.getBoundingClientRect();
         const r = t.getBoundingClientRect();
         const srcAttr = t.getAttribute('src') || '';
@@ -254,7 +268,7 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
       const t = e.target && e.target.closest ? e.target.closest('img, video, hr.article-divider') : null;
       const rtt = rt && rt.closest ? rt.closest('img, video, hr.article-divider') : null;
       if (t && t === rtt) return;
-      setMediaHover(null);
+      clearMediaHoverSoon();
     };
     const onScrollHide = () => { setMediaHover(null); closeVideoSettings(); };
     quill.root.addEventListener('mouseover', onMediaOver);
@@ -708,9 +722,10 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
         <div
           className="admin-media-hoverbar"
           style={{ position: 'absolute', top: mediaHover.top, right: mediaHover.right, zIndex: 40 }}
+          onMouseEnter={cancelMediaHoverHide}
           onMouseLeave={(e) => {
             if (e.relatedTarget && e.relatedTarget.closest && e.relatedTarget.closest('.vp-overlay')) return;
-            setMediaHover(null);
+            clearMediaHoverSoon();
           }}
         >
           <button type="button" className="danger" onMouseDown={(e) => e.preventDefault()} onClick={deleteHoverMedia}>
@@ -738,7 +753,8 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
           top={mediaHover.top + 40}
           left={mediaHover.left}
           onCommit={commitImageMeta}
-          onLeave={() => setMediaHover(null)}
+          onLeave={clearMediaHoverSoon}
+          onEnter={cancelMediaHoverHide}
         />
       )}
 
