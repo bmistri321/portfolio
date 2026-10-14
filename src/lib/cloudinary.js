@@ -25,11 +25,9 @@ export async function uploadToCloudinary(file) {
   return data.secure_url;
 }
 
-// Delivery URL with automatic format (AVIF/WebP) and quality optimization.
-// Cloudinary picks the best format the visitor's browser supports.
-export function optimizedCloudinaryUrl(url, { width } = {}) {
-  if (!url || !url.includes('res.cloudinary.com')) return url;
-  const transforms = ['f_auto', 'q_auto'];
-  if (width) transforms.push(`w_${width}`, 'c_limit');
-  return url.replace('/upload/', `/upload/${transforms.join(',')}/`);
+// Delivery URL. NOTE: this Cloudinary account blocks on-the-fly transformations
+// (strict mode), so we serve the raw CDN URL. The global CDN alone is still
+// much faster than the previous Supabase proxy.
+export function optimizedCloudinaryUrl(url) {
+  return url;
 }

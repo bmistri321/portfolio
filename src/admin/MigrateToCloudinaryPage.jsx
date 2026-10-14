@@ -103,6 +103,27 @@ export default function MigrateToCloudinaryPage() {
         }
       }
 
+      // Fix any Cloudinary URLs saved with the blocked f_auto,q_auto transform
+      const brokenTransform = '/upload/f_auto,q_auto/';
+      for (const item of items) {
+        let fixed = false;
+        const updates = {};
+        for (const f of ['cover_image', 'thumbnail', 'og_image']) {
+          if (typeof item[f] === 'string' && item[f].includes(brokenTransform)) {
+            updates[f] = item[f].split(brokenTransform).join('/upload/');
+            fixed = true;
+          }
+        }
+        if (typeof item.content === 'string' && item.content.includes(brokenTransform)) {
+          updates.content = item.content.split(brokenTransform).join('/upload/');
+          fixed = true;
+        }
+        if (fixed) {
+          await contentService.update(item.id, updates);
+          addLog(`Fixed transforms: ${item.title || item.id}`);
+        }
+      }
+
       // Update each content item with the new URLs
       let updated = 0;
       for (const [id, { item, urls }] of itemUrls) {
