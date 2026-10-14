@@ -302,7 +302,7 @@ export default function ContentListPage({
   };
 
   return (
-    <div className="admin-page-container">
+    <div className="admin-page-container admin-page-container--fluid">
       {/* Header */}
       <div className="admin-page-header">
         <div>
