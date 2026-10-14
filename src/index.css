@@ -1980,7 +1980,8 @@ body {
   width: 100%;
   margin: 0;
 }
-.cs-html-body > p > img:only-child {
+.cs-html-body > p > img:only-child,
+.cs-html-body > p > .img-skeleton-wrap:only-child {
   width: min(880px, 94vw);
   max-width: none;
   height: auto;
