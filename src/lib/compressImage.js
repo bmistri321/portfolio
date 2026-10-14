@@ -7,7 +7,10 @@ const MAX_IMG_DIM = 1600;
 
 export async function compressImage(file) {
   if (!file) return file;
-  if (file.type === 'image/gif' || file.type === 'image/svg+xml') return file;
+  if (file.type === 'image/gif') return file;
+  if (file.type === 'image/svg+xml' || file.name.toLowerCase().endsWith('.svg')) {
+    return optimizeSvg(file);
+  }
   let bitmap;
   try {
     bitmap = await createImageBitmap(file);
@@ -36,4 +39,28 @@ export async function compressImage(file) {
   if (!blob) return file;
   const name = file.name.replace(/\.[a-z0-9]+$/i, '') + ext;
   return new File([blob], name, { type: outType });
+}
+
+// Lossless SVG optimization via SVGO: strips editor metadata, comments,
+// empty groups and minifies paths. Falls back to the original file if
+// anything fails.
+export async function optimizeSvg(file) {
+  try {
+    const { optimize } = await import('svgo');
+    const text = await file.text();
+    const result = optimize(text, {
+      multipass: true,
+      plugins: [
+        'preset-default',
+        // Keep viewBox so the SVG scales correctly when resized.
+        { name: 'removeViewBox', active: false },
+      ],
+    });
+    if (result && result.data && result.data.length < text.length) {
+      return new File([result.data], file.name, { type: 'image/svg+xml' });
+    }
+  } catch {
+    /* fall through to original */
+  }
+  return file;
 }
