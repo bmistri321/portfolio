@@ -11,6 +11,28 @@
       "source": "/api/(.*)"
     },
     {
+      "source": "/casestudy/:slug",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": "(.*facebookexternalhit.*|.*Twitterbot.*|.*LinkedInBot.*|.*WhatsApp.*|.*TelegramBot.*|.*Slackbot.*|.*Discordbot.*|.*Pinterest.*)"
+        }
+      ],
+      "destination": "/api/og?path=/casestudy/:slug"
+    },
+    {
+      "source": "/writing/:slug",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": "(.*facebookexternalhit.*|.*Twitterbot.*|.*LinkedInBot.*|.*WhatsApp.*|.*TelegramBot.*|.*Slackbot.*|.*Discordbot.*|.*Pinterest.*)"
+        }
+      ],
+      "destination": "/api/og?path=/writing/:slug"
+    },
+    {
       "destination": "/index.html",
       "source": "/(.*)"
     }

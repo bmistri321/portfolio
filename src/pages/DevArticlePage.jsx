@@ -328,7 +328,8 @@ export default function DevArticlePage({ slug, onNavigate }) {
     if (item) {
       applyPageMeta({
         title: item.seo_title || (item.title ? `${item.title} — Bishal Mistri` : undefined),
-        description: item.seo_description || item.excerpt || undefined
+        description: item.seo_description || item.excerpt || undefined,
+        image: item.cover_image || item.thumbnail || undefined
       });
     }
   }, [item]);
