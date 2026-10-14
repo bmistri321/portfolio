@@ -1,4 +1,39 @@
 import React, { useState, useEffect, useRef } from 'react';
+
+// Progressive reveal: children fade in when scrolled into view.
+// Above-the-fold content renders immediately; below-the-fold waits.
+function Reveal({ children, className = '', delay = 0, as: Tag = 'div', ...rest }) {
+  const ref = useRef(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    // If already in view on mount, show immediately without waiting.
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisible(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '80px', threshold: 0.05 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <Tag
+      ref={ref}
+      className={`${className} reveal${visible ? ' reveal-visible' : ''}`}
+      style={{ transitionDelay: `${delay}ms` }}
+      {...rest}
+    >
+      {children}
+    </Tag>
+  );
+}
 import { 
   Volume2, 
   VolumeX, 
@@ -316,15 +351,17 @@ export default function DevHomePage({ onNavigate }) {
       {/* 6. 2-COLUMN PROJECT GRID */}
       {activeTab === 'writing' ? (
         <div className="dev-writing-list">
-          {getActiveList().map((item) => {
+          {getActiveList().map((item, idx) => {
             const isInternal = item.url && item.url.startsWith('/');
             return (
-              <a
+              <Reveal
+                as="a"
                 key={item.id || item.title}
                 href={item.url}
                 target={isInternal ? undefined : "_blank"}
                 rel={isInternal ? undefined : "noopener noreferrer"}
                 className="dev-writing-row"
+                delay={Math.min(idx, 5) * 50}
                 onClick={(e) => {
                   playUiSound('click');
                   if (isInternal) {
@@ -337,14 +374,15 @@ export default function DevHomePage({ onNavigate }) {
                 <span className="dev-writing-icon"><FileText size={18} /></span>
                 <h2 className="dev-card-title dev-writing-title">{item.title}</h2>
                 <span className="dev-writing-year">{item.year}</span>
-              </a>
+              </Reveal>
             );
           })}
         </div>
       ) : (
         <div className="dev-cards-grid">
-          {getActiveList().map((project) => (
-            <a
+          {getActiveList().map((project, idx) => (
+            <Reveal
+              as="a"
               key={project.id}
               href={project.link}
               onClick={(e) => {
@@ -355,6 +393,7 @@ export default function DevHomePage({ onNavigate }) {
                 }
               }}
               className="dev-project-card"
+              delay={Math.min(idx, 5) * 60}
             >
               {project.slug && project.slug.startsWith('friender') ? (
                 <div className="dev-card-img-box">
@@ -392,18 +431,18 @@ export default function DevHomePage({ onNavigate }) {
                 </div>
                 {project.metric && <p className="dev-card-metric">{project.metric}</p>}
               </div>
-            </a>
+            </Reveal>
           ))}
         </div>
       )}
 
       {/* 7. MINIMAL FOOTER */}
-      <footer className="dev-footer-row">
+      <Reveal as="footer" className="dev-footer-row">
         <div className="dev-footer-text">
           Built with <span className="dev-footer-bold">React</span> and <span className="dev-footer-bold">Claude</span>
         </div>
         <a href="mailto:hello@bishalmistri.com" className="dev-footer-name" onClick={() => playUiSound('click')}>hello@bishalmistri.com</a>
-      </footer>
+      </Reveal>
       </div>
     </>
   );

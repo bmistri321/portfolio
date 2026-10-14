@@ -1193,6 +1193,21 @@ body {
 }
 
 /* 6. 2-COLUMN PROJECT CARDS GRID */
+/* Progressive reveal: below-the-fold content fades in on scroll */
+.reveal {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  will-change: opacity, transform;
+}
+.reveal-visible {
+  opacity: 1;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1; transform: none; transition: none; }
+}
+
 .dev-cards-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);

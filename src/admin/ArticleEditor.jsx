@@ -732,10 +732,10 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
         </div>
       )}
 
-      {mediaHover && (mediaHover.kind === 'image' || mediaHover.kind === 'gif') && mediaHover.node && (
+      {mediaHover && mediaHover.node && mediaHover.node.tagName === 'IMG' && (
         <ImageMetaFields
           node={mediaHover.node}
-          top={mediaHover.bottom}
+          top={mediaHover.top + 40}
           left={mediaHover.left}
           onCommit={commitImageMeta}
           onLeave={() => setMediaHover(null)}
