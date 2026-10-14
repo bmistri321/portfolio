@@ -50,10 +50,24 @@ export async function optimizeSvg(file) {
     const text = await file.text();
     const result = optimize(text, {
       multipass: true,
+      floatPrecision: 2,
       plugins: [
-        'preset-default',
-        // Keep viewBox so the SVG scales correctly when resized.
-        { name: 'removeViewBox', active: false },
+        {
+          name: 'preset-default',
+          params: {
+            overrides: {
+              // Keep viewBox so the SVG scales correctly when resized.
+              removeViewBox: false,
+              // Aggressive but visually lossless path minification.
+              convertPathData: { floatPrecision: 2 },
+              cleanupNumericValues: { floatPrecision: 2 },
+            },
+          },
+        },
+        // Extra wins: drop hidden elements, reuse repeated paths.
+        'removeOffCanvasPaths',
+        'reusePaths',
+        'removeEmptyContainers',
       ],
     });
     if (result && result.data && result.data.length < text.length) {
