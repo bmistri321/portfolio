@@ -473,7 +473,7 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
     replaceRef.current = null;
     setUploading(kind);
     try {
-      const processed = kind === 'image' ? await compressImage(file) : file;
+      const processed = (kind === 'image' || kind === 'svg') ? await compressImage(file) : file;
       const url = await uploadToSupabase(processed, file.name);
       let idx = clampIndex(atIndex ?? pendingIndex.current);
       // Replace: remove the old media first so the new one takes its exact spot.
