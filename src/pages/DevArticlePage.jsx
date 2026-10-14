@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import ArticleBody from '../components/ArticleBody';
 import { ArrowLeft } from 'lucide-react';
 import DevCaseStudyLayout from '../components/DevCaseStudyLayout';
 import SharedFooter from '../components/SharedFooter';
@@ -236,9 +237,9 @@ function splitArticleHtml(html) {
     }));
 }
 
-// Render one unified-document chunk as sanitized HTML.
+// Render one unified-document chunk as sanitized HTML with image skeletons.
 function renderArticleChunk(html) {
-  return <div className="cs-html-body" dangerouslySetInnerHTML={{ __html: html }} />;
+  return <ArticleBody html={html} />;
 }
 
 const slugId = (t) =>

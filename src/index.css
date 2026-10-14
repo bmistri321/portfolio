@@ -2060,3 +2060,37 @@ html:has(.dev-app-wrapper) body::-webkit-scrollbar,
 html:has(.pm-app-container) body::-webkit-scrollbar {
   display: none;
 }
+
+/* Image skeleton shimmer — shows while article images load. */
+.img-skeleton-wrap {
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  min-height: 220px;
+  background: linear-gradient(90deg, var(--dev-bg-subtle) 25%, var(--dev-border-subtle) 50%, var(--dev-bg-subtle) 75%);
+  background-size: 200% 100%;
+  animation: img-skeleton-shimmer 1.4s ease-in-out infinite;
+}
+.img-skeleton-wrap img {
+  display: block;
+  width: 100%;
+  height: auto;
+  opacity: 0;
+  transition: opacity 0.45s ease;
+}
+.img-skeleton-wrap.is-loaded {
+  animation: none;
+  background: none;
+  min-height: 0;
+}
+.img-skeleton-wrap.is-loaded img {
+  opacity: 1;
+}
+@keyframes img-skeleton-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .img-skeleton-wrap { animation: none; }
+  .img-skeleton-wrap img { transition: none; }
+}
