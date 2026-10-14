@@ -103,24 +103,28 @@ export default function MigrateToCloudinaryPage() {
         }
       }
 
-      // Fix any Cloudinary URLs saved with the blocked f_auto,q_auto transform
-      const brokenTransform = '/upload/f_auto,q_auto/';
+      // Ensure all Cloudinary URLs use f_auto,q_auto (strict mode is now off)
       for (const item of items) {
         let fixed = false;
         const updates = {};
+        const addTransform = (u) =>
+          typeof u === 'string' && u.includes('res.cloudinary.com') && !u.includes('/upload/f_auto,q_auto/')
+            ? u.replace('/upload/', '/upload/f_auto,q_auto/')
+            : u;
         for (const f of ['cover_image', 'thumbnail', 'og_image']) {
-          if (typeof item[f] === 'string' && item[f].includes(brokenTransform)) {
-            updates[f] = item[f].split(brokenTransform).join('/upload/');
-            fixed = true;
-          }
+          const nu = addTransform(item[f]);
+          if (nu !== item[f]) { updates[f] = nu; fixed = true; }
         }
-        if (typeof item.content === 'string' && item.content.includes(brokenTransform)) {
-          updates.content = item.content.split(brokenTransform).join('/upload/');
-          fixed = true;
+        if (typeof item.content === 'string') {
+          const nc = item.content.replace(
+            /https:\/\/res\.cloudinary\.com\/[^"']+?\/upload\/(?!f_auto,q_auto\/)/g,
+            (m) => m.replace('/upload/', '/upload/f_auto,q_auto/')
+          );
+          if (nc !== item.content) { updates.content = nc; fixed = true; }
         }
         if (fixed) {
           await contentService.update(item.id, updates);
-          addLog(`Fixed transforms: ${item.title || item.id}`);
+          addLog(`Updated transforms: ${item.title || item.id}`);
         }
       }
 
