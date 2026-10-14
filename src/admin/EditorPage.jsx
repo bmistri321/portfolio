@@ -43,6 +43,7 @@ import {
   generateUUID
 } from '../lib/contentService';
 import { compressImage } from '../lib/compressImage';
+import { uploadToCloudinary, optimizedCloudinaryUrl } from '../lib/cloudinary';
 import ArticleEditor from './ArticleEditor';
 
 const EMOJIS = ['✨', '💡', '🚀', '🔥', '⚡', '🛠️', '🎨', '📐', '🧠', '🔮', '🎯', '📌', '💎', '🌱', '📦', '🔍'];
@@ -570,12 +571,19 @@ export default function EditorPage({
     try {
       setSaveStatus('saving');
       const compressed = await compressImage(file);
-      const uploaded = await mediaService.upload(compressed, { alt_text: formData.title || 'Cover image' });
+      let coverUrl;
+      try {
+        coverUrl = optimizedCloudinaryUrl(await uploadToCloudinary(compressed));
+      } catch (err) {
+        console.warn('Cloudinary upload failed, falling back to Supabase:', err.message);
+        const uploaded = await mediaService.upload(compressed, { alt_text: formData.title || 'Cover image' });
+        coverUrl = uploaded.url;
+      }
       setFormData((prev) => ({
         ...prev,
-        cover_image: uploaded.url,
-        thumbnail: prev.thumbnail || uploaded.url,
-        og_image: prev.og_image || uploaded.url
+        cover_image: coverUrl,
+        thumbnail: prev.thumbnail || coverUrl,
+        og_image: prev.og_image || coverUrl
       }));
       setSaveStatus('saved');
     } catch (err) {

@@ -6,6 +6,7 @@ import { mediaService } from '../lib/contentService';
 import EditorVideoChrome from './EditorVideoChrome';
 import ImageMetaFields from './ImageMetaFields';
 import { compressImage } from '../lib/compressImage';
+import { uploadToCloudinary, optimizedCloudinaryUrl } from '../lib/cloudinary';
 
 // ---------------------------------------------------------------------------
 // Custom <video> blot (real video tag — Quill's built-in video blot is iframe-only)
@@ -164,6 +165,13 @@ const INSERT_MIME = 'application/x-insert-kind';
 // Upload to Supabase storage. NEVER falls back to a local data URI —
 // a failed upload throws instead of embedding base64 in the document.
 async function uploadToSupabase(file, altText) {
+  // Prefer Cloudinary (CDN + auto AVIF/WebP) for speed; fall back to Supabase.
+  try {
+    const url = await uploadToCloudinary(file);
+    return optimizedCloudinaryUrl(url);
+  } catch (err) {
+    console.warn('Cloudinary upload failed, falling back to Supabase:', err.message);
+  }
   const uploaded = await mediaService.upload(file, { alt_text: altText || file.name });
   if (!uploaded || !uploaded.url || uploaded.url.startsWith('data:')) {
     throw new Error('Upload failed — the file was not saved. Check your connection and try again.');
