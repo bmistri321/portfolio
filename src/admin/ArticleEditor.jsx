@@ -223,8 +223,11 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
     }
 
     quill.on('text-change', () => {
-      const isEmpty = quill.getText().trim().length === 0;
-      onChangeRef.current(isEmpty ? '' : quill.root.innerHTML);
+      // A document with only images/video/dividers (no text) is NOT empty —
+      // getText() ignores embeds, so check for media elements too.
+      const hasText = quill.getText().trim().length > 0;
+      const hasMedia = !!quill.root.querySelector('img, video, hr');
+      onChangeRef.current(hasText || hasMedia ? quill.root.innerHTML : '');
     });
 
     // Hovering an image/video/GIF/divider shows the Delete / Replace bar.
