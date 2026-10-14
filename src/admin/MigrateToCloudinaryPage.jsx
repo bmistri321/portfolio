@@ -1,0 +1,189 @@
+import React, { useState } from 'react';
+import { contentService } from '../lib/contentService';
+import { uploadToCloudinary, optimizedCloudinaryUrl } from '../lib/cloudinary';
+
+// One-time utility: migrate all Supabase-hosted images to Cloudinary CDN.
+// Runs in the admin with the logged-in session. Visit /admin/migrate-cloudinary
+// while logged in, click Start, keep the tab open.
+const SUPABASE_HOST = 'supabase.co';
+
+function extractSupabaseUrls(item) {
+  const urls = new Set();
+  const fields = ['cover_image', 'thumbnail', 'og_image'];
+  for (const f of fields) {
+    const v = item[f];
+    if (typeof v === 'string' && v.includes(SUPABASE_HOST)) urls.add(v);
+  }
+  // Also check metadata JSON for image URLs
+  try {
+    const meta = typeof item.metadata === 'string' ? JSON.parse(item.metadata) : item.metadata;
+    if (meta) {
+      for (const v of Object.values(meta)) {
+        if (typeof v === 'string' && v.includes(SUPABASE_HOST)) urls.add(v);
+      }
+    }
+  } catch { /* ignore */ }
+  // Find <img> tags in content HTML
+  const html = item.content || '';
+  const imgRe = /<img[^>]+src=["']([^"']+)["']/gi;
+  let m;
+  while ((m = imgRe.exec(html)) !== null) {
+    if (m[1].includes(SUPABASE_HOST)) urls.add(m[1]);
+  }
+  return [...urls];
+}
+
+export default function MigrateToCloudinaryPage() {
+  const [running, setRunning] = useState(false);
+  const [log, setLog] = useState([]);
+  const [done, setDone] = useState(false);
+  const [progress, setProgress] = useState({ current: 0, total: 0 });
+
+  const addLog = (msg) => setLog((prev) => [...prev.slice(-200), msg]);
+
+  const start = async () => {
+    setRunning(true);
+    setDone(false);
+    setLog([]);
+    setProgress({ current: 0, total: 0 });
+    const urlMap = new Map(); // old URL -> new Cloudinary URL
+
+    try {
+      const items = await contentService.getAll();
+      addLog(`Found ${items.length} content items.`);
+
+      // Collect all unique Supabase URLs across items
+      const allUrls = new Set();
+      const itemUrls = new Map();
+      for (const item of items) {
+        const urls = extractSupabaseUrls(item);
+        if (urls.length > 0) {
+          itemUrls.set(item.id, { item, urls });
+          urls.forEach((u) => allUrls.add(u));
+        }
+      }
+      addLog(`Found ${allUrls.size} unique Supabase-hosted images.`);
+      setProgress({ current: 0, total: allUrls.size });
+
+      // Upload each unique URL to Cloudinary (via URL — no download needed)
+      let i = 0;
+      for (const oldUrl of allUrls) {
+        i++;
+        setProgress({ current: i, total: allUrls.size });
+        try {
+          // Cloudinary can fetch directly from the URL
+          const form = new FormData();
+          form.append('file', oldUrl);
+          form.append('upload_preset', 'portfolio_uploads');
+          form.append('folder', 'portfolio');
+          const res = await fetch('https://api.cloudinary.com/v1_1/ovj5ffsn/image/upload', {
+            method: 'POST',
+            body: form,
+          });
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const data = await res.json();
+          if (!data.secure_url) throw new Error('No URL returned');
+          const newUrl = optimizedCloudinaryUrl(data.secure_url);
+          urlMap.set(oldUrl, newUrl);
+          addLog(`✓ ${i}/${allUrls.size}: migrated`);
+        } catch (err) {
+          addLog(`✗ ${i}/${allUrls.size}: failed — ${err.message}`);
+        }
+      }
+
+      // Update each content item with the new URLs
+      let updated = 0;
+      for (const [id, { item, urls }] of itemUrls) {
+        const updates = {};
+        let changed = false;
+
+        for (const f of ['cover_image', 'thumbnail', 'og_image']) {
+          if (item[f] && urlMap.has(item[f])) {
+            updates[f] = urlMap.get(item[f]);
+            changed = true;
+          }
+        }
+
+        // Replace URLs in content HTML
+        if (item.content) {
+          let newContent = item.content;
+          for (const oldUrl of urls) {
+            if (urlMap.has(oldUrl)) {
+              newContent = newContent.split(oldUrl).join(urlMap.get(oldUrl));
+            }
+          }
+          if (newContent !== item.content) {
+            updates.content = newContent;
+            changed = true;
+          }
+        }
+
+        if (changed) {
+          await contentService.update(id, updates);
+          updated++;
+          addLog(`Updated item: ${item.title || id}`);
+        }
+      }
+
+      addLog(`Done! Migrated ${urlMap.size} images across ${updated} items.`);
+      setDone(true);
+    } catch (err) {
+      addLog(`Fatal error: ${err.message}`);
+    } finally {
+      setRunning(false);
+    }
+  };
+
+  return (
+    <div className="admin-page-container" style={{ maxWidth: 720 }}>
+      <h1>Migrate Images to Cloudinary</h1>
+      <p style={{ color: 'var(--admin-text-2)', marginBottom: 20 }}>
+        This one-time tool moves all Supabase-hosted images to Cloudinary's CDN
+        for faster page loads. It updates covers, thumbnails, and article images
+        automatically. Keep this tab open until it finishes.
+      </p>
+      {!running && !done && (
+        <button className="admin-btn admin-btn-primary" onClick={start}>
+          Start Migration
+        </button>
+      )}
+      {(running || done) && progress.total > 0 && (
+        <div style={{ marginBottom: 16 }}>
+          <div style={{ fontSize: 13, marginBottom: 6 }}>
+            {progress.current} / {progress.total} images
+          </div>
+          <div style={{ height: 8, background: 'var(--admin-border)', borderRadius: 4, overflow: 'hidden' }}>
+            <div
+              style={{
+                height: '100%',
+                width: `${Math.round((progress.current / progress.total) * 100)}%`,
+                background: 'var(--admin-primary)',
+                transition: 'width 0.3s',
+              }}
+            />
+          </div>
+        </div>
+      )}
+      <div
+        style={{
+          background: '#1a1a1a',
+          color: '#e0e0e0',
+          borderRadius: 8,
+          padding: 16,
+          fontFamily: 'monospace',
+          fontSize: 12,
+          maxHeight: 400,
+          overflowY: 'auto',
+          whiteSpace: 'pre-wrap',
+        }}
+      >
+        {log.length === 0 ? 'Press Start to begin…' : log.join('\n')}
+      </div>
+      {done && (
+        <button className="admin-btn admin-btn-secondary" style={{ marginTop: 16 }} onClick={() => { setDone(false); setLog([]); }}>
+          Run Again
+        </button>
+      )}
+    </div>
+  );
+}

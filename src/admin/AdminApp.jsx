@@ -6,6 +6,7 @@ import ContentListPage from './ContentListPage';
 import EditorPage from './EditorPage';
 import MediaLibraryPage from './MediaLibraryPage';
 import CompressMediaPage from './CompressMediaPage';
+import MigrateToCloudinaryPage from './MigrateToCloudinaryPage';
 import SettingsPage from './SettingsPage';
 import { contentService } from '../lib/contentService';
 import { getStoredSession, supabaseAuth } from '../lib/supabase';
@@ -203,6 +204,10 @@ export default function AdminApp({ onNavigateLive }) {
 
     if (currentPath === '/admin/compress-media') {
       return <CompressMediaPage />;
+    }
+
+    if (currentPath === '/admin/migrate-cloudinary') {
+      return <MigrateToCloudinaryPage />;
     }
 
     if (currentPath === '/admin/settings') {
