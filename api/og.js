@@ -11,8 +11,7 @@ const SITE = 'https://www.bishalmistri.com';
 const DEFAULT_TITLE = 'Bishal Mistri — Product Designer';
 const DEFAULT_DESC =
   'Bishal Mistri is a Product Designer contributing to a better future by solving one problem at a time.';
-const DEFAULT_IMAGE =
-  'https://res.cloudinary.com/ovj5ffsn/image/upload/v1787150915/bishal_mistri.avif';
+const DEFAULT_IMAGE = ''; // No fallback — never show a stale photo.
 
 function esc(s) {
   return String(s || '')
@@ -63,7 +62,7 @@ export default async function handler(req, res) {
     if (item) {
       title = item.seo_title || (item.title ? `${item.title} — Bishal Mistri` : title);
       desc = item.seo_description || item.excerpt || desc;
-      image = item.cover_image || item.thumbnail || image;
+      image = item.cover_image || item.thumbnail || '';
     }
   }
 
@@ -78,11 +77,11 @@ export default async function handler(req, res) {
 <meta property="og:site_name" content="Bishal Mistri" />
 <meta property="og:title" content="${esc(title)}" />
 <meta property="og:description" content="${esc(desc)}" />
-<meta property="og:image" content="${esc(image)}" />
-<meta name="twitter:card" content="summary_large_image" />
+${image ? `<meta property="og:image" content="${esc(image)}" />` : ''}
+<meta name="twitter:card" content="${image ? 'summary_large_image' : 'summary'}" />
 <meta name="twitter:title" content="${esc(title)}" />
 <meta name="twitter:description" content="${esc(desc)}" />
-<meta name="twitter:image" content="${esc(image)}" />
+${image ? `<meta name="twitter:image" content="${esc(image)}" />` : ''}
 </head>
 <body><p>${esc(title)}</p></body>
 </html>`;
