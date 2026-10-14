@@ -367,6 +367,11 @@
   margin: 0 auto;
 }
 
+/* Fluid variant: full-width listing pages (content/work/writing/tinkering) */
+.admin-page-container--fluid {
+  max-width: none;
+}
+
 .admin-page-header {
   display: flex;
   align-items: flex-start;
