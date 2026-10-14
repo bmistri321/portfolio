@@ -7,6 +7,10 @@
   ],
   "rewrites": [
     {
+      "source": "/media/:path*",
+      "destination": "https://vieqhbbzndgyqwspgkmy.supabase.co/storage/v1/object/public/portfolio-media/:path*"
+    },
+    {
       "destination": "/api/$1",
       "source": "/api/(.*)"
     },

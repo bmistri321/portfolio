@@ -4,6 +4,7 @@
 
 import { supabaseRequest, getSupabaseConfig, getStoredSession } from './supabase';
 import { portfolioData } from '../data/portfolioData';
+import { toProxyUrl, proxyMediaInHtml } from './mediaUrl';
 
 const LOCAL_STORAGE_KEYS = {
   CONTENT: 'bm_cms_content_items_v2',
@@ -108,6 +109,31 @@ export function sanitizeContent(htmlOrMarkdown) {
     .replace(/javascript:[^"']*/gi, '#');
 }
 
+// Rewrite Supabase storage URLs to site-relative /media/ paths so the
+// Supabase project URL never appears in public HTML.
+function proxyItemMedia(item) {
+  if (!item || typeof item !== 'object') return item;
+  const out = { ...item };
+  if (out.cover_image) out.cover_image = toProxyUrl(out.cover_image);
+  if (out.thumbnail) out.thumbnail = toProxyUrl(out.thumbnail);
+  if (out.og_image) out.og_image = toProxyUrl(out.og_image);
+  if (out.content) out.content = proxyMediaInHtml(out.content);
+  if (out.metadata && typeof out.metadata === 'object') {
+    const meta = { ...out.metadata };
+    if (meta.sections && Array.isArray(meta.sections)) {
+      meta.sections = meta.sections.map((sec) => {
+        if (!sec || typeof sec !== 'object') return sec;
+        const s2 = { ...sec };
+        if (s2.body) s2.body = proxyMediaInHtml(s2.body);
+        if (s2.images && Array.isArray(s2.images)) s2.images = s2.images.map(toProxyUrl);
+        return s2;
+      });
+    }
+    out.metadata = meta;
+  }
+  return out;
+}
+
 // Lightweight column set for public list views (home, case-study index).
 // Skips the heavy `content` HTML column the lists never render.
 export const CONTENT_LIST_SELECT =
@@ -175,7 +201,7 @@ export const contentService = {
       return 0;
     });
 
-    return result;
+    return result.map(proxyItemMedia);
   },
 
   // 2. Fetch single item by ID
@@ -184,13 +210,14 @@ export const contentService = {
     if (config.isConfigured) {
       try {
         const rows = await supabaseRequest(`/rest/v1/content?id=eq.${encodeURIComponent(id)}&select=*`);
-        if (rows && rows.length > 0) return rows[0];
+        if (rows && rows.length > 0) return proxyItemMedia(rows[0]);
       } catch (err) {
         console.warn('Supabase getById failed, using local store:', err.message);
       }
     }
     const items = getLocalItems(LOCAL_STORAGE_KEYS.CONTENT, getInitialSeedContent);
-    return items.find(item => item.id === id) || null;
+    const found = items.find(item => item.id === id) || null;
+    return found ? proxyItemMedia(found) : null;
   },
 
   // 3. Fetch single published item by slug (for public site)
@@ -201,13 +228,14 @@ export const contentService = {
         let query = `/rest/v1/content?slug=eq.${encodeURIComponent(slug)}&status=eq.published&select=*`;
         if (type) query += `&type=eq.${encodeURIComponent(type)}`;
         const rows = await supabaseRequest(query);
-        if (rows && rows.length > 0) return rows[0];
+        if (rows && rows.length > 0) return proxyItemMedia(rows[0]);
       } catch (err) {
         console.warn('Supabase getBySlug failed, using local store:', err.message);
       }
     }
     const items = getLocalItems(LOCAL_STORAGE_KEYS.CONTENT, getInitialSeedContent);
-    return items.find(item => item.slug === slug && item.status === 'published' && (!type || item.type === type)) || null;
+    const match = items.find(item => item.slug === slug && item.status === 'published' && (!type || item.type === type)) || null;
+    return match ? proxyItemMedia(match) : null;
   },
 
   // 4. Create new content item
@@ -454,7 +482,7 @@ export const mediaService = {
         });
 
         if (uploadRes.ok) {
-          finalUrl = `${config.url}/storage/v1/object/public/portfolio-media/${pathName}`;
+          finalUrl = toProxyUrl(`${config.url}/storage/v1/object/public/portfolio-media/${pathName}`);
         }
       } catch (err) {
         console.warn('Supabase storage upload failed, converting to local data URI:', err.message);
