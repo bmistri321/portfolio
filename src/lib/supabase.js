@@ -84,7 +84,7 @@ export async function supabaseRequest(endpoint, options = {}) {
     throw new Error('Supabase is not configured. Please set your Supabase URL & Anon Key in Settings.');
   }
 
-  const session = getStoredSession();
+  const session = await ensureFreshSession();
   const token = session?.access_token || anonKey;
 
   const headers = {
@@ -127,6 +127,49 @@ export async function supabaseRequest(endpoint, options = {}) {
 // Access tokens ever minted by the old client-side bypass (no password).
 // Any stored session carrying one is rejected outright.
 const LEGACY_FAKE_TOKENS = ['studio_pass_local', 'local_studio_session', 'local-admin'];
+
+// Exchange the stored refresh token for a fresh access token.
+// Returns the new session, or null if refresh failed (re-login needed).
+async function refreshSession() {
+  const session = getStoredSession();
+  if (!session?.refresh_token) return null;
+  const { url, anonKey } = getSupabaseConfig();
+  if (!url || !anonKey) return null;
+  try {
+    const res = await fetch(`${url}/auth/v1/token?grant_type=refresh_token`, {
+      method: 'POST',
+      headers: { 'apikey': anonKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refresh_token: session.refresh_token }),
+    });
+    const data = await res.json();
+    if (!res.ok || !data.access_token) return null;
+    const fresh = {
+      access_token: data.access_token,
+      // Supabase may rotate the refresh token — keep the newest one.
+      refresh_token: data.refresh_token || session.refresh_token,
+      expires_at: Date.now() + (data.expires_in * 1000),
+      user: data.user || session.user,
+    };
+    // Preserve the original persistence choice (local vs session storage).
+    const [persistentStore] = activeStorages();
+    const wasPersistent = !!readJsonStore(persistentStore, STORAGE_KEYS.SESSION);
+    saveStoredSession(fresh, wasPersistent);
+    return fresh;
+  } catch {
+    return null;
+  }
+}
+
+// Return a session with a live access token, refreshing first if expired.
+// Returns null only when there is no session or refresh failed.
+async function ensureFreshSession() {
+  let session = getStoredSession();
+  if (!session?.access_token) return null;
+  if (session.expires_at && Date.now() > session.expires_at - 60000) {
+    session = await refreshSession();
+  }
+  return session;
+}
 
 export const supabaseAuth = {
   async signInWithPassword(email, password) {
@@ -216,10 +259,14 @@ export const supabaseAuth = {
       return null;
     }
 
-    // Reject locally-expired sessions before hitting the network.
+    // Renew locally-expired sessions via the refresh token before hitting
+    // the network — an expired access token alone is not a logout.
     if (session.expires_at && Date.now() > session.expires_at) {
-      saveStoredSession(null);
-      return null;
+      const fresh = await refreshSession();
+      if (!fresh) {
+        saveStoredSession(null);
+        return null;
+      }
     }
 
     const { url, anonKey } = getSupabaseConfig();
@@ -244,14 +291,8 @@ export const supabaseAuth = {
   },
 
   async getUser() {
-    const session = getStoredSession();
+    const session = await ensureFreshSession();
     if (!session) return null;
-
-    // Check local expiry
-    if (session.expires_at && Date.now() > session.expires_at) {
-      saveStoredSession(null);
-      return null;
-    }
     return session.user;
   }
 };
