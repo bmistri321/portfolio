@@ -237,7 +237,7 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
         const wrapRect = wrapRef.current.getBoundingClientRect();
         const r = t.getBoundingClientRect();
         const srcAttr = t.getAttribute('src') || '';
-        const kind = t.tagName === 'HR' ? 'divider' : t.tagName === 'VIDEO' ? 'video' : (/\.gif(\?|$)/i.test(srcAttr) ? 'gif' : 'image');
+        const kind = t.tagName === 'HR' ? 'divider' : t.tagName === 'VIDEO' ? 'video' : (/\.gif(\?|$)/i.test(srcAttr) ? 'gif' : (/\.svg(\?|$)/i.test(srcAttr) ? 'svg' : 'image'));
         setMediaHover({
           kind,
           node: t,
