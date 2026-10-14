@@ -204,10 +204,11 @@ export default function EditorPage({
     setFormData((prev) => {
       const next = { ...prev, [field]: value };
       
-      // Auto-generate slug and SEO defaults if title changes
-      if (field === 'title' && (isNew || !prev.slug || prev.slug === generateSlug(prev.title))) {
-        next.slug = generateSlug(value);
-        if (!next.seo_title) next.seo_title = value;
+      // SEO title follows the title until Bishal sets it manually.
+      // The slug is NEVER auto-generated from the title — Bishal decides it,
+      // and it only changes when he edits the slug field directly.
+      if (field === 'title' && !prev.seo_title) {
+        next.seo_title = value;
       }
 
       if (field === 'content') {
@@ -414,7 +415,8 @@ export default function EditorPage({
       const next = { ...prev };
       if (overwriteTitle || !next.title || next.title === 'Untitled Piece') {
         next.title = data.title || next.title;
-        next.slug = generateSlug(next.title);
+        // Suggest an initial slug only if Bishal hasn't set one himself.
+        if (!next.slug) next.slug = generateSlug(next.title);
         if (!next.seo_title) next.seo_title = next.title;
       }
       if (overwriteTitle || !next.excerpt) next.excerpt = data.excerpt || next.excerpt;
