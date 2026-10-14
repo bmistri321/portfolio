@@ -63,6 +63,15 @@ export default async function handler(req, res) {
       title = item.seo_title || (item.title ? `${item.title} — Bishal Mistri` : title);
       desc = item.seo_description || item.excerpt || desc;
       image = item.cover_image || item.thumbnail || '';
+      // Proxy Supabase storage URLs through our own /media/ path so the
+      // Supabase project URL never appears in public HTML. Crawlers need
+      // absolute URLs, so prefix with the site origin.
+      if (image && image.includes('supabase.co/storage/v1/object/public/portfolio-media/')) {
+        const filename = image.split('/portfolio-media/').pop();
+        const host = req.headers['x-forwarded-host'] || req.headers.host || 'www.bishalmistri.com';
+        const proto = req.headers['x-forwarded-proto'] || 'https';
+        image = `${proto}://${host}/media/${filename}`;
+      }
     }
   }
 
