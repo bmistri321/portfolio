@@ -553,6 +553,10 @@
   color: var(--admin-text-primary);
   text-decoration: none;
   display: block;
+  /* Long unbroken titles (no spaces) wrap to the next line instead of
+     blowing out the table row. */
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .admin-item-slug {
