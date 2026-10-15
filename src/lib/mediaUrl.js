@@ -7,12 +7,23 @@ export function toProxyUrl(url) {
   return addCloudinaryTransforms(url.replace(SUPABASE_STORAGE_PATTERN, '/media/'));
 }
 
-// Adds f_auto,q_auto to Cloudinary URLs missing them (auto AVIF/WebP + quality).
-// Requires "Strict transformations" OFF in Cloudinary Settings > Security.
+// Adds f_auto,q_auto to Cloudinary image URLs missing them (auto AVIF/WebP + quality).
+// Video URLs get q_auto only (no image transforms). Also repairs broken doubled
+// transforms like f_auto,q_auto/q_auto. Requires "Strict transformations" OFF
+// in Cloudinary Settings > Security.
 function addCloudinaryTransforms(url) {
   if (!url.includes('res.cloudinary.com')) return url;
-  if (url.includes('/upload/f_auto,q_auto/')) return url;
-  return url.replace('/upload/', '/upload/f_auto,q_auto/');
+  const isVideo = url.includes('/video/upload/') || /\.(mp4|webm|mov)$/i.test(url.split('?')[0]);
+  // Repair broken doubled transforms first
+  let clean = url.replace('/upload/f_auto,q_auto/q_auto/', '/upload/');
+  if (isVideo) {
+    // Video transforms are all blocked - serve raw URL
+    return clean.replace('/upload/f_auto,q_auto/q_auto/', '/upload/')
+               .replace('/upload/f_auto,q_auto/', '/upload/')
+               .replace('/upload/q_auto/', '/upload/');
+  }
+  if (clean.includes('/upload/f_auto,q_auto/')) return clean;
+  return clean.replace('/upload/', '/upload/f_auto,q_auto/');
 }
 
 // Rewrites Supabase storage URLs inside HTML content (img/video src attributes),

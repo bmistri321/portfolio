@@ -34,20 +34,17 @@ export function optimizedCloudinaryUrl(url) {
   return url.replace('/upload/', '/upload/f_auto,q_auto/');
 }
 
-// Video delivery URL - uses streaming-friendly transforms, no image-only params.
+// Video delivery URL - raw (all video transforms are blocked on this account).
+// Just repairs broken doubled transforms back to the working raw URL.
 export function optimizedVideoUrl(url) {
   if (!url || !url.includes('res.cloudinary.com')) return url;
-  // q_auto for quality; f_auto would transcode - keep original format for compatibility
-  if (url.includes('/upload/q_auto/')) return url;
-  return url.replace('/upload/', '/upload/q_auto/');
+  return url.replace('/upload/f_auto,q_auto/q_auto/', '/upload/')
+            .replace('/upload/f_auto,q_auto/', '/upload/')
+            .replace('/upload/q_auto/', '/upload/');
 }
 
-// Auto-generated poster thumbnail for Cloudinary videos (first frame as JPG).
+// Poster: empty (video transforms blocked on this account).
+// The <video> element's preload="metadata" shows the first frame natively.
 export function cloudinaryVideoPoster(videoUrl) {
-  if (!videoUrl || !videoUrl.includes('res.cloudinary.com')) return '';
-  // Replace video upload with image thumbnail of first frame
-  // Format: .../video/upload/.../public_id.ext -> .../video/upload/so_0,f_jpg/public_id.jpg
-  const m = videoUrl.match(/(https:\/\/res\.cloudinary\.com\/[^/]+\/video\/upload\/)(?:[^/]+\/)*(.+)\.\w+$/);
-  if (!m) return '';
-  return `${m[1]}so_0,f_jpg/${m[2]}.jpg`;
+  return '';
 }
