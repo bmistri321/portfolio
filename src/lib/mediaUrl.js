@@ -27,7 +27,8 @@ function addCloudinaryTransforms(url) {
 }
 
 // Rewrites Supabase storage URLs inside HTML content (img/video src attributes),
-// and adds Cloudinary f_auto,q_auto where missing.
+// adds Cloudinary f_auto,q_auto to images where missing, and repairs broken
+// video URLs (doubled f_auto,q_auto/q_auto -> raw, since video transforms are blocked).
 export function proxyMediaInHtml(html) {
   if (!html || typeof html !== 'string') return html;
   return html
@@ -35,8 +36,22 @@ export function proxyMediaInHtml(html) {
       /https:\/\/[a-z0-9-]+\.supabase\.co\/storage\/v1\/object\/public\/portfolio-media\//g,
       '/media/'
     )
+    // Repair broken doubled video transforms first
     .replace(
-      /https:\/\/res\.cloudinary\.com\/[^"'\s>]+?\/upload\/(?!f_auto,q_auto\/)/g,
+      /https:\/\/res\.cloudinary\.com\/[^"'\s>]*?\/upload\/f_auto,q_auto\/q_auto\//g,
+      (m) => m.replace('/upload/f_auto,q_auto/q_auto/', '/upload/')
+    )
+    .replace(
+      /https:\/\/res\.cloudinary\.com\/[^"'\s>]*?\/video\/upload\/f_auto,q_auto\//g,
+      (m) => m.replace('/video/upload/f_auto,q_auto/', '/video/upload/')
+    )
+    .replace(
+      /https:\/\/res\.cloudinary\.com\/[^"'\s>]*?\/video\/upload\/q_auto\//g,
+      (m) => m.replace('/video/upload/q_auto/', '/video/upload/')
+    )
+    // Add image transforms (skip URLs already having them; skip video URLs)
+    .replace(
+      /https:\/\/res\.cloudinary\.com\/(?!.*\/video\/upload\/)[^"'\s>]+?\/upload\/(?!f_auto,q_auto\/)/g,
       (m) => m.replace('/upload/', '/upload/f_auto,q_auto/')
     );
 }
