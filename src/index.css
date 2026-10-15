@@ -2006,6 +2006,8 @@ body {
   object-fit: contain;
   border: 1px solid var(--dev-border-subtle);
   background: var(--dev-bg);
+  /* Crop 3px black bar baked into bottom of screen recordings */
+  clip-path: inset(0 0 3px 0 round 10px);
 }
 /* Videos break out wider than the text column, same as images */
 .cs-html-body > video,
