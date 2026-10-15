@@ -2006,6 +2006,14 @@ body {
   display: block;
   object-fit: contain;
 }
+/* Videos break out wider than the text column, same as images */
+.cs-html-body > video,
+.cs-html-body > p > video:only-child {
+  width: min(880px, 94vw);
+  max-width: none;
+  margin: 18px 0 18px 50%;
+  transform: translateX(-50%);
+}
 .cs-html-body hr {
   border: none;
   margin: 30px 0;
