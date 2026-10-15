@@ -6,7 +6,7 @@ import { mediaService } from '../lib/contentService';
 import EditorVideoChrome from './EditorVideoChrome';
 import ImageMetaFields from './ImageMetaFields';
 import { compressImage } from '../lib/compressImage';
-import { uploadToCloudinary, optimizedCloudinaryUrl } from '../lib/cloudinary';
+import { uploadToCloudinary, optimizedCloudinaryUrl, optimizedVideoUrl, cloudinaryVideoPoster } from '../lib/cloudinary';
 
 // ---------------------------------------------------------------------------
 // Custom <video> blot (real video tag — Quill's built-in video blot is iframe-only)
@@ -48,6 +48,7 @@ class ArticleVideoBlot extends BlockEmbed {
     const v = typeof value === 'string' ? { src: value } : (value || {});
     node.setAttribute('src', v.src || '');
     node.setAttribute('preload', 'metadata');
+    if (v.poster) node.setAttribute('poster', v.poster);
     if (v.controls !== false) node.setAttribute('controls', '');
     if (v.autoplay) {
       node.setAttribute('autoplay', '');
@@ -63,6 +64,7 @@ class ArticleVideoBlot extends BlockEmbed {
   static value(node) {
     return {
       src: node.getAttribute('src'),
+      poster: node.getAttribute('poster') || '',
       controls: node.hasAttribute('controls'),
       autoplay: node.hasAttribute('autoplay'),
       muted: node.hasAttribute('muted'),
@@ -168,7 +170,8 @@ async function uploadToSupabase(file, altText) {
   // Prefer Cloudinary (CDN + auto AVIF/WebP) for speed; fall back to Supabase.
   try {
     const url = await uploadToCloudinary(file);
-    return optimizedCloudinaryUrl(url);
+    const isVideo = file.type.startsWith('video/');
+    return isVideo ? optimizedVideoUrl(url) : optimizedCloudinaryUrl(url);
   } catch (err) {
     console.warn('Cloudinary upload failed, falling back to Supabase:', err.message);
   }
@@ -497,7 +500,9 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
         }
       }
       if (kind === 'video') {
-        quill.insertEmbed(idx, 'articleVideo', url, 'user');
+        const videoUrl = url.includes('res.cloudinary.com') ? optimizedVideoUrl(url) : url;
+        const poster = cloudinaryVideoPoster(videoUrl);
+        quill.insertEmbed(idx, 'articleVideo', { src: videoUrl, poster }, 'user');
       } else {
         quill.insertEmbed(idx, 'image', url, 'user');
       }
@@ -725,6 +730,12 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
     >
       <div ref={containerRef} />
       {dropHint && <div className="admin-drop-hint" style={{ top: dropHint.top }} />}
+      {uploading && (
+        <div className="admin-upload-progress">
+          <div className="admin-upload-spinner" />
+          <span>Uploading {uploading}…</span>
+        </div>
+      )}
 
       {mediaHover && (
         <div
