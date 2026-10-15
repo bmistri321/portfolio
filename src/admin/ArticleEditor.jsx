@@ -822,7 +822,7 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
 
       {uploading && (
         <div className="admin-uploading-pill">
-          Uploading {uploading} to Supabase…
+          Uploading {uploading}…
         </div>
       )}
 
