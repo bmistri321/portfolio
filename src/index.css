@@ -2001,11 +2001,11 @@ body {
   aspect-ratio: 16 / 9;
   height: auto;
   border-radius: 10px;
-  background: #000;
   margin: 18px 0;
   display: block;
   object-fit: contain;
   border: 1px solid var(--dev-border-subtle);
+  background: var(--dev-bg);
 }
 /* Videos break out wider than the text column, same as images */
 .cs-html-body > video,
