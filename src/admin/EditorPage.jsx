@@ -42,8 +42,7 @@ import {
   calculateReadingTime,
   generateUUID
 } from '../lib/contentService';
-import { compressImage } from '../lib/compressImage';
-import { uploadToCloudinary, optimizedCloudinaryUrl } from '../lib/cloudinary';
+import { uploadToCloudinary } from '../lib/cloudinary';
 import ArticleEditor from './ArticleEditor';
 
 const EMOJIS = ['✨', '💡', '🚀', '🔥', '⚡', '🛠️', '🎨', '📐', '🧠', '🔮', '🎯', '📌', '💎', '🌱', '📦', '🔍'];
@@ -565,18 +564,18 @@ export default function EditorPage({
     })();
   }, [loading, isNew]);
 
-  // Cover Image Handling — compress first, then upload.
+  // Cover Image Handling — upload the file exactly as-is (no compression,
+  // no transforms); Bishal prepares his images himself.
   const handleCoverUpload = async (file) => {
     if (!file) return;
     try {
       setSaveStatus('saving');
-      const compressed = await compressImage(file);
       let coverUrl;
       try {
-        coverUrl = optimizedCloudinaryUrl(await uploadToCloudinary(compressed));
+        coverUrl = await uploadToCloudinary(file);
       } catch (err) {
         console.warn('Cloudinary upload failed, falling back to Supabase:', err.message);
-        const uploaded = await mediaService.upload(compressed, { alt_text: formData.title || 'Cover image' });
+        const uploaded = await mediaService.upload(file, { alt_text: formData.title || 'Cover image' });
         coverUrl = uploaded.url;
       }
       setFormData((prev) => ({
@@ -700,14 +699,13 @@ export default function EditorPage({
     }, 50);
   };
 
-  // Drag and Drop Images inside writing area — compress first, then upload.
+  // Drag and Drop Images inside writing area — upload files exactly as-is.
   const handleDropOnEditor = async (e) => {
     e.preventDefault();
     const files = Array.from(e.dataTransfer.files).filter((f) => f.type.startsWith('image/'));
     if (files.length > 0) {
       for (const file of files) {
-        const compressed = await compressImage(file);
-        const media = await mediaService.upload(compressed);
+        const media = await mediaService.upload(file);
         insertIntoContent(`\n\n![${media.alt_text || media.filename}](${media.url})\n\n`);
       }
     }
