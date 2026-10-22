@@ -30,8 +30,10 @@ export async function uploadToCloudinary(file) {
 // Requires "Strict transformations" OFF in Cloudinary Settings > Security.
 export function optimizedCloudinaryUrl(url) {
   if (!url || !url.includes('res.cloudinary.com')) return url;
-  if (url.includes('/upload/f_auto,q_auto/')) return url;
-  return url.replace('/upload/', '/upload/f_auto,q_auto/');
+  if (url.includes('/upload/f_auto,q_auto:best/')) return url;
+  // Upgrade older q_auto URLs — default q_auto softens screenshots.
+  if (url.includes('/upload/f_auto,q_auto/')) return url.replace('/upload/f_auto,q_auto/', '/upload/f_auto,q_auto:best/');
+  return url.replace('/upload/', '/upload/f_auto,q_auto:best/');
 }
 
 // Video delivery URL - raw (all video transforms are blocked on this account).
@@ -39,6 +41,7 @@ export function optimizedCloudinaryUrl(url) {
 export function optimizedVideoUrl(url) {
   if (!url || !url.includes('res.cloudinary.com')) return url;
   return url.replace('/upload/f_auto,q_auto/q_auto/', '/upload/')
+            .replace('/upload/f_auto,q_auto:best/', '/upload/')
             .replace('/upload/f_auto,q_auto/', '/upload/')
             .replace('/upload/q_auto/', '/upload/');
 }
