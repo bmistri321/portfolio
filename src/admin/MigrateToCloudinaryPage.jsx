@@ -103,13 +103,13 @@ export default function MigrateToCloudinaryPage() {
         }
       }
 
-      // Ensure all Cloudinary URLs use f_auto,q_auto (strict mode is now off)
+      // Ensure all Cloudinary URLs use f_auto,q_auto:best (strict mode is now off)
       for (const item of items) {
         let fixed = false;
         const updates = {};
         const addTransform = (u) =>
-          typeof u === 'string' && u.includes('res.cloudinary.com') && !u.includes('/upload/f_auto,q_auto/')
-            ? u.replace('/upload/', '/upload/f_auto,q_auto/')
+          typeof u === 'string' && u.includes('res.cloudinary.com') && !u.includes('/upload/f_auto,q_auto')
+            ? u.replace('/upload/', '/upload/f_auto,q_auto:best/')
             : u;
         for (const f of ['cover_image', 'thumbnail', 'og_image']) {
           const nu = addTransform(item[f]);
@@ -117,8 +117,8 @@ export default function MigrateToCloudinaryPage() {
         }
         if (typeof item.content === 'string') {
           const nc = item.content.replace(
-            /https:\/\/res\.cloudinary\.com\/[^"']+?\/upload\/(?!f_auto,q_auto\/)/g,
-            (m) => m.replace('/upload/', '/upload/f_auto,q_auto/')
+            /https:\/\/res\.cloudinary\.com\/[^"']+?\/upload\/(?!f_auto,q_auto(?::best)?\/)/g,
+            (m) => m.replace('/upload/', '/upload/f_auto,q_auto:best/')
           );
           if (nc !== item.content) { updates.content = nc; fixed = true; }
         }

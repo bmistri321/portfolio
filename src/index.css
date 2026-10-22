@@ -1996,15 +1996,17 @@ body {
   line-height: 1.5;
 }
 .cs-html-body video {
-  width: 100%;
-  max-width: 100%;
+  width: min(880px, 94vw);
+  max-width: none;
   aspect-ratio: 16 / 9;
   height: auto;
   border-radius: 10px;
-  background: #000;
-  margin: 18px 0;
+  margin: 18px 0 18px 50%;
+  transform: translateX(-50%);
   display: block;
   object-fit: contain;
+  border: 1px solid var(--dev-border-subtle);
+  background: var(--dev-bg);
 }
 .cs-html-body hr {
   border: none;

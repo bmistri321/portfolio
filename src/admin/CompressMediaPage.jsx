@@ -6,7 +6,6 @@ import { compressImage } from '../lib/compressImage';
 // Runs in the admin with the logged-in session (which has storage write access).
 // Visit /admin/compress-media while logged in, click Start, keep the tab open.
 const BUCKET = 'portfolio-media';
-const MAX_IMG_DIM = 1600;
 
 export default function CompressMediaPage() {
   const [running, setRunning] = useState(false);
@@ -96,7 +95,7 @@ export default function CompressMediaPage() {
       <h1 style={{ fontSize: '22px', marginBottom: '8px' }}>Compress existing media</h1>
       <p style={{ color: '#666', fontSize: '14px', marginBottom: '20px' }}>
         Downloads every JPEG/PNG/WebP in the <code>portfolio-media</code> bucket, compresses
-        (max 1600px, quality 82), and re-uploads in place. URLs don't change.
+        (AVIF, max 2560px, quality 92), and re-uploads in place. URLs don't change.
         Videos, SVGs and GIFs are skipped. Keep this tab open until it finishes.
       </p>
       <button
