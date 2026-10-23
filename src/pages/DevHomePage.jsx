@@ -412,7 +412,7 @@ export default function DevHomePage({ onNavigate }) {
                   <img
                     src={project.image}
                     alt={project.title}
-                    loading="lazy"
+                    loading={idx < 2 ? 'eager' : 'lazy'}
                     decoding="async"
                     className="dev-card-img"
                   />

@@ -59,14 +59,15 @@ function renderBlocks(body) {
   });
 }
 
-function renderImages(images) {
+function renderImages(images, eagerFirst = false) {
   return (images || []).map((img, i) => (
     <div key={`img-${i}`} className="dev-hero-mockup-frame">
       <img
         src={img.url}
         alt={img.alt || img.caption || ''}
         className="dev-hero-mockup-img"
-        loading="lazy"
+        loading={eagerFirst && i === 0 ? 'eager' : 'lazy'}
+        fetchPriority={eagerFirst && i === 0 ? 'high' : undefined}
         decoding="async"
       />
       {img.caption && <div className="dev-mockup-caption">{img.caption}</div>}
@@ -95,7 +96,7 @@ const RICH_ALLOWED = {
     'svg', 'g', 'path', 'circle', 'rect', 'line', 'polyline', 'polygon', 'ellipse',
     'text', 'tspan', 'defs', 'use', 'symbol', 'clipPath', 'mask', 'pattern',
     'linearGradient', 'radialGradient', 'stop'],
-  ALLOWED_ATTR: ['href', 'target', 'rel', 'src', 'alt', 'data-caption', 'controls', 'preload', 'autoplay', 'muted', 'playsinline', 'loop', 'class', 'data-sentiment',
+  ALLOWED_ATTR: ['href', 'target', 'rel', 'src', 'alt', 'data-caption', 'controls', 'preload', 'autoplay', 'muted', 'playsinline', 'loop', 'class', 'data-sentiment', 'loading', 'decoding', 'fetchpriority',
     // SVG presentation attributes
     'viewBox', 'xmlns', 'fill', 'stroke', 'stroke-width', 'd', 'cx', 'cy', 'r',
     'x', 'y', 'x1', 'y1', 'x2', 'y2', 'width', 'height', 'points', 'transform',
@@ -160,6 +161,18 @@ function enhanceArticleHtml(html) {
 function splitArticleHtml(html) {
   const doc = new DOMParser().parseFromString(`<div>${String(html || '')}</div>`, 'text/html');
   const root = doc.body.firstChild;
+  // Image loading strategy (Bishal): the FIRST image is the initial view —
+  // load it eagerly at high priority so it's already there when the page
+  // opens. Every later image lazy-loads as the reader scrolls to it.
+  root.querySelectorAll('img').forEach((img, i) => {
+    if (i === 0) {
+      img.setAttribute('loading', 'eager');
+      img.setAttribute('fetchpriority', 'high');
+    } else {
+      img.setAttribute('loading', 'lazy');
+      img.setAttribute('decoding', 'async');
+    }
+  });
   const sections = [];
   let cur = null;
   const uniqueId = makeUniqueId();
@@ -266,14 +279,14 @@ function RichArticle({ item, onNavigate }) {
       }))
     : (() => {
         const uniqueId = makeUniqueId();
-        return (md.sections || []).map((sec) => ({
+        return (md.sections || []).map((sec, si) => ({
           id: uniqueId(slugId(sec.title)),
           label: sec.title,
           heading: sec.title,
         content: (
           <>
             {renderSectionBody(sec.body)}
-            {renderImages(sec.images)}
+            {renderImages(sec.images, si === 0)}
           </>
         ),
         }));
@@ -323,6 +336,24 @@ export default function DevArticlePage({ slug, onNavigate }) {
     load();
     return () => { cancelled = true; };
   }, [slug]);
+
+  // Preload the article's first image as soon as the item arrives, so the
+  // initial view renders with its image already there (no visible loading).
+  // Later images are NOT preloaded — they lazy-load on scroll (set in
+  // splitArticleHtml / renderImages).
+  useEffect(() => {
+    if (!item) return;
+    const m = String(item.content || '').match(/<img[^>]+src="([^"]+)"/i);
+    const firstSectionImg = item.metadata?.sections?.[0]?.images?.[0]?.url;
+    const src = (m && m[1]) || firstSectionImg || item.cover_image;
+    if (!src) return;
+    const link = document.createElement('link');
+    link.rel = 'preload';
+    link.as = 'image';
+    link.href = src;
+    document.head.appendChild(link);
+    return () => link.remove();
+  }, [item]);
 
   // Refine SEO meta from the loaded CMS item (title / SEO description)
   useEffect(() => {

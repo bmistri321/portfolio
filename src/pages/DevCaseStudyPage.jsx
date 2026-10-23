@@ -59,7 +59,7 @@ export default function DevCaseStudyPage({ onNavigate }) {
         </p>
       ) : (
         <div className="dev-cards-grid">
-          {projects.map((project) => (
+          {projects.map((project, idx) => (
             <a
               key={project.id}
               href={project.link}
@@ -79,7 +79,7 @@ export default function DevCaseStudyPage({ onNavigate }) {
                   <img
                     src={project.image}
                     alt={project.title}
-                    loading="lazy"
+                    loading={idx < 2 ? 'eager' : 'lazy'}
                     decoding="async"
                     className="dev-card-img"
                   />
