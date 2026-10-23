@@ -25,16 +25,9 @@ export async function uploadToCloudinary(file) {
   return data.secure_url;
 }
 
-// Delivery URL with automatic format (AVIF/WebP) and quality optimization.
-// Cloudinary picks the best format the visitor's browser supports.
-// Requires "Strict transformations" OFF in Cloudinary Settings > Security.
-export function optimizedCloudinaryUrl(url) {
-  if (!url || !url.includes('res.cloudinary.com')) return url;
-  if (url.includes('/upload/f_auto,q_auto:best/')) return url;
-  // Upgrade older q_auto URLs — default q_auto softens screenshots.
-  if (url.includes('/upload/f_auto,q_auto/')) return url.replace('/upload/f_auto,q_auto/', '/upload/f_auto,q_auto:best/');
-  return url.replace('/upload/', '/upload/f_auto,q_auto:best/');
-}
+// Image delivery URLs are used exactly as returned by the upload —
+// Bishal prepares his files himself, so no format/quality transforms
+// are ever added.
 
 // Video delivery URL - raw (all video transforms are blocked on this account).
 // Just repairs broken doubled transforms back to the working raw URL.

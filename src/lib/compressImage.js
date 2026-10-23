@@ -1,8 +1,9 @@
 // Shared in-browser image compression (canvas) for fast page loads.
 // GIFs and SVGs pass through untouched (animation / vector). Raster images
 // are resized to max 2560px (covers Retina at the 880px article width) and
-// encoded as AVIF at high quality — sharp, still much smaller than PNG/JPEG.
-// Falls back to PNG/JPEG when the browser can't encode AVIF.
+// ALWAYS encoded as AVIF at high quality — sharp, still much smaller than
+// PNG/JPEG. Browsers that can't encode AVIF natively (Safari) use a WASM
+// AVIF encoder (@jsquash/avif, lazy-loaded). PNG/JPEG is the last resort.
 // Returns a File ready for upload.
 const MAX_IMG_DIM = 2560;
 
@@ -24,15 +25,26 @@ export async function compressImage(file) {
   const canvas = document.createElement('canvas');
   canvas.width = w;
   canvas.height = h;
-  canvas.getContext('2d').drawImage(bitmap, 0, 0, w, h);
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(bitmap, 0, 0, w, h);
   try { bitmap.close(); } catch { /* noop */ }
 
-  // AVIF first: keeps transparency, far smaller than PNG/JPEG.
+  // AVIF always: keeps transparency, far smaller than PNG/JPEG.
   let blob = await new Promise((res) => canvas.toBlob(res, 'image/avif', 0.92));
   let outType = 'image/avif';
   let ext = '.avif';
   if (!blob) {
-    // Browser can't encode AVIF — fall back to PNG (keeps transparency) or JPEG.
+    // Browser can't encode AVIF natively (e.g. Safari) — WASM encoder instead.
+    // speed 8 keeps big screenshots quick; quality 90 + sharp YUV keeps text crisp.
+    try {
+      const { default: encodeAvif } = await import('@jsquash/avif/encode');
+      const imageData = ctx.getImageData(0, 0, w, h);
+      const buf = await encodeAvif(imageData, { quality: 90, speed: 8, enableSharpYUV: true });
+      if (buf && buf.byteLength) blob = new Blob([buf], { type: 'image/avif' });
+    } catch { /* fall through to PNG/JPEG */ }
+  }
+  if (!blob) {
+    // Last resort — PNG (keeps transparency) or JPEG.
     outType = file.type === 'image/png' ? 'image/png' : 'image/jpeg';
     ext = outType === 'image/png' ? '.png' : '.jpg';
     blob = await new Promise((res) => canvas.toBlob(res, outType, 0.92));

@@ -5,8 +5,7 @@ import { Trash2, Repeat, Settings2, X } from 'lucide-react';
 import { mediaService } from '../lib/contentService';
 import EditorVideoChrome from './EditorVideoChrome';
 import ImageMetaFields from './ImageMetaFields';
-import { compressImage } from '../lib/compressImage';
-import { uploadToCloudinary, optimizedCloudinaryUrl, optimizedVideoUrl, cloudinaryVideoPoster } from '../lib/cloudinary';
+import { uploadToCloudinary, optimizedVideoUrl, cloudinaryVideoPoster } from '../lib/cloudinary';
 
 // ---------------------------------------------------------------------------
 // Custom <video> blot (real video tag — Quill's built-in video blot is iframe-only)
@@ -167,11 +166,13 @@ const INSERT_MIME = 'application/x-insert-kind';
 // Upload to Supabase storage. NEVER falls back to a local data URI —
 // a failed upload throws instead of embedding base64 in the document.
 async function uploadToSupabase(file, altText) {
-  // Prefer Cloudinary (CDN + auto AVIF/WebP) for speed; fall back to Supabase.
+  // Prefer Cloudinary for speed; fall back to Supabase. The URL is stored
+  // exactly as Cloudinary returns it — no delivery transforms are added,
+  // so the file Bishal uploaded is the file visitors get.
   try {
     const url = await uploadToCloudinary(file);
     const isVideo = file.type.startsWith('video/');
-    return isVideo ? optimizedVideoUrl(url) : optimizedCloudinaryUrl(url);
+    return isVideo ? optimizedVideoUrl(url) : url;
   } catch (err) {
     console.warn('Cloudinary upload failed, falling back to Supabase:', err.message);
   }
@@ -484,8 +485,9 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
     replaceRef.current = null;
     setUploading(kind);
     try {
-      const processed = (kind === 'image' || kind === 'svg') ? await compressImage(file) : file;
-      const url = await uploadToSupabase(processed, file.name);
+      // Files upload exactly as-is — Bishal prepares them himself
+      // (e.g. ready-made ~100 KB AVIFs). No compression, no conversion.
+      const url = await uploadToSupabase(file, file.name);
       let idx = clampIndex(atIndex ?? pendingIndex.current);
       // Replace: remove the old media first so the new one takes its exact spot.
       if (replaceNode) {
@@ -829,7 +831,7 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
       <input
         ref={imageInputRef}
         type="file"
-        accept="image/jpeg,image/png,image/webp"
+        accept="image/jpeg,image/png,image/webp,image/avif,.avif"
         style={{ display: 'none' }}
         onChange={(e) => {
           handleFile('image', e.target.files[0]);

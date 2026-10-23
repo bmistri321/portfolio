@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { contentService } from '../lib/contentService';
-import { uploadToCloudinary, optimizedCloudinaryUrl } from '../lib/cloudinary';
+import { uploadToCloudinary } from '../lib/cloudinary';
 
 // One-time utility: migrate all Supabase-hosted images to Cloudinary CDN.
 // Runs in the admin with the logged-in session. Visit /admin/migrate-cloudinary
@@ -95,36 +95,11 @@ export default function MigrateToCloudinaryPage() {
           if (!res.ok) throw new Error(`HTTP ${res.status}`);
           const data = await res.json();
           if (!data.secure_url) throw new Error('No URL returned');
-          const newUrl = optimizedCloudinaryUrl(data.secure_url);
+          const newUrl = data.secure_url;
           urlMap.set(oldUrl, newUrl);
           addLog(`✓ ${i}/${allUrls.size}: migrated`);
         } catch (err) {
           addLog(`✗ ${i}/${allUrls.size}: failed — ${err.message}`);
-        }
-      }
-
-      // Ensure all Cloudinary URLs use f_auto,q_auto:best (strict mode is now off)
-      for (const item of items) {
-        let fixed = false;
-        const updates = {};
-        const addTransform = (u) =>
-          typeof u === 'string' && u.includes('res.cloudinary.com') && !u.includes('/upload/f_auto,q_auto')
-            ? u.replace('/upload/', '/upload/f_auto,q_auto:best/')
-            : u;
-        for (const f of ['cover_image', 'thumbnail', 'og_image']) {
-          const nu = addTransform(item[f]);
-          if (nu !== item[f]) { updates[f] = nu; fixed = true; }
-        }
-        if (typeof item.content === 'string') {
-          const nc = item.content.replace(
-            /https:\/\/res\.cloudinary\.com\/[^"']+?\/upload\/(?!f_auto,q_auto(?::best)?\/)/g,
-            (m) => m.replace('/upload/', '/upload/f_auto,q_auto:best/')
-          );
-          if (nc !== item.content) { updates.content = nc; fixed = true; }
-        }
-        if (fixed) {
-          await contentService.update(item.id, updates);
-          addLog(`Updated transforms: ${item.title || item.id}`);
         }
       }
 
