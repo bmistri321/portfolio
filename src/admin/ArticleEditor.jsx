@@ -796,12 +796,13 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
             </button>
           )}
           {(mediaHover.kind === 'image' || mediaHover.kind === 'gif' || mediaHover.kind === 'svg') && (
+            // No stored size counts as L, so pre-existing images show L selected.
             <span className="admin-media-sizes" role="group" aria-label="Image size">
               {['s', 'm', 'l'].map((sz) => (
                 <button
                   key={sz}
                   type="button"
-                  className={mediaHover.node && mediaHover.node.getAttribute('data-size') === sz ? 'is-active' : ''}
+                  className={mediaHover.node && (mediaHover.node.getAttribute('data-size') || 'l') === sz ? 'is-active' : ''}
                   onMouseDown={(e) => e.preventDefault()}
                   onClick={() => applyImageSize(sz)}
                   title={sz === 's' ? 'Small image' : sz === 'm' ? 'Medium image' : 'Large image'}
