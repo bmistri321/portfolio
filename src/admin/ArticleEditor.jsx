@@ -132,6 +132,58 @@ try {
 }
 
 // ---------------------------------------------------------------------------
+// Screens strip blot — a looping row of mobile-screen frames, inserted
+// from the Insert panel. Stored as ONE set of images; the second set in
+// the DOM exists only so the loop animation can restart seamlessly:
+// the loop track is exactly two sets wide, so translating it by -50%
+// lands on the identical position (Screen 1 follows the last screen
+// with no jump). The gap lives INSIDE each set (padding-right), never
+// between the sets, or the -50% shift would be off by half a gap and
+// jerk on every loop. value() reads only the first set, so a save/load
+// cycle never doubles the images.
+// ---------------------------------------------------------------------------
+class ScreensBlot extends BlockEmbed {
+  static create(value) {
+    const node = super.create();
+    node.classList.add('screens-strip');
+    const images = (Array.isArray(value) ? value : (value && value.images)) || [];
+    const loop = document.createElement('div');
+    loop.className = 'screens-loop';
+    const buildSet = (hidden) => {
+      const set = document.createElement('div');
+      set.className = 'screens-set';
+      images.filter((src) => typeof src === 'string' && src).forEach((src) => {
+        const frame = document.createElement('div');
+        frame.className = 'screens-frame';
+        const img = document.createElement('img');
+        img.setAttribute('src', src);
+        img.setAttribute('alt', hidden ? '' : 'Mobile screen');
+        frame.appendChild(img);
+        set.appendChild(frame);
+      });
+      return set;
+    };
+    loop.appendChild(buildSet(false));
+    loop.appendChild(buildSet(true));
+    node.appendChild(loop);
+    return node;
+  }
+  static value(node) {
+    const first = node.querySelector ? node.querySelector('.screens-set') : null;
+    const srcs = first ? Array.from(first.querySelectorAll('img')).map((img) => img.getAttribute('src')).filter(Boolean) : [];
+    return { images: srcs };
+  }
+}
+ScreensBlot.blotName = 'screensStrip';
+ScreensBlot.tagName = 'div';
+ScreensBlot.className = 'screens-strip';
+try {
+  Quill.register(ScreensBlot);
+} catch {
+  /* already registered */
+}
+
+// ---------------------------------------------------------------------------
 // Callout blot — a tinted quote box (positive = green, negative = red).
 // A block format, so the text inside stays editable like a normal paragraph.
 // ---------------------------------------------------------------------------
@@ -251,6 +303,8 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
   const videoInputRef = useRef(null);
   const gifInputRef = useRef(null);
   const svgInputRef = useRef(null);
+  const screensInputRef = useRef(null);
+  const screensTargetRef = useRef(null); // strip node to append to, or null for a new strip
 
   useEffect(() => {
     if (quillRef.current || !containerRef.current) return;
@@ -279,12 +333,14 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
       if (t && quill.root.contains(t) && wrapRef.current) {
         cancelMediaHoverHide();
         const wrapRect = wrapRef.current.getBoundingClientRect();
-        const r = t.getBoundingClientRect();
+        const strip = t.closest ? t.closest('.screens-strip') : null;
+        const hoverNode = strip || t;
+        const r = hoverNode.getBoundingClientRect();
         const srcAttr = t.getAttribute('src') || '';
-        const kind = t.tagName === 'HR' ? 'divider' : t.tagName === 'VIDEO' ? 'video' : (/\.gif(\?|$)/i.test(srcAttr) ? 'gif' : (/\.svg(\?|$)/i.test(srcAttr) ? 'svg' : 'image'));
+        const kind = strip ? 'screens' : (t.tagName === 'HR' ? 'divider' : t.tagName === 'VIDEO' ? 'video' : (/\.gif(\?|$)/i.test(srcAttr) ? 'gif' : (/\.svg(\?|$)/i.test(srcAttr) ? 'svg' : 'image')));
         setMediaHover({
           kind,
-          node: t,
+          node: hoverNode,
           top: Math.max(0, r.top - wrapRect.top + 8),
           right: Math.max(0, wrapRect.right - r.right + 8),
           bottom: r.bottom - wrapRect.top + 8,
@@ -486,6 +542,68 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
     quill.insertEmbed(idx, 'divider', true, 'user');
     quill.setSelection(idx + 1, 'silent');
     quill.focus();
+  };
+
+  // Screens strip: drag the Screens tile in, pick several images, and a
+  // looping strip lands at the drop point. Adding more later appends to
+  // both animation sets (the second set is the loop's mirror copy).
+  const pickScreensAt = (index) => {
+    pendingIndex.current = clampIndex(index ?? cursorIndex());
+    screensTargetRef.current = null;
+    screensInputRef.current?.click();
+  };
+
+  const insertScreensAt = (index, urls) => {
+    const quill = quillRef.current;
+    const list = (urls || []).filter(Boolean);
+    if (!quill || !list.length) return;
+    const idx = clampIndex(index ?? cursorIndex());
+    quill.insertEmbed(idx, 'screensStrip', { images: list }, 'user');
+    quill.setSelection(idx + 1, 'silent');
+    quill.focus();
+  };
+
+  const appendScreensToStrip = (stripNode, urls) => {
+    const quill = quillRef.current;
+    const list = (urls || []).filter(Boolean);
+    if (!stripNode || !list.length) return;
+    const sets = stripNode.querySelectorAll('.screens-set');
+    sets.forEach((set, setIndex) => {
+      list.forEach((src) => {
+        const frame = document.createElement('div');
+        frame.className = 'screens-frame';
+        const img = document.createElement('img');
+        img.setAttribute('src', src);
+        img.setAttribute('alt', setIndex > 0 ? '' : 'Mobile screen');
+        frame.appendChild(img);
+        set.appendChild(frame);
+      });
+    });
+    // Same direct-mutation + onChange pattern as alt/caption edits, so
+    // autosave picks the new images up without a Quill Delta round-trip.
+    if (quill && onChangeRef.current) onChangeRef.current(quill.root.innerHTML);
+    setMediaHover((h) => (h ? { ...h } : h));
+  };
+
+  const handleScreensFiles = async (files, atIndex) => {
+    const list = Array.from(files || []).filter((f) => f.type && f.type.startsWith('image/'));
+    if (!list.length) return;
+    const target = screensTargetRef.current;
+    screensTargetRef.current = null;
+    setUploading('screens');
+    try {
+      const urls = [];
+      for (const file of list) {
+        // eslint-disable-next-line no-await-in-loop
+        urls.push(await uploadToSupabase(file, file.name));
+      }
+      if (target && document.contains(target)) appendScreensToStrip(target, urls);
+      else insertScreensAt(atIndex ?? pendingIndex.current, urls);
+    } catch (err) {
+      alert(err.message || 'Upload failed.');
+    } finally {
+      setUploading(null);
+    }
   };
 
   const pickFilesAt = (kind, index) => {
@@ -709,6 +827,8 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
     insertCallout: (index, sentiment) => insertCalloutAt(index ?? null, sentiment),
     requestQuote: (index) => requestQuoteAt(index ?? null),
     insertFiles: (index, files) => insertFilesAt(index ?? null, files),
+    insertScreensFiles: (index, files) => handleScreensFiles(files, index ?? null),
+    pickScreens: (index) => pickScreensAt(index ?? null),
     insertImageFile: (file, index) => handleFile('image', file, index ?? null),
     pickFiles: (kind, index) => pickFilesAt(kind, index ?? null),
     indexFromPoint: (x, y) => indexFromPoint(x, y),
@@ -749,6 +869,8 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
       insertTextAt(idx);
     } else if (kind === 'image') {
       requestImageAt(idx);
+    } else if (kind === 'screens') {
+      pickScreensAt(idx);
     } else if (kind) {
       pickFilesAt(kind, idx);
     } else if (files.length > 0) {
@@ -789,10 +911,27 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
             <Trash2 size={14} />
             <span>Delete</span>
           </button>
-          {mediaHover.kind !== 'divider' && (
+          {mediaHover.kind !== 'divider' && mediaHover.kind !== 'screens' && (
             <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={replaceHoverMedia}>
               <Repeat size={14} />
               <span>Replace</span>
+            </button>
+          )}
+          {mediaHover.kind === 'screens' && (
+            <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => {
+              const node = mediaHover.node;
+              screensTargetRef.current = node;
+              const input = screensInputRef.current;
+              if (input) {
+                const onCancel = () => {
+                  if (screensTargetRef.current === node) screensTargetRef.current = null;
+                  input.removeEventListener('cancel', onCancel);
+                };
+                input.addEventListener('cancel', onCancel);
+                input.click();
+              }
+            }}>
+              <span>Add images</span>
             </button>
           )}
           {(mediaHover.kind === 'image' || mediaHover.kind === 'gif' || mediaHover.kind === 'svg') && (
@@ -918,6 +1057,17 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
         style={{ display: 'none' }}
         onChange={(e) => {
           handleFile('video', e.target.files[0]);
+          e.target.value = '';
+        }}
+      />
+      <input
+        ref={screensInputRef}
+        type="file"
+        accept="image/jpeg,image/png,image/webp,image/avif,.avif,image/gif,image/svg+xml,.svg"
+        multiple
+        style={{ display: 'none' }}
+        onChange={(e) => {
+          handleScreensFiles(e.target.files, pendingIndex.current);
           e.target.value = '';
         }}
       />

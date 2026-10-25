@@ -2185,3 +2185,56 @@ html:has(.pm-app-container) body::-webkit-scrollbar {
 .cs-html-body .img-skeleton-wrap > img.img-size-s {
   width: 100%;
 }
+
+/* Screens strip (Insert > Screens) on the live page: breaks out wider
+   than the text column, like L images. Same loop math as the editor:
+   two sets, gap inside each set, -50% shift = one full set. */
+.cs-html-body > .screens-strip {
+  width: min(880px, 94vw);
+  max-width: none;
+  margin: 18px 0 18px 50%;
+  transform: translateX(-50%);
+  overflow: hidden;
+}
+.cs-html-body .screens-loop {
+  display: flex;
+  width: max-content;
+  animation: screens-loop 36s linear infinite;
+}
+.cs-html-body .screens-strip:hover .screens-loop {
+  animation-play-state: paused;
+}
+.cs-html-body .screens-set {
+  display: flex;
+  gap: 14px;
+  padding-right: 14px;
+}
+.cs-html-body .screens-frame {
+  flex: 0 0 176px;
+  height: 384px;
+  background: #111;
+  border-radius: 26px;
+  padding: 9px 8px;
+  box-sizing: border-box;
+}
+.cs-html-body .screens-frame img,
+.cs-html-body .screens-strip .img-skeleton-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #000;
+  border-radius: 18px;
+  display: block;
+  margin: 0;
+}
+.cs-html-body .screens-strip .img-skeleton-wrap {
+  height: 100%;
+  min-height: 0;
+  background: none;
+  animation: none;
+  border-radius: 18px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .cs-html-body .screens-strip { overflow-x: auto; }
+  .cs-html-body .screens-loop { animation: none; }
+}

@@ -1716,3 +1716,52 @@ textarea.admin-form-input {
 .admin-media-hoverbar .admin-media-sizes button.is-active {
   background: rgba(255, 255, 255, 0.22);
 }
+
+/* Screens strip (Insert > Screens): a looping row of phone frames.
+   The loop track is exactly two identical sets wide; translating it by
+   -50% lands on the identical position, so Screen 1 follows the last
+   screen with no jump. The gap lives INSIDE each set (padding-right),
+   never between sets, or the shift would be off by half a gap and jerk. */
+.admin-quill-wrap .ql-editor .screens-strip {
+  width: 100%;
+  overflow: hidden;
+  margin: 18px 0;
+}
+.admin-quill-wrap .ql-editor .screens-loop {
+  display: flex;
+  width: max-content;
+  animation: screens-loop 36s linear infinite;
+}
+.admin-quill-wrap .ql-editor .screens-strip:hover .screens-loop {
+  animation-play-state: paused;
+}
+.admin-quill-wrap .ql-editor .screens-set {
+  display: flex;
+  gap: 14px;
+  padding-right: 14px;
+}
+.admin-quill-wrap .ql-editor .screens-frame {
+  flex: 0 0 176px;
+  height: 384px;
+  background: #111;
+  border-radius: 26px;
+  padding: 9px 8px;
+  box-sizing: border-box;
+}
+.admin-quill-wrap .ql-editor .screens-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #000;
+  border-radius: 18px;
+  display: block;
+  margin: 0;
+}
+@keyframes screens-loop {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .admin-quill-wrap .ql-editor .screens-strip { overflow-x: auto; }
+  .admin-quill-wrap .ql-editor .screens-loop { animation: none; }
+}
