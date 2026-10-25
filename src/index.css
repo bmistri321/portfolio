@@ -1968,6 +1968,18 @@ body {
 .cs-html-body figure { margin: 20px 0; }
 .cs-html-body figure img { margin: 0 auto; }
 
+/* Embedded charts and frames follow the same rule on the live page:
+   full column width, never a sideways scroll. */
+.cs-html-body canvas,
+.cs-html-body svg {
+  max-width: 100%;
+  height: auto;
+}
+.cs-html-body iframe {
+  width: 100%;
+  max-width: 100%;
+}
+
 /* Article images break out wider than the text column (live site only —
    the admin editor never renders .cs-html-body). */
 .cs-html-body > figure {

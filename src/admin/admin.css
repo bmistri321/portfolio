@@ -1505,6 +1505,19 @@ textarea.admin-form-input {
   margin: 18px 0;
 }
 
+/* Article images and embeds never overflow the document: instead of
+   forcing a sideways scroll, they scale to the full column width. */
+.admin-quill-wrap .ql-editor img,
+.admin-quill-wrap .ql-editor canvas,
+.admin-quill-wrap .ql-editor svg {
+  max-width: 100%;
+  height: auto;
+}
+.admin-quill-wrap .ql-editor iframe {
+  width: 100%;
+  max-width: 100%;
+}
+
 /* The designed player chrome replaces native controls on hovered videos.
    The `controls` attribute itself stays put — it IS the "show play bar"
    setting and what gets saved. (Firefox can't hide native controls via CSS,
