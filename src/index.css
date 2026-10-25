@@ -1985,6 +1985,12 @@ body {
   max-width: 100%;
 }
 
+/* Long link text (e.g. a pasted raw URL) must wrap instead of widening
+   the article on the live page. */
+.cs-html-body a {
+  overflow-wrap: anywhere;
+}
+
 /* Article images break out wider than the text column (live site only —
    the admin editor never renders .cs-html-body). */
 .cs-html-body > figure {
