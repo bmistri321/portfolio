@@ -2125,7 +2125,7 @@ html:has(.pm-app-container) body::-webkit-scrollbar {
 
 /* Per-image size picked in the editor (Blogger-style S / M / L). No size
    class = today's default look, which is the L breakout. M is exactly the
-   text-column width (same as a paragraph); S is a small centred image. */
+   text-column width (same as a paragraph); S is 60% of the text column, centred. */
 .cs-html-body img.img-size-l {
   width: min(880px, 100%);
   margin: 18px auto;
@@ -2148,13 +2148,13 @@ html:has(.pm-app-container) body::-webkit-scrollbar {
   transform: none;
 }
 .cs-html-body img.img-size-s {
-  width: min(360px, 100%);
+  width: 60%;
   display: block;
   margin: 18px auto;
   transform: none;
 }
 .cs-html-body > p > img.img-size-s {
-  width: min(360px, 100%);
+  width: 60%;
   margin: 18px auto;
   transform: none;
 }
@@ -2175,7 +2175,13 @@ html:has(.pm-app-container) body::-webkit-scrollbar {
   transform: none;
 }
 .cs-html-body > p > .img-skeleton-wrap:only-child:has(> img.img-size-s) {
-  width: min(360px, 100%);
+  width: 60%;
   margin: 18px auto;
   transform: none;
+}
+
+/* S image inside its skeleton wrapper fills the wrapper (60% of the
+   text column); without this it would shrink to 60% of the wrapper. */
+.cs-html-body .img-skeleton-wrap > img.img-size-s {
+  width: 100%;
 }

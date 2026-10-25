@@ -1684,7 +1684,7 @@ textarea.admin-form-input {
 
 /* Per-image size picked from the hoverbar (Blogger-style S / M / L).
    Percentages mirror the live page: L = full column, M ~= text/breakout
-   ratio, S ~= 360px of the 880px breakout. */
+   ratio, S = 60% of the column. */
 .admin-quill-wrap .ql-editor img.img-size-l {
   width: 100%;
   display: block;
@@ -1698,7 +1698,7 @@ textarea.admin-form-input {
   height: auto;
 }
 .admin-quill-wrap .ql-editor img.img-size-s {
-  width: 40%;
+  width: 60%;
   display: block;
   margin: 18px auto;
   height: auto;
