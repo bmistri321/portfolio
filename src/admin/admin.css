@@ -1122,6 +1122,31 @@
 .admin-quill-wrap .ql-callout p { margin: 0 0 10px 0; }
 .admin-quill-wrap .ql-callout p:last-child { margin-bottom: 0; }
 
+/* Pasted-embed placeholder in the editor: the code itself never runs here,
+   this box just marks where the embed sits (it runs on the live page). */
+.admin-quill-wrap .ql-embed-html {
+  border: 1px dashed var(--admin-border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin: 16px 0;
+  color: var(--admin-text-secondary);
+  font-size: 13px;
+  background: #fafafa;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Embed-code textarea in the paste modal */
+.admin-embed-textarea {
+  width: 100%;
+  min-height: 160px;
+  font-family: Consolas, monospace;
+  font-size: 12px;
+  resize: vertical;
+  margin: 4px 0 12px 0;
+}
+
 /* Quote style popup */
 .admin-quote-popup-backdrop {
   position: fixed;

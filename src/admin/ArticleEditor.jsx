@@ -182,6 +182,48 @@ try {
 } catch {
   /* already registered */
 }
+// Embed blot — pasted third-party HTML (e.g. a StatCounter chart). The code
+// is stored BASE64-encoded in data-embed-html: the raw code contains
+// <script> tags, and the content sanitizer (contentService.sanitizeContent)
+// strips literal <script>…</script> from saved HTML — inside an attribute
+// value the browser's innerHTML serialization does NOT escape '<', so raw
+// code would be gutted on save. Base64 has no <, > or quotes, so it
+// survives serialization, sanitizing and DOMPurify untouched. The editor
+// itself only shows a placeholder label, so pasted code can never run
+// inside the editor and break editing. The live page decodes and
+// activates it — see ArticleBody.
+// ---------------------------------------------------------------------------
+const encodeEmbedHtml = (code) => btoa(unescape(encodeURIComponent(code || '')));
+const decodeEmbedHtml = (encoded) => {
+  try {
+    return decodeURIComponent(escape(atob(encoded || '')));
+  } catch {
+    return encoded || ''; // tolerate a never-encoded value
+  }
+};
+class EmbedHtmlBlot extends BlockEmbed {
+  static create(value) {
+    const node = super.create();
+    const code = typeof value === 'string' ? value : '';
+    node.setAttribute('data-embed-html', encodeEmbedHtml(code));
+    // Placeholder: readable text stripped from the code, so the block is
+    // identifiable in the editor without executing anything.
+    const preview = code.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 60);
+    node.textContent = preview ? `Embed: ${preview}` : 'Embed';
+    return node;
+  }
+  static value(node) {
+    return decodeEmbedHtml(node.getAttribute('data-embed-html'));
+  }
+}
+EmbedHtmlBlot.blotName = 'embedHtml';
+EmbedHtmlBlot.tagName = 'div';
+EmbedHtmlBlot.className = 'ql-embed-html';
+try {
+  Quill.register(EmbedHtmlBlot);
+} catch {
+  /* already registered */
+}
 
 // ---------------------------------------------------------------------------
 // Callout blot — a tinted quote box (positive = green, negative = red).
@@ -266,11 +308,13 @@ function kindOfFile(file) {
 // Type text, select for the floating toolbar, press "/" for image/video/GIF,
 // or drag options in from the Insert panel.
 // ---------------------------------------------------------------------------
-const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, placeholder, onRequestQuote, onRequestImage }, ref) {
+const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, placeholder, onRequestQuote, onRequestImage, onRequestEmbed }, ref) {
   const onRequestQuoteRef = useRef(onRequestQuote);
   onRequestQuoteRef.current = onRequestQuote;
   const onRequestImageRef = useRef(onRequestImage);
   onRequestImageRef.current = onRequestImage;
+  const onRequestEmbedRef = useRef(onRequestEmbed);
+  onRequestEmbedRef.current = onRequestEmbed;
   const wrapRef = useRef(null);
   const containerRef = useRef(null);
   const quillRef = useRef(null);
@@ -311,7 +355,7 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
 
     const quill = new Quill(containerRef.current, {
       theme: 'bubble',
-      placeholder: placeholder || 'Start writing… Use the Insert panel for images, SVG, video, GIFs or dividers.',
+      placeholder: placeholder || 'Start writing… Use the Insert panel for images, SVG, video, GIFs, embeds or dividers.',
       modules: { toolbar: TOOLBAR },
     });
 
@@ -323,7 +367,7 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
       // A document with only images/video/dividers (no text) is NOT empty —
       // getText() ignores embeds, so check for media elements too.
       const hasText = quill.getText().trim().length > 0;
-      const hasMedia = !!quill.root.querySelector('img, video, hr');
+      const hasMedia = !!quill.root.querySelector('img, video, hr, .ql-embed-html');
       onChangeRef.current(hasText || hasMedia ? quill.root.innerHTML : '');
     });
 
@@ -559,6 +603,23 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
     if (!quill || !list.length) return;
     const idx = clampIndex(index ?? cursorIndex());
     quill.insertEmbed(idx, 'screensStrip', { images: list }, 'user');
+    quill.setSelection(idx + 1, 'silent');
+    quill.focus();
+  };
+
+  // Embed tile: ask EditorPage for the pasted code (modal), then insert it.
+  const requestEmbedAt = (index) => {
+    const quill = quillRef.current;
+    if (!quill) return;
+    const idx = clampIndex(index ?? cursorIndex());
+    if (onRequestEmbedRef.current) onRequestEmbedRef.current(idx);
+  };
+
+  const insertEmbedHtmlAt = (index, html) => {
+    const quill = quillRef.current;
+    if (!quill || !html || !html.trim()) return;
+    const idx = clampIndex(index ?? cursorIndex());
+    quill.insertEmbed(idx, 'embedHtml', html.trim(), 'user');
     quill.setSelection(idx + 1, 'silent');
     quill.focus();
   };
@@ -823,6 +884,7 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
   // API for the Insert panel (drag from panel, drop files on tiles, click).
   useImperativeHandle(ref, () => ({
     insertDivider: (index) => insertDividerAt(index ?? null),
+    insertEmbedHtml: (index, html) => insertEmbedHtmlAt(index ?? null, html),
     insertText: (index) => insertTextAt(index ?? null),
     insertCallout: (index, sentiment) => insertCalloutAt(index ?? null, sentiment),
     requestQuote: (index) => requestQuoteAt(index ?? null),
@@ -863,6 +925,8 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
     lastDropIndexRef.current = null;
     if (kind === 'divider') {
       insertDividerAt(idx);
+    } else if (kind === 'embed') {
+      requestEmbedAt(idx);
     } else if (kind === 'quote') {
       requestQuoteAt(idx);
     } else if (kind === 'text') {

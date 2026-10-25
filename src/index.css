@@ -2055,6 +2055,11 @@ body {
 .cs-html-body .ql-callout p { margin: 0 0 12px 0; }
 .cs-html-body .ql-callout p:last-child { margin-bottom: 0; }
 
+/* Pasted embeds (e.g. StatCounter charts): never wider than the column,
+   scroll sideways instead of breaking the layout on narrow screens. */
+.cs-html-body .ql-embed-html { width: 100%; max-width: 100%; overflow-x: auto; }
+.cs-html-body .ql-embed-html > * { max-width: 100%; }
+
 /* No text/image selection anywhere on the public site (admin untouched) */
 .dev-app-wrapper,
 .dev-app-wrapper *,

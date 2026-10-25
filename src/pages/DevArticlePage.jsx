@@ -96,7 +96,7 @@ const RICH_ALLOWED = {
     'svg', 'g', 'path', 'circle', 'rect', 'line', 'polyline', 'polygon', 'ellipse',
     'text', 'tspan', 'defs', 'use', 'symbol', 'clipPath', 'mask', 'pattern',
     'linearGradient', 'radialGradient', 'stop'],
-  ALLOWED_ATTR: ['href', 'target', 'rel', 'src', 'alt', 'data-caption', 'controls', 'preload', 'autoplay', 'muted', 'playsinline', 'loop', 'class', 'data-sentiment', 'loading', 'decoding', 'fetchpriority',
+  ALLOWED_ATTR: ['href', 'target', 'rel', 'src', 'alt', 'data-caption', 'controls', 'preload', 'autoplay', 'muted', 'playsinline', 'loop', 'class', 'data-sentiment', 'data-embed-html', 'loading', 'decoding', 'fetchpriority',
     // SVG presentation attributes
     'viewBox', 'xmlns', 'fill', 'stroke', 'stroke-width', 'd', 'cx', 'cy', 'r',
     'x', 'y', 'x1', 'y1', 'x2', 'y2', 'width', 'height', 'points', 'transform',

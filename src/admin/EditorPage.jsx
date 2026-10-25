@@ -56,6 +56,7 @@ const INSERT_TILES = [
   { kind: 'video', label: 'Video', hint: 'Upload MP4', Icon: Video },
   { kind: 'gif', label: 'GIF', hint: 'Upload', Icon: Film },
   { kind: 'screens', label: 'Screens', hint: 'Looping image strip', Icon: Smartphone },
+  { kind: 'embed', label: 'Embed', hint: 'Paste HTML code', Icon: Code },
   { kind: 'divider', label: 'Divider', hint: 'Horizontal line', Icon: Minus },
   { kind: 'text', label: 'Text', hint: 'Paragraph block', Icon: Type },
   { kind: 'quote', label: 'Quote', hint: 'Positive / negative', Icon: Quote },
@@ -115,6 +116,8 @@ export default function EditorPage({
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [slugStatus, setSlugStatus] = useState({ checked: false, isUnique: true, msg: '' });
   const [quotePopup, setQuotePopup] = useState(null); // { index } — pending quote insertion
+  const [embedPopup, setEmbedPopup] = useState(null); // { index } — pending embed-code paste
+  const [embedCode, setEmbedCode] = useState('');
   const [manualSaved, setManualSaved] = useState(false); // Save button turns green after a manual save
   const [mediumUrl, setMediumUrl] = useState('');
   const [mediumBusy, setMediumBusy] = useState(false);
@@ -244,13 +247,21 @@ export default function EditorPage({
     }
   };
 
-  // Esc closes the quote popup
+  // Esc closes the quote / embed popups
   useEffect(() => {
-    if (!quotePopup) return;
-    const onKey = (e) => { if (e.key === 'Escape') setQuotePopup(null); };
+    if (!quotePopup && !embedPopup) return;
+    const onKey = (e) => { if (e.key === 'Escape') { setQuotePopup(null); setEmbedPopup(null); } };
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
-  }, [quotePopup]);
+  }, [quotePopup, embedPopup]);
+
+  const confirmEmbed = () => {
+    if (embedPopup && embedCode.trim()) {
+      articleRef.current?.insertEmbedHtml(embedPopup.index, embedCode);
+      setEmbedPopup(null);
+      setEmbedCode('');
+    }
+  };
 
   // ---------- Autosave ----------
   // formDataRef always holds the latest form, so the debounced saver never
@@ -1396,8 +1407,9 @@ export default function EditorPage({
                   value={formData.content || ''}
                   onChange={(html) => handleFieldChange('content', html)}
                   onRequestQuote={(idx) => setQuotePopup({ index: idx })}
+                  onRequestEmbed={(idx) => { setEmbedPopup({ index: idx }); setEmbedCode(''); }}
                   onRequestImage={(idx) => { setImageLinkIndex(idx); setImageLinkError(''); setImageLinkOpen(true); }}
-                  placeholder="Write the case study… Use the Insert panel for text, images, SVG, video, GIFs or dividers."
+                  placeholder="Write the case study… Use the Insert panel for text, images, SVG, video, GIFs, embeds or dividers."
                 />
               </div>
             </div>
@@ -1420,6 +1432,32 @@ export default function EditorPage({
                 </button>
               </div>
               <button type="button" className="admin-quote-cancel" onClick={() => setQuotePopup(null)}>
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
+
+        {embedPopup && (
+          <div className="admin-quote-popup-backdrop" onClick={() => setEmbedPopup(null)}>
+            <div className="admin-quote-popup" onClick={(e) => e.stopPropagation()} role="dialog" aria-label="Paste embed code">
+              <h4 className="admin-quote-popup-title">Paste embed code</h4>
+              <p className="admin-quote-popup-sub">Paste the HTML from StatCounter, YouTube, etc. It shows as a placeholder here and runs on the live page.</p>
+              <textarea
+                className="admin-form-input admin-embed-textarea"
+                value={embedCode}
+                onChange={(e) => setEmbedCode(e.target.value)}
+                placeholder='<div id="..."></div><script src="..."></script>'
+                rows={8}
+                autoFocus
+                spellCheck={false}
+              />
+              <div className="admin-quote-popup-btns">
+                <button type="button" className="admin-quote-btn admin-quote-positive" onClick={confirmEmbed} disabled={!embedCode.trim()}>
+                  Insert embed
+                </button>
+              </div>
+              <button type="button" className="admin-quote-cancel" onClick={() => setEmbedPopup(null)}>
                 Cancel
               </button>
             </div>
