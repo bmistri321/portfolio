@@ -1517,6 +1517,13 @@ textarea.admin-form-input {
   width: 100%;
   max-width: 100%;
 }
+/* Embed containers too: a pasted chart wrapper keeps its fixed pixel width
+   otherwise, and that width alone forces the sideways scroll. */
+.admin-quill-wrap .ql-editor div,
+.admin-quill-wrap .ql-editor object,
+.admin-quill-wrap .ql-editor embed {
+  max-width: 100%;
+}
 
 /* The designed player chrome replaces native controls on hovered videos.
    The `controls` attribute itself stays put — it IS the "show play bar"
