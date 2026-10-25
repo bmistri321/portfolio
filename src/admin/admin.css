@@ -1681,3 +1681,38 @@ textarea.admin-form-input {
 .spin-icon {
   animation: admin-spin 0.7s linear infinite;
 }
+
+/* Per-image size picked from the hoverbar (Blogger-style S / M / L).
+   Percentages mirror the live page: L = full column, M ~= text/breakout
+   ratio, S ~= 360px of the 880px breakout. */
+.admin-quill-wrap .ql-editor img.img-size-l {
+  width: 100%;
+  display: block;
+  margin: 18px auto;
+  height: auto;
+}
+.admin-quill-wrap .ql-editor img.img-size-m {
+  width: 80%;
+  display: block;
+  margin: 18px auto;
+  height: auto;
+}
+.admin-quill-wrap .ql-editor img.img-size-s {
+  width: 40%;
+  display: block;
+  margin: 18px auto;
+  height: auto;
+}
+.admin-media-hoverbar .admin-media-sizes {
+  display: flex;
+  gap: 2px;
+  border-left: 1px solid rgba(255, 255, 255, 0.18);
+  margin-left: 4px;
+  padding-left: 6px;
+}
+.admin-media-hoverbar .admin-media-sizes button {
+  padding: 7px 8px;
+}
+.admin-media-hoverbar .admin-media-sizes button.is-active {
+  background: rgba(255, 255, 255, 0.22);
+}

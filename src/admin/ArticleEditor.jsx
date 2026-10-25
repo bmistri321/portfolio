@@ -24,15 +24,25 @@ class ImageWithMeta extends QuillImage {
     const node = super.create(v.src || '');
     if (v.alt) node.setAttribute('alt', v.alt);
     if (v.caption) node.setAttribute('data-caption', v.caption);
+    // Per-image size (Blogger-style S / M / L). Stored twice on purpose:
+    // the class drives CSS, data-size is the value() source of truth, so a
+    // paste/load cycle that drops either one still round-trips the size.
+    const size = v.size || v['data-size'] || '';
+    if (size === 's' || size === 'm' || size === 'l') {
+      node.setAttribute('data-size', size);
+      node.classList.add('img-size-' + size);
+    }
     // Also accept the raw attribute name in case a Delta carries it directly.
     if (v['data-caption']) node.setAttribute('data-caption', v['data-caption']);
     return node;
   }
   static value(node) {
+    const cls = Array.from(node.classList || []).find((c) => c.startsWith('img-size-'));
     return {
       src: node.getAttribute('src'),
       alt: node.getAttribute('alt') || '',
       caption: node.getAttribute('data-caption') || '',
+      size: node.getAttribute('data-size') || (cls ? cls.slice('img-size-'.length) : ''),
     };
   }
 }
@@ -263,7 +273,7 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
       onChangeRef.current(hasText || hasMedia ? quill.root.innerHTML : '');
     });
 
-    // Hovering an image/video/GIF/divider shows the Delete / Replace bar.
+    // Hovering an image/video/GIF/divider shows the Delete / Replace / size bar.
     const onMediaOver = (e) => {
       const t = e.target && e.target.closest ? e.target.closest('img, video, hr.article-divider') : null;
       if (t && quill.root.contains(t) && wrapRef.current) {
@@ -551,6 +561,24 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
     if (quill && onChangeRef.current) onChangeRef.current(quill.root.innerHTML);
   };
 
+  // Per-image size (Blogger-style S / M / L) for the hovered image. Tapping
+  // the active size clears it back to the default (which renders as L).
+  // Same direct-mutation + onChange pattern as alt/caption edits.
+  const applyImageSize = (size) => {
+    const quill = quillRef.current;
+    const node = mediaHover?.node;
+    if (!quill || !node || node.tagName !== 'IMG') return;
+    const next = node.getAttribute('data-size') === size ? '' : size;
+    node.classList.remove('img-size-s', 'img-size-m', 'img-size-l');
+    node.removeAttribute('data-size');
+    if (next) {
+      node.setAttribute('data-size', next);
+      node.classList.add('img-size-' + next);
+    }
+    setMediaHover((h) => (h ? { ...h } : h));
+    if (onChangeRef.current) onChangeRef.current(quill.root.innerHTML);
+  };
+
   // ---- Video playback settings (autoplay / muted / controls) ----
   const VIDEO_SETTING_DEFS = [
     { key: 'controls', label: 'Controls', desc: 'Show the play bar' },
@@ -766,6 +794,22 @@ const ArticleEditor = forwardRef(function ArticleEditor({ value, onChange, place
               <Repeat size={14} />
               <span>Replace</span>
             </button>
+          )}
+          {(mediaHover.kind === 'image' || mediaHover.kind === 'gif' || mediaHover.kind === 'svg') && (
+            <span className="admin-media-sizes" role="group" aria-label="Image size">
+              {['s', 'm', 'l'].map((sz) => (
+                <button
+                  key={sz}
+                  type="button"
+                  className={mediaHover.node && mediaHover.node.getAttribute('data-size') === sz ? 'is-active' : ''}
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => applyImageSize(sz)}
+                  title={sz === 's' ? 'Small image' : sz === 'm' ? 'Medium image' : 'Large image'}
+                >
+                  {sz.toUpperCase()}
+                </button>
+              ))}
+            </span>
           )}
           {mediaHover.kind === 'video' && (
             <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={openVideoSettings} title="Playback settings">

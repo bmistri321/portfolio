@@ -2122,3 +2122,39 @@ html:has(.pm-app-container) body::-webkit-scrollbar {
   .img-skeleton-wrap { animation: none; }
   .img-skeleton-wrap img { transition: none; }
 }
+
+/* Per-image size picked in the editor (Blogger-style S / M / L). No size
+   class = today's default look, which is the L breakout. M is exactly the
+   text-column width (same as a paragraph); S is a small centred image. */
+.cs-html-body img.img-size-l {
+  width: min(880px, 100%);
+  margin: 18px auto;
+}
+.cs-html-body > p > img.img-size-l {
+  width: min(880px, 94vw);
+  max-width: none;
+  margin: 18px 0 18px 50%;
+  transform: translateX(-50%);
+}
+.cs-html-body img.img-size-m {
+  width: 100%;
+  display: block;
+  margin: 18px auto;
+  transform: none;
+}
+.cs-html-body > p > img.img-size-m {
+  width: 100%;
+  margin: 18px auto;
+  transform: none;
+}
+.cs-html-body img.img-size-s {
+  width: min(360px, 100%);
+  display: block;
+  margin: 18px auto;
+  transform: none;
+}
+.cs-html-body > p > img.img-size-s {
+  width: min(360px, 100%);
+  margin: 18px auto;
+  transform: none;
+}
