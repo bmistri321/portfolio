@@ -418,6 +418,27 @@ export const contentService = {
 };
 
 // Media Service API
+// Save one media row to the local store and (best-effort) to Supabase.
+// Never throws: a failed library record must never break an upload that
+// already succeeded — the file itself is safe, it just would not list.
+async function persistMediaRecord(newMedia) {
+  const localMedia = getLocalItems(LOCAL_STORAGE_KEYS.MEDIA, getInitialSeedMedia);
+  localMedia.unshift(newMedia);
+  setLocalItems(LOCAL_STORAGE_KEYS.MEDIA, localMedia);
+
+  const config = getSupabaseConfig();
+  if (config.isConfigured) {
+    try {
+      await supabaseRequest('/rest/v1/media', {
+        method: 'POST',
+        body: JSON.stringify(newMedia)
+      });
+    } catch (err) {
+      console.warn('Supabase media record insert failed:', err.message);
+    }
+  }
+}
+
 export const mediaService = {
   async getAll(filters = {}) {
     const { type, search } = filters;
@@ -511,23 +532,91 @@ export const mediaService = {
       created_at: now
     };
 
-    // Save to local store
-    const localMedia = getLocalItems(LOCAL_STORAGE_KEYS.MEDIA, getInitialSeedMedia);
-    localMedia.unshift(newMedia);
-    setLocalItems(LOCAL_STORAGE_KEYS.MEDIA, localMedia);
-
-    if (config.isConfigured) {
-      try {
-        await supabaseRequest('/rest/v1/media', {
-          method: 'POST',
-          body: JSON.stringify(newMedia)
-        });
-      } catch (err) {
-        console.warn('Supabase media record insert failed:', err.message);
-      }
-    }
+    await persistMediaRecord(newMedia);
 
     return newMedia;
+  },
+
+  // Record an already-uploaded file (e.g. a Cloudinary URL) in the library
+  // without re-uploading it anywhere. Never throws (see persistMediaRecord).
+  async record(file, url, metadata = {}) {
+    if (!url || url.startsWith('data:')) return null;
+    const isImage = file.type.startsWith('image/');
+    const isVideo = file.type.startsWith('video/');
+    const newMedia = {
+      id: generateUUID(),
+      filename: file.name,
+      url,
+      type: isImage ? 'image' : isVideo ? 'video' : 'document',
+      mime_type: file.type,
+      size_bytes: file.size,
+      alt_text: metadata.alt_text || file.name.split('.')[0],
+      caption: metadata.caption || '',
+      created_at: new Date().toISOString()
+    };
+    await persistMediaRecord(newMedia);
+    return newMedia;
+  },
+
+  // One-time backfill: scan every article for its own uploads (covers,
+  // in-article images/videos, section images) and record any that are
+  // missing from the library. Returns how many rows were added.
+  async syncFromContent() {
+    const existing = await mediaService.getAll();
+    const seen = new Set();
+    for (const m of existing) {
+      if (!m.url) continue;
+      seen.add(m.url);
+      const base = m.url.split(/[?#]/)[0].split('/').pop();
+      if (base) seen.add(base.toLowerCase());
+    }
+    const VIDEO_EXTS = ['mp4', 'mov', 'webm', 'mkv'];
+    const MIME_BY_EXT = { mp4: 'video/mp4', mov: 'video/quicktime', webm: 'video/webm', mkv: 'video/x-matroska', jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', gif: 'image/gif', webp: 'image/webp', avif: 'image/avif', svg: 'image/svg+xml' };
+    const candidates = [];
+    const pushUrl = (rawUrl, createdAt) => {
+      if (!rawUrl || typeof rawUrl !== 'string') return;
+      if (!rawUrl.includes('res.cloudinary.com') && !rawUrl.startsWith('/media/') && !rawUrl.includes('/portfolio-media/')) return;
+      const clean = rawUrl.split(/[?#]/)[0];
+      let base = clean.split('/').pop() || '';
+      try { base = decodeURIComponent(base); } catch { /* keep the raw name */ }
+      if (!base || seen.has(clean) || seen.has(base.toLowerCase())) return;
+      const ext = (base.split('.').pop() || '').toLowerCase();
+      candidates.push({
+        id: generateUUID(),
+        filename: base,
+        url: rawUrl,
+        type: VIDEO_EXTS.includes(ext) ? 'video' : 'image',
+        mime_type: MIME_BY_EXT[ext] || '',
+        size_bytes: 0,
+        alt_text: base.split('.').slice(0, -1).join('.') || base,
+        caption: '',
+        created_at: createdAt || new Date().toISOString()
+      });
+      seen.add(clean);
+      seen.add(base.toLowerCase());
+    };
+    const pushHtml = (html, createdAt) => {
+      if (!html) return;
+      const re = /src=["']([^"']+)["']/g;
+      let match;
+      while ((match = re.exec(html)) !== null) pushUrl(match[1], createdAt);
+    };
+    const items = await contentService.getAll();
+    for (const item of items) {
+      pushUrl(item.cover_image, item.created_at);
+      pushUrl(item.thumbnail, item.created_at);
+      pushUrl(item.og_image, item.created_at);
+      pushHtml(item.content, item.created_at);
+      const sections = item.metadata && item.metadata.sections;
+      if (Array.isArray(sections)) {
+        for (const sec of sections) {
+          if (Array.isArray(sec.images)) sec.images.forEach((u) => pushUrl(u, item.created_at));
+          pushHtml(sec.body, item.created_at);
+        }
+      }
+    }
+    for (const c of candidates) await persistMediaRecord(c);
+    return { added: candidates.length };
   },
 
   async delete(id) {

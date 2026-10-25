@@ -172,7 +172,15 @@ async function uploadToSupabase(file, altText) {
   try {
     const url = await uploadToCloudinary(file);
     const isVideo = file.type.startsWith('video/');
-    return isVideo ? optimizedVideoUrl(url) : url;
+    const finalUrl = isVideo ? optimizedVideoUrl(url) : url;
+    // Record the upload in the media library (best-effort — a failed
+    // record must never break the article insert).
+    try {
+      await mediaService.record(file, finalUrl, { alt_text: altText || file.name });
+    } catch (recErr) {
+      console.warn('Media library record failed:', recErr.message);
+    }
+    return finalUrl;
   } catch (err) {
     console.warn('Cloudinary upload failed, falling back to Supabase:', err.message);
   }

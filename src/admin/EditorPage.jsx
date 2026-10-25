@@ -573,6 +573,13 @@ export default function EditorPage({
       let coverUrl;
       try {
         coverUrl = await uploadToCloudinary(file);
+        // Record the cover in the media library (best-effort — a failed
+        // record must never fail the cover upload).
+        try {
+          await mediaService.record(file, coverUrl, { alt_text: formData.title || 'Cover image' });
+        } catch (recErr) {
+          console.warn('Media library record failed:', recErr.message);
+        }
       } catch (err) {
         console.warn('Cloudinary upload failed, falling back to Supabase:', err.message);
         const uploaded = await mediaService.upload(file, { alt_text: formData.title || 'Cover image' });
