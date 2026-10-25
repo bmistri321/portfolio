@@ -1525,6 +1525,22 @@ textarea.admin-form-input {
   max-width: 100%;
 }
 
+/* Quill's bubble theme shows the full link URL in a hover pill above the
+   link (single line, no width cap) — a long URL widens the document and
+   forces a sideways scroll, and deleting the linked lines removes it.
+   Hide that pill and let link text wrap instead; link editing through
+   the bubble toolbar is untouched. */
+.admin-editor-canvas .admin-quill-wrap .ql-editor a:not(.ql-close) {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.admin-editor-canvas .admin-quill-wrap .ql-editor a:not(.ql-close)::before,
+.admin-editor-canvas .admin-quill-wrap .ql-editor a:not(.ql-close)::after,
+.admin-editor-canvas .admin-quill-wrap .ql-editor a:not(.ql-close):hover::before,
+.admin-editor-canvas .admin-quill-wrap .ql-editor a:not(.ql-close):hover::after {
+  display: none;
+}
+
 /* The designed player chrome replaces native controls on hovered videos.
    The `controls` attribute itself stays put — it IS the "show play bar"
    setting and what gets saved. (Firefox can't hide native controls via CSS,
