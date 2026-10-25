@@ -822,9 +822,24 @@ export default function EditorPage({
             className={`admin-btn admin-btn-sm ${manualSaved ? 'admin-btn-success' : formData.status === 'published' ? 'admin-btn-primary' : 'admin-btn-ghost'}`}
             onClick={handleManualSave}
             title="Save all changes"
+            disabled={saveStatus === 'saving'}
           >
-            <Save size={14} />
-            <span>Save</span>
+            {saveStatus === 'saving' ? (
+              <>
+                <Loader2 size={14} className="spin-icon" />
+                <span>Saving...</span>
+              </>
+            ) : manualSaved ? (
+              <>
+                <Check size={14} />
+                <span>Saved</span>
+              </>
+            ) : (
+              <>
+                <Save size={14} />
+                <span>Save</span>
+              </>
+            )}
           </button>
 
           {formData.status === 'published' ? (

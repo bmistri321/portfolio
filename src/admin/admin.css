@@ -1641,3 +1641,7 @@ textarea.admin-form-input {
 @keyframes admin-spin {
   to { transform: rotate(360deg); }
 }
+
+.spin-icon {
+  animation: admin-spin 0.7s linear infinite;
+}
