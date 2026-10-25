@@ -9,6 +9,7 @@ import { applyPageMeta } from './lib/pageMeta';
 import DevHomePage from './pages/DevHomePage';
 import DevCaseStudyPage from './pages/DevCaseStudyPage';
 import DevArticlePage from './pages/DevArticlePage';
+import ResumePage from './pages/ResumePage';
 import DockPage from './pages/DockPage';
 import TravelPage from './pages/TravelPage';
 
@@ -88,6 +89,7 @@ export default function App() {
     '/dock': 'Bishal Mistri | My Dock',
     '/travel': 'Bishal Mistri | Travel & Photography',
     '/casestudy': 'Case Study — Bishal Mistri',
+    '/resume': 'Resume — Bishal Mistri',
     '/about': 'About — Bishal Mistri',
     '/playground': 'Playground — Bishal Mistri',
     '/casestudy/friender-case-study': 'Friender Case Study — Bishal Mistri',
@@ -102,6 +104,7 @@ export default function App() {
     '/dock': 'The tools, apps and gear Bishal Mistri uses every day — his digital dock.',
     '/travel': 'Travel stories and photography by Bishal Mistri.',
     '/casestudy': 'Case studies by Bishal Mistri — end-to-end product design across AI tools, B2B SaaS and design systems.',
+    '/resume': 'Resume of Bishal Mistri — product designer.',
     '/about': 'About Bishal Mistri — product designer focused on craft, systems thinking and rapid prototyping.',
     '/playground': 'Design experiments and playful interactions by Bishal Mistri.',
     '/casestudy/friender-case-study': 'Friender case study by Bishal Mistri — designing a toolbar CRM for recruiters.',
@@ -173,6 +176,8 @@ export default function App() {
           return <TravelPage onNavigate={navigate} />;
         case '/playground':
           return <PlaygroundPage onNavigate={navigate} />;
+        case '/resume':
+          return <ResumePage />;
         default:
           return <DevHomePage onNavigate={navigate} />;
       }

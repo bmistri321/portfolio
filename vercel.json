@@ -11,10 +11,6 @@
       "destination": "/api/media?path=:path*"
     },
     {
-      "source": "/resume",
-      "destination": "/api/media?path=Resume/Bishal_Mistri_Resume.pdf"
-    },
-    {
       "destination": "/api/$1",
       "source": "/api/(.*)"
     },
