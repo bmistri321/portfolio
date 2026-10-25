@@ -2158,3 +2158,24 @@ html:has(.pm-app-container) body::-webkit-scrollbar {
   margin: 18px auto;
   transform: none;
 }
+
+/* Skeleton-wrapper widths must follow the image size on the public page
+   (ArticleBody wraps every <img> in .img-skeleton-wrap, and the breakout
+   width lives on that wrapper, so sizing the <img> alone cannot shrink M:
+   100% of an 880px wrapper is still 880px). :has() lets the wrapper match
+   its own images size class. agents/ assets/ config/ data/ docs/ dreams/ hooks/ memory/ subscriptions/ tmp/ uploads/ user/ workspace/
+/* Skeleton-wrapper widths must follow the image size on the public page
+   (ArticleBody wraps every <img> in .img-skeleton-wrap, and the breakout
+   width lives on that wrapper, so sizing the <img> alone cannot shrink M:
+   100% of an 880px wrapper is still 880px). :has() lets the wrapper match
+   its own image's size class. */
+.cs-html-body > p > .img-skeleton-wrap:only-child:has(> img.img-size-m) {
+  width: 100%;
+  margin: 18px auto;
+  transform: none;
+}
+.cs-html-body > p > .img-skeleton-wrap:only-child:has(> img.img-size-s) {
+  width: min(360px, 100%);
+  margin: 18px auto;
+  transform: none;
+}
