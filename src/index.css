@@ -2238,3 +2238,7 @@ html:has(.pm-app-container) body::-webkit-scrollbar {
   .cs-html-body .screens-strip { overflow-x: auto; }
   .cs-html-body .screens-loop { animation: none; }
 }
+@keyframes screens-loop {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
