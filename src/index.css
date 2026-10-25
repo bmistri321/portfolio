@@ -1979,6 +1979,11 @@ body {
   width: 100%;
   max-width: 100%;
 }
+.cs-html-body div,
+.cs-html-body object,
+.cs-html-body embed {
+  max-width: 100%;
+}
 
 /* Article images break out wider than the text column (live site only —
    the admin editor never renders .cs-html-body). */
