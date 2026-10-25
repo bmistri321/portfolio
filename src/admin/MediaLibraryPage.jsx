@@ -8,6 +8,7 @@ import {
   Image as ImageIcon,
   Film,
   FileText,
+  RefreshCw,
   AlertTriangle,
   ExternalLink
 } from 'lucide-react';
@@ -21,6 +22,8 @@ export default function MediaLibraryPage() {
   const [copiedId, setCopiedId] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [deleteModal, setDeleteModal] = useState({ isOpen: false, item: null });
+  const [syncing, setSyncing] = useState(false);
+  const [syncMsg, setSyncMsg] = useState('');
 
   const fileInputRef = useRef(null);
 
@@ -55,6 +58,21 @@ export default function MediaLibraryPage() {
       alert(`Upload failed: ${err.message}`);
     } finally {
       setUploading(false);
+    }
+  };
+
+  const handleSyncFromArticles = async () => {
+    setSyncing(true);
+    setSyncMsg('');
+    try {
+      const { added } = await mediaService.syncFromContent();
+      await loadMedia();
+      setSyncMsg(added === 0 ? 'Library is already up to date.' : `Added ${added} missing upload${added === 1 ? '' : 's'} from your articles.`);
+    } catch (err) {
+      setSyncMsg(`Sync failed: ${err.message}`);
+    } finally {
+      setSyncing(false);
+      setTimeout(() => setSyncMsg(''), 5000);
     }
   };
 
@@ -103,6 +121,16 @@ export default function MediaLibraryPage() {
 
         <button
           type="button"
+          className="admin-btn admin-btn-ghost"
+          onClick={handleSyncFromArticles}
+          disabled={syncing}
+          title="Add uploads from your articles that are missing from the library"
+        >
+          <RefreshCw size={16} />
+          <span>{syncing ? 'Syncing...' : 'Sync from articles'}</span>
+        </button>
+        <button
+          type="button"
           className="admin-btn admin-btn-primary"
           onClick={() => fileInputRef.current?.click()}
           disabled={uploading}
@@ -119,6 +147,12 @@ export default function MediaLibraryPage() {
           onChange={(e) => handleFileUpload(e.target.files)}
         />
       </div>
+
+      {syncMsg && (
+        <div style={{ marginBottom: '16px', fontSize: '13px', color: 'var(--admin-text-secondary)' }}>
+          {syncMsg}
+        </div>
+      )}
 
       {/* Drag & Drop Upload Zone */}
       <div
