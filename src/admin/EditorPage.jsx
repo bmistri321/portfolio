@@ -33,7 +33,8 @@ import {
   Link2,
   RefreshCw,
   Download,
-  Shapes as ShapesIcon
+  Shapes as ShapesIcon,
+  Smartphone
 } from 'lucide-react';
 import {
   contentService,
@@ -54,6 +55,7 @@ const INSERT_TILES = [
   { kind: 'svg', label: 'SVG', hint: 'Upload vector', Icon: ShapesIcon },
   { kind: 'video', label: 'Video', hint: 'Upload MP4', Icon: Video },
   { kind: 'gif', label: 'GIF', hint: 'Upload', Icon: Film },
+  { kind: 'screens', label: 'Screens', hint: 'Looping image strip', Icon: Smartphone },
   { kind: 'divider', label: 'Divider', hint: 'Horizontal line', Icon: Minus },
   { kind: 'text', label: 'Text', hint: 'Paragraph block', Icon: Type },
   { kind: 'quote', label: 'Quote', hint: 'Positive / negative', Icon: Quote },
@@ -942,6 +944,11 @@ export default function EditorPage({
                     e.preventDefault();
                     e.stopPropagation();
                     if (kind === 'quote') return;
+                    if (kind === 'screens') {
+                      const files = Array.from(e.dataTransfer.files || []).filter((f) => f.type && f.type.startsWith('image/'));
+                      if (files.length) articleRef.current?.insertScreensFiles(null, files);
+                      return;
+                    }
                     let files = Array.from(e.dataTransfer.files || []);
                     // SVG tile only accepts SVG files
                     if (kind === 'svg') {
