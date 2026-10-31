@@ -8,6 +8,7 @@ import MediaLibraryPage from './MediaLibraryPage';
 import CompressMediaPage from './CompressMediaPage';
 import MigrateToCloudinaryPage from './MigrateToCloudinaryPage';
 import SettingsPage from './SettingsPage';
+import DataPage from './DataPage';
 import { contentService } from '../lib/contentService';
 import { getStoredSession, supabaseAuth } from '../lib/supabase';
 import './admin.css';
@@ -33,7 +34,7 @@ export default function AdminApp({ onNavigateLive }) {
   const [currentPath, setCurrentPath] = useState(() => {
     if (typeof window !== 'undefined') {
       const p = window.location.pathname;
-      if (p.startsWith('/admin')) return p;
+      if (p.startsWith('/admin') || p === '/data') return p;
     }
     return '/admin';
   });
@@ -196,6 +197,10 @@ export default function AdminApp({ onNavigateLive }) {
           onNavigate={navigate}
         />
       );
+    }
+
+    if (currentPath === '/admin/data' || currentPath === '/data') {
+      return <DataPage />;
     }
 
     if (currentPath === '/admin/media') {

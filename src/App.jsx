@@ -4,6 +4,7 @@ import PlaygroundPage from './pages/PlaygroundPage';
 import BookPage from './pages/BookPage';
 import FloatingNav from './components/FloatingNav';
 import { applyPageMeta } from './lib/pageMeta';
+import { useVisitorTracking } from './lib/tracker';
 
 // Dev Site Pages & Components (for dev.bishalmistri.com)
 import DevHomePage from './pages/DevHomePage';
@@ -31,6 +32,7 @@ export const isAdminSubdomain = () => {
     host.startsWith('admin.') ||
     host.includes('.admin.') ||
     host.includes('admin.bishalmistri.com') ||
+    path === '/data' ||
     path.startsWith('/admin') ||
     search.includes('mode=admin')
   );
@@ -71,6 +73,7 @@ export default function App() {
     let p = (path || '/').toLowerCase().replace('.html', '').replace(/^\/p\//, '/');
     if (!p.startsWith('/')) p = '/' + p;
     if (p.startsWith('/admin')) return p;
+    if (p === '/data') return p;
     if (p.startsWith('/casestudy/')) return p;
     if (p.startsWith('/writing/')) return p;
     if (p.includes('dock')) return '/dock';
@@ -81,6 +84,8 @@ export default function App() {
     if (p.includes('ux.mastery.30.days') || p.startsWith('/book')) return '/book/ux.mastery.30.days';
     return p;
   };
+
+  useVisitorTracking(!isAdmin && !isBooks);
 
   const [currentPath, setCurrentPath] = useState(() => getCleanPath(window.location.pathname));
 

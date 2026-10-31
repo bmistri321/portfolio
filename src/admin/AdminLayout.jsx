@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import {
   LayoutDashboard,
+  Globe,
   Briefcase,
   FlaskConical,
   PenLine,
@@ -28,7 +29,8 @@ export default function AdminLayout({
     {
       group: 'Overview',
       items: [
-        { id: '/admin', label: 'Dashboard', icon: LayoutDashboard }
+        { id: '/admin', label: 'Dashboard', icon: LayoutDashboard },
+        { id: '/admin/data', label: 'Visitor Data', icon: Globe }
       ]
     },
     {
@@ -55,6 +57,7 @@ export default function AdminLayout({
 
   const getBreadcrumbs = () => {
     if (currentPath === '/admin' || currentPath === '/admin/dashboard') return ['Dashboard'];
+    if (currentPath === '/admin/data' || currentPath === '/data') return ['Overview', 'Visitor Data'];
     if (currentPath === '/admin/content') return ['Content', 'All Items'];
     if (currentPath === '/admin/work') return ['Content', 'Work'];
     if (currentPath === '/admin/tinkering') return ['Content', 'Tinkering'];
@@ -118,7 +121,7 @@ export default function AdminLayout({
                 <div className="admin-nav-group-title">{group.group}</div>
                 {group.items.map((item) => {
                   const Icon = item.icon;
-                  const isActive = currentPath === item.id || (item.id === '/admin' && currentPath === '/admin/dashboard');
+                  const isActive = currentPath === item.id || (item.id === '/admin' && currentPath === '/admin/dashboard') || (item.id === '/admin/data' && currentPath === '/data');
                   return (
                     <button
                       key={item.id}
